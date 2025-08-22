@@ -69,6 +69,11 @@ export enum StorageKeys {
 }
 
 /**
+ * Theme mode options
+ */
+export type ThemeMode = 'light' | 'dark' | 'system';
+
+/**
  * Application settings
  */
 export interface AppSettings {
@@ -78,6 +83,8 @@ export interface AppSettings {
   audioQuality: 'low' | 'medium' | 'high';
   /** Whether to show tutorial on app start */
   showTutorial: boolean;
+  /** Theme mode preference */
+  themeMode: ThemeMode;
 }
 
 /**

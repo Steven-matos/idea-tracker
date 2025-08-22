@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,15 +13,19 @@ import CreateIdeaScreen from '../screens/CreateIdeaScreen';
 import EditIdeaScreen from '../screens/EditIdeaScreen';
 
 import { RootStackParamList, BottomTabParamList } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
 
 /**
- * Bottom tab navigator component
+ * Bottom tab navigator component with theme support
  * Contains the main app screens accessible via tabs
+ * Implements SOLID principles by separating navigation concerns
  */
 const TabNavigator: React.FC = () => {
+  const { theme } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -44,12 +48,12 @@ const TabNavigator: React.FC = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#007AFF', // iOS blue
-        tabBarInactiveTintColor: '#8E8E93', // iOS gray
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: '#F2F2F7', // iOS light background
+          backgroundColor: theme.colors.surface,
           borderTopWidth: 0.5,
-          borderTopColor: '#C6C6C8',
+          borderTopColor: theme.colors.border,
           height: Platform.OS === 'ios' ? 90 : 60,
           paddingBottom: Platform.OS === 'ios' ? 30 : 5,
           paddingTop: 5,
@@ -59,14 +63,14 @@ const TabNavigator: React.FC = () => {
           fontWeight: '500',
         },
         headerStyle: {
-          backgroundColor: '#F2F2F7',
+          backgroundColor: theme.colors.background,
           shadowColor: 'transparent',
           elevation: 0,
         },
         headerTitleStyle: {
           fontSize: 17,
           fontWeight: '600',
-          color: '#000000',
+          color: theme.colors.text,
         },
       })}
     >
@@ -90,26 +94,42 @@ const TabNavigator: React.FC = () => {
 };
 
 /**
- * Main app navigator component
+ * Main app navigator component with theme support
  * Contains the tab navigator and modal screens
+ * Follows DRY principle by centralizing navigation theme configuration
  */
 const AppNavigator: React.FC = () => {
+  const { theme, isDark } = useTheme();
+
+  // Create custom navigation theme based on app theme
+  const navigationTheme = {
+    ...(isDark ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+      primary: theme.colors.primary,
+      background: theme.colors.background,
+      card: theme.colors.surface,
+      text: theme.colors.text,
+      border: theme.colors.border,
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navigationTheme}>
       <Stack.Navigator
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#F2F2F7',
+            backgroundColor: theme.colors.background,
             shadowColor: 'transparent',
             elevation: 0,
           },
           headerTitleStyle: {
             fontSize: 17,
             fontWeight: '600',
-            color: '#000000',
+            color: theme.colors.text,
           },
           headerBackTitleVisible: false,
-          headerTintColor: '#007AFF',
+          headerTintColor: theme.colors.primary,
         }}
       >
         <Stack.Screen 

@@ -11,18 +11,23 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { AppSettings } from '../types';
+import { AppSettings, ThemeMode } from '../types';
 import { storageService } from '../services/StorageService';
+import { useTheme } from '../contexts/ThemeContext';
 
 /**
  * Screen for app settings and preferences
+ * Implements SOLID principles with single responsibility for settings management
  */
 const SettingsScreen: React.FC = () => {
+  const { theme, themeMode, setThemeMode } = useTheme();
+  
   // State management
   const [settings, setSettings] = useState<AppSettings>({
     defaultCategoryId: 'general',
     audioQuality: 'medium',
     showTutorial: true,
+    themeMode: 'system',
   });
   const [categories, setCategories] = useState<any[]>([]);
 
@@ -82,6 +87,33 @@ const SettingsScreen: React.FC = () => {
   };
 
   /**
+   * Update theme mode setting
+   * Follows DRY principle by reusing the theme context setter
+   */
+  const updateThemeMode = (mode: ThemeMode) => {
+    setThemeMode(mode);
+    const updatedSettings = { ...settings, themeMode: mode };
+    setSettings(updatedSettings);
+  };
+
+  /**
+   * Get theme mode display text
+   * Implements KISS principle with simple text mapping
+   */
+  const getThemeModeText = (mode: ThemeMode): string => {
+    switch (mode) {
+      case 'light':
+        return 'Light';
+      case 'dark':
+        return 'Dark';
+      case 'system':
+        return 'System';
+      default:
+        return 'System';
+    }
+  };
+
+  /**
    * Clear all data with confirmation
    */
   const clearAllData = () => {
@@ -121,7 +153,8 @@ const SettingsScreen: React.FC = () => {
   };
 
   /**
-   * Render setting row
+   * Render setting row with theme support
+   * Follows DRY principle by centralizing row rendering logic
    */
   const renderSettingRow = (
     icon: string,
@@ -131,30 +164,30 @@ const SettingsScreen: React.FC = () => {
     rightComponent?: React.ReactNode
   ) => (
     <TouchableOpacity
-      style={styles.settingRow}
+      style={[styles.settingRow, { borderBottomColor: theme.colors.border }]}
       onPress={onPress}
       disabled={!onPress}
     >
       <View style={styles.settingLeft}>
-        <View style={styles.settingIcon}>
-          <Ionicons name={icon as any} size={20} color="#007AFF" />
+        <View style={[styles.settingIcon, { backgroundColor: theme.isDark ? theme.colors.border : '#E3F2FD' }]}>
+          <Ionicons name={icon as any} size={20} color={theme.colors.primary} />
         </View>
         <View style={styles.settingText}>
-          <Text style={styles.settingTitle}>{title}</Text>
-          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
+          <Text style={[styles.settingTitle, { color: theme.colors.text }]}>{title}</Text>
+          {subtitle && <Text style={[styles.settingSubtitle, { color: theme.colors.textSecondary }]}>{subtitle}</Text>}
         </View>
       </View>
       {rightComponent || (onPress && (
-        <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+        <Ionicons name="chevron-forward" size={16} color={theme.colors.textSecondary} />
       ))}
     </TouchableOpacity>
   );
 
   /**
-   * Render section header
+   * Render section header with theme support
    */
   const renderSectionHeader = (title: string) => (
-    <Text style={styles.sectionHeader}>{title}</Text>
+    <Text style={[styles.sectionHeader, { color: theme.colors.textSecondary }]}>{title}</Text>
   );
 
   // Load data when screen focuses
@@ -167,10 +200,32 @@ const SettingsScreen: React.FC = () => {
   const defaultCategory = categories.find(cat => cat.id === settings.defaultCategoryId);
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} showsVerticalScrollIndicator={false}>
+      {/* Appearance Settings */}
+      {renderSectionHeader('Appearance')}
+      <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
+        {renderSettingRow(
+          theme.isDark ? 'moon' : 'sunny',
+          'Theme',
+          getThemeModeText(themeMode),
+          () => {
+            Alert.alert(
+              'Theme',
+              'Choose your preferred theme:',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Light', onPress: () => updateThemeMode('light') },
+                { text: 'Dark', onPress: () => updateThemeMode('dark') },
+                { text: 'System', onPress: () => updateThemeMode('system') },
+              ]
+            );
+          }
+        )}
+      </View>
+
       {/* General Settings */}
       {renderSectionHeader('General')}
-      <View style={styles.section}>
+      <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
         {renderSettingRow(
           'folder-outline',
           'Default Category',
@@ -216,15 +271,15 @@ const SettingsScreen: React.FC = () => {
           <Switch
             value={settings.showTutorial}
             onValueChange={toggleTutorial}
-            trackColor={{ false: '#E5E5EA', true: '#34C759' }}
-            thumbColor="#FFFFFF"
+            trackColor={{ false: theme.colors.border, true: theme.colors.success }}
+            thumbColor={theme.colors.surface}
           />
         )}
       </View>
 
       {/* Storage */}
       {renderSectionHeader('Storage')}
-      <View style={styles.section}>
+      <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
         {renderSettingRow(
           'trash-outline',
           'Clear All Data',
@@ -235,7 +290,7 @@ const SettingsScreen: React.FC = () => {
 
       {/* About */}
       {renderSectionHeader('About')}
-      <View style={styles.section}>
+      <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
         {renderSettingRow(
           'information-circle-outline',
           'App Information',
@@ -272,10 +327,10 @@ const SettingsScreen: React.FC = () => {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
+        <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>
           Made with ❤️ for organizing your ideas
         </Text>
-        <Text style={styles.footerVersion}>Version 1.0.0</Text>
+        <Text style={[styles.footerVersion, { color: theme.colors.textSecondary }]}>Version 1.0.0</Text>
       </View>
     </ScrollView>
   );
@@ -284,12 +339,10 @@ const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
   },
   sectionHeader: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8E8E93',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 32,
@@ -297,7 +350,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   section: {
-    backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
     borderRadius: 12,
     shadowColor: '#000',
@@ -313,7 +365,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 0.5,
-    borderBottomColor: '#E5E5EA',
   },
   settingLeft: {
     flexDirection: 'row',
@@ -324,7 +375,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 6,
-    backgroundColor: '#E3F2FD',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -334,12 +384,10 @@ const styles = StyleSheet.create({
   },
   settingTitle: {
     fontSize: 17,
-    color: '#000000',
     marginBottom: 2,
   },
   settingSubtitle: {
     fontSize: 13,
-    color: '#8E8E93',
   },
   footer: {
     alignItems: 'center',
@@ -348,13 +396,11 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#8E8E93',
     textAlign: 'center',
     marginBottom: 8,
   },
   footerVersion: {
     fontSize: 12,
-    color: '#C7C7CC',
     textAlign: 'center',
   },
 });

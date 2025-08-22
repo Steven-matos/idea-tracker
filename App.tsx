@@ -5,12 +5,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import AppNavigator from './src/navigation/AppNavigator';
 import { storageService } from './src/services/StorageService';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 
 /**
- * Main App component
- * Initializes storage and renders the navigation
+ * App content component that uses theme context
+ * Separated to access theme after ThemeProvider is mounted
  */
-export default function App() {
+const AppContent: React.FC = () => {
+  const { theme } = useTheme();
   const [isInitialized, setIsInitialized] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
 
@@ -35,21 +37,33 @@ export default function App() {
   // Show loading state while initializing
   if (!isInitialized) {
     return (
-      <SafeAreaProvider>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>
-            {initError || 'Loading...'}
-          </Text>
-          <StatusBar style="dark" />
-        </View>
-      </SafeAreaProvider>
+      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+        <Text style={[styles.loadingText, { color: theme.colors.textSecondary }]}>
+          {initError || 'Loading...'}
+        </Text>
+        <StatusBar style={theme.statusBarStyle} />
+      </View>
     );
   }
 
   return (
-    <SafeAreaProvider>
+    <>
       <AppNavigator />
-      <StatusBar style="dark" />
+      <StatusBar style={theme.statusBarStyle} />
+    </>
+  );
+};
+
+/**
+ * Main App component
+ * Initializes storage and renders the navigation with theme support
+ */
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
@@ -57,13 +71,11 @@ export default function App() {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
     alignItems: 'center',
     justifyContent: 'center',
   },
   loadingText: {
     fontSize: 16,
-    color: '#8E8E93',
     textAlign: 'center',
   },
 });
