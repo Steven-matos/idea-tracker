@@ -19,6 +19,12 @@ import * as FileSystem from 'expo-file-system';
 import { Idea, Category, IdeaType, RootStackParamList } from '../types';
 import { storageService } from '../services/StorageService';
 import { generateId, isValidString, formatDuration, configureAudioForRecording, configureAudioForSpeakerPlayback } from '../utils';
+import { useTheme } from '../contexts/ThemeContext';
+import { 
+  GradientCard, 
+  ProfessionalButton, 
+  ProfessionalHeader 
+} from '../components/common';
 
 type CreateIdeaScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CreateIdea'>;
 type CreateIdeaScreenRouteProp = RouteProp<RootStackParamList, 'CreateIdea'>;
@@ -29,6 +35,7 @@ type CreateIdeaScreenRouteProp = RouteProp<RootStackParamList, 'CreateIdea'>;
 const CreateIdeaScreen: React.FC = () => {
   const navigation = useNavigation<CreateIdeaScreenNavigationProp>();
   const route = useRoute<CreateIdeaScreenRouteProp>();
+  const { theme } = useTheme();
   
   // State management
   const [ideaType, setIdeaType] = useState<IdeaType>('text');
@@ -99,7 +106,7 @@ const CreateIdeaScreen: React.FC = () => {
       await configureAudioForRecording();
 
       const newRecording = new Audio.Recording();
-      await newRecording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+      await newRecording.prepareToRecordAsync();
       
       // Set up status update
       newRecording.setOnRecordingStatusUpdate((status: any) => {
@@ -368,23 +375,22 @@ const CreateIdeaScreen: React.FC = () => {
   }, [durationInterval, playbackObject, recording]);
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleCancel}>
-          <Text style={styles.cancelButton}>Cancel</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={saveIdea} disabled={isLoading}>
-          <Text style={[styles.saveButton, isLoading && styles.disabledButton]}>
-            Save
-          </Text>
-        </TouchableOpacity>
-      </View>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      {/* Professional Header */}
+      <ProfessionalHeader
+        title="Create Idea"
+        subtitle="Capture your thoughts"
+        leftIcon="close"
+        rightIcon="checkmark"
+        onLeftPress={handleCancel}
+        onRightPress={saveIdea}
+        variant="primary"
+      />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Idea Type Selector */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Type</Text>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Type</Text>
           <View style={styles.typeSelector}>
             <TouchableOpacity
               style={[styles.typeButton, ideaType === 'text' && styles.activeTypeButton]}
@@ -393,10 +399,11 @@ const CreateIdeaScreen: React.FC = () => {
               <Ionicons 
                 name="document-text" 
                 size={20} 
-                color={ideaType === 'text' ? '#FFFFFF' : '#007AFF'} 
+                color={ideaType === 'text' ? '#FFFFFF' : theme.colors.primary} 
               />
               <Text style={[
                 styles.typeButtonText,
+                { color: ideaType === 'text' ? '#FFFFFF' : theme.colors.primary },
                 ideaType === 'text' && styles.activeTypeButtonText
               ]}>
                 Text
@@ -409,10 +416,11 @@ const CreateIdeaScreen: React.FC = () => {
               <Ionicons 
                 name="mic" 
                 size={20} 
-                color={ideaType === 'voice' ? '#FFFFFF' : '#007AFF'} 
+                color={ideaType === 'voice' ? '#FFFFFF' : theme.colors.primary} 
               />
               <Text style={[
                 styles.typeButtonText,
+                { color: ideaType === 'voice' ? '#FFFFFF' : theme.colors.primary },
                 ideaType === 'voice' && styles.activeTypeButtonText
               ]}>
                 Voice
@@ -423,7 +431,7 @@ const CreateIdeaScreen: React.FC = () => {
 
         {/* Category Selector */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Category</Text>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Category</Text>
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
@@ -434,6 +442,7 @@ const CreateIdeaScreen: React.FC = () => {
                 key={category.id}
                 style={[
                   styles.categoryButton,
+                  { borderColor: theme.colors.border },
                   selectedCategoryId === category.id && {
                     backgroundColor: category.color,
                   },
@@ -442,7 +451,7 @@ const CreateIdeaScreen: React.FC = () => {
               >
                 <Text style={[
                   styles.categoryButtonText,
-                  selectedCategoryId === category.id && { color: '#FFFFFF' },
+                  { color: selectedCategoryId === category.id ? '#FFFFFF' : theme.colors.text },
                 ]}>
                   {category.name}
                 </Text>
@@ -454,25 +463,30 @@ const CreateIdeaScreen: React.FC = () => {
         {/* Content Input */}
         {ideaType === 'text' ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Your Idea</Text>
+            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Your Idea</Text>
             <TextInput
-              style={styles.textInput}
+              style={[styles.textInput, { 
+                backgroundColor: theme.colors.surface,
+                color: theme.colors.text,
+                borderColor: theme.colors.border,
+                shadowColor: theme.colors.shadow
+              }]}
               placeholder="Write your idea here..."
               value={textContent}
               onChangeText={setTextContent}
               multiline
               textAlignVertical="top"
-              placeholderTextColor="#C7C7CC"
+              placeholderTextColor={theme.colors.textSecondary}
             />
           </View>
         ) : (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Voice Recording</Text>
+            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Voice Recording</Text>
             
             {!recordedUri ? (
               <View style={styles.recordingContainer}>
                 {isRecording && (
-                  <Text style={styles.recordingDuration}>
+                  <Text style={[styles.recordingDuration, { color: theme.colors.text }]}>
                     {formatDuration(recordingDuration)}
                   </Text>
                 )}
@@ -496,15 +510,15 @@ const CreateIdeaScreen: React.FC = () => {
                   </TouchableOpacity>
                 </Animated.View>
                 
-                <Text style={styles.recordingInstructions}>
+                <Text style={[styles.recordingInstructions, { color: theme.colors.textSecondary }]}>
                   {isRecording ? 'Tap to stop recording' : 'Tap to start recording'}
                 </Text>
               </View>
             ) : (
               <View style={styles.playbackContainer}>
                 <View style={styles.playbackInfo}>
-                  <Ionicons name="mic" size={24} color="#007AFF" />
-                  <Text style={styles.playbackDuration}>
+                  <Ionicons name="mic" size={24} color={theme.colors.primary} />
+                  <Text style={[styles.playbackDuration, { color: theme.colors.text }]}>
                     {formatDuration(recordingDuration)}
                   </Text>
                 </View>
@@ -517,7 +531,7 @@ const CreateIdeaScreen: React.FC = () => {
                     <Ionicons
                       name={isPlaying ? 'pause' : 'play'}
                       size={24}
-                      color="#007AFF"
+                      color={theme.colors.primary}
                     />
                   </TouchableOpacity>
                   
@@ -525,7 +539,7 @@ const CreateIdeaScreen: React.FC = () => {
                     style={styles.deleteButton}
                     onPress={deleteRecording}
                   >
-                    <Ionicons name="trash" size={20} color="#FF3B30" />
+                    <Ionicons name="trash" size={20} color={theme.colors.error} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -540,30 +554,6 @@ const CreateIdeaScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 60 : 20,
-    paddingBottom: 16,
-    backgroundColor: '#F2F2F7',
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#C6C6C8',
-  },
-  cancelButton: {
-    fontSize: 17,
-    color: '#007AFF',
-  },
-  saveButton: {
-    fontSize: 17,
-    color: '#007AFF',
-    fontWeight: '600',
-  },
-  disabledButton: {
-    color: '#C7C7CC',
   },
   content: {
     flex: 1,
@@ -575,19 +565,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#000000',
     marginBottom: 12,
   },
   typeSelector: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
     padding: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   typeButton: {
     flex: 1,
@@ -598,12 +586,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   activeTypeButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: 'rgba(107, 114, 128, 0.2)',
   },
   typeButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#007AFF',
     marginLeft: 8,
   },
   activeTypeButtonText: {
@@ -614,34 +601,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   categoryButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     marginRight: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
   },
   categoryButtonText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#000000',
   },
   textInput: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#000000',
     minHeight: 120,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    borderWidth: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   recordingContainer: {
     alignItems: 'center',
@@ -650,7 +634,6 @@ const styles = StyleSheet.create({
   recordingDuration: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#FF3B30',
     marginBottom: 24,
   },
   recordButton: {
@@ -660,32 +643,29 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#007AFF',
+    backgroundColor: 'rgba(107, 114, 128, 0.8)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 12,
   },
   recordingButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: 'rgba(239, 68, 68, 0.8)',
   },
   recordingInstructions: {
     fontSize: 16,
-    color: '#8E8E93',
     textAlign: 'center',
   },
   playbackContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   playbackInfo: {
     flexDirection: 'row',
@@ -695,7 +675,6 @@ const styles = StyleSheet.create({
   playbackDuration: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000000',
     marginLeft: 12,
   },
   playbackControls: {
@@ -707,7 +686,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: 'rgba(107, 114, 128, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -715,7 +694,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFEBEE',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },

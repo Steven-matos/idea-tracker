@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { storageService } from './src/services/StorageService';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import { LoadingScreen } from './src/components/common';
 
 /**
  * App content component that uses theme context
@@ -37,12 +38,10 @@ const AppContent: React.FC = () => {
   // Show loading state while initializing
   if (!isInitialized) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
-        <Text style={[styles.loadingText, { color: theme.colors.textSecondary }]}>
-          {initError || 'Loading...'}
-        </Text>
-        <StatusBar style={theme.statusBarStyle} />
-      </View>
+      <LoadingScreen 
+        message={initError || 'Initializing...'} 
+        variant="primary"
+      />
     );
   }
 
@@ -69,13 +68,5 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
+  // Styles removed as we're now using LoadingScreen component
 });

@@ -5,6 +5,7 @@ import { storageService } from '../services/StorageService';
 
 /**
  * Theme colors for light and dark modes
+ * Extended with professional business color variants
  */
 interface ThemeColors {
   background: string;
@@ -19,6 +20,17 @@ interface ThemeColors {
   success: string;
   warning: string;
   info: string;
+  // Additional professional color variants
+  primaryLight: string;
+  primaryDark: string;
+  secondaryLight: string;
+  secondaryDark: string;
+  accent: string;
+  accentLight: string;
+  surfaceVariant: string;
+  surfaceElevated: string;
+  gradientStart: string;
+  gradientEnd: string;
 }
 
 /**
@@ -41,39 +53,63 @@ interface ThemeContextValue {
 }
 
 /**
- * Light theme colors following iOS design guidelines
+ * Light theme colors following modern business design guidelines
+ * Professional, inviting palette with muted neutral colors
  */
 const lightColors: ThemeColors = {
-  background: '#F2F2F7',
-  surface: '#FFFFFF',
-  primary: '#007AFF',
-  secondary: '#5856D6',
-  text: '#000000',
-  textSecondary: '#8E8E93',
-  border: '#E5E5EA',
-  shadow: '#000000',
-  error: '#FF3B30',
-  success: '#34C759',
-  warning: '#FF9500',
-  info: '#5AC8FA',
+  background: '#F8F9FA', // Soft, warm off-white
+  surface: '#FFFFFF', // Pure white for cards
+  primary: '#6B7280', // Sophisticated gray
+  secondary: '#9CA3AF', // Muted slate
+  text: '#1F2937', // Deep charcoal for readability
+  textSecondary: '#6B7280', // Muted gray for secondary text
+  border: '#E5E7EB', // Subtle gray border
+  shadow: '#1F2937', // Dark shadow for depth
+  error: '#EF4444', // Professional red
+  success: '#10B981', // Business green
+  warning: '#F59E0B', // Warm amber
+  info: '#6B7280', // Neutral info color
+  // Additional professional color variants
+  primaryLight: '#D1D5DB', // Light gray for primary
+  primaryDark: '#374151', // Dark slate for primary
+  secondaryLight: '#F3F4F6', // Light gray for secondary
+  secondaryDark: '#4B5563', // Dark gray for secondary
+  accent: '#8B5CF6', // Subtle purple for accents
+  accentLight: '#E9D5FF', // Light purple for accents
+  surfaceVariant: '#F9FAFB', // Subtle variant for surfaces
+  surfaceElevated: '#FFFFFF', // Pure white for elevated surfaces
+  gradientStart: '#F8F9FA', // Start of gradient
+  gradientEnd: '#FFFFFF', // End of gradient
 };
 
 /**
- * Dark theme colors following iOS design guidelines
+ * Dark theme colors following modern business design guidelines
+ * Professional dark mode with muted neutral accents
  */
 const darkColors: ThemeColors = {
-  background: '#000000',
-  surface: '#1C1C1E',
-  primary: '#0A84FF',
-  secondary: '#5E5CE6',
-  text: '#FFFFFF',
-  textSecondary: '#8E8E93',
-  border: '#38383A',
-  shadow: '#000000',
-  error: '#FF453A',
-  success: '#30D158',
-  warning: '#FF9F0A',
-  info: '#64D2FF',
+  background: '#111827', // Deep charcoal background
+  surface: '#1F2937', // Elevated charcoal surface
+  primary: '#9CA3AF', // Bright gray for dark mode
+  secondary: '#D1D5DB', // Light gray for dark mode
+  text: '#F9FAFB', // Light gray for readability
+  textSecondary: '#9CA3AF', // Muted light gray
+  border: '#374151', // Subtle dark border
+  shadow: '#000000', // Pure black shadow
+  error: '#F87171', // Bright red for dark mode
+  success: '#34D399', // Bright green for dark mode
+  warning: '#FBBF24', // Bright amber for dark mode
+  info: '#9CA3AF', // Neutral info for dark mode
+  // Additional professional color variants
+  primaryLight: '#4B5563', // Dark gray for primary
+  primaryDark: '#1F2937', // Dark charcoal for primary
+  secondaryLight: '#6B7280', // Medium gray for secondary
+  secondaryDark: '#374151', // Dark gray for secondary
+  accent: '#A78BFA', // Bright purple for accents
+  accentLight: '#C7D2FE', // Light purple for accents
+  surfaceVariant: '#374151', // Dark variant for surfaces
+  surfaceElevated: '#1F2937', // Elevated charcoal for elevated surfaces
+  gradientStart: '#111827', // Start of gradient
+  gradientEnd: '#1F2937', // End of gradient
 };
 
 /**

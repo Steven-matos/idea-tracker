@@ -17,6 +17,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Idea, Category, IdeaFilters, RootStackParamList } from '../types';
 import { storageService } from '../services/StorageService';
 import { formatDate, truncateText, filterBySearchText, getLightColor } from '../utils';
+import { useTheme } from '../contexts/ThemeContext';
+import { GradientCard, ProfessionalButton, ProfessionalHeader, ProfessionalSearchInput, ProfessionalCategoryFilter, ProfessionalFAB } from '../components/common';
 
 type IdeasScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -25,6 +27,7 @@ type IdeasScreenNavigationProp = StackNavigationProp<RootStackParamList>;
  */
 const IdeasScreen: React.FC = () => {
   const navigation = useNavigation<IdeasScreenNavigationProp>();
+  const { theme } = useTheme();
   
   // State management
   const [ideas, setIdeas] = useState<Idea[]>([]);
@@ -142,23 +145,19 @@ const IdeasScreen: React.FC = () => {
    * Render individual idea item
    */
   const renderIdeaItem = ({ item }: { item: Idea }) => {
-    const category = getCategoryById(item.categoryId);
+    const category = categories.find(c => c.id === item.categoryId);
     
     return (
-      <TouchableOpacity
-        style={styles.ideaItem}
-        onPress={() => handleEditIdea(item.id)}
-        activeOpacity={0.7}
-      >
+      <GradientCard variant="surface" elevated>
         <View style={styles.ideaHeader}>
           <View style={styles.ideaTypeAndCategory}>
             <View style={[
               styles.categoryBadge,
-              { backgroundColor: category ? getLightColor(category.color, 0.2) : getLightColor('#6B7280', 0.2) }
+              { backgroundColor: category ? getLightColor(category.color, 0.2) : getLightColor(theme.colors.textSecondary, 0.2) }
             ]}>
               <Text style={[
                 styles.categoryText,
-                { color: category?.color || '#6B7280' }
+                { color: category?.color || theme.colors.textSecondary }
               ]}>
                 {category?.name || 'Unknown'}
               </Text>
@@ -167,65 +166,43 @@ const IdeasScreen: React.FC = () => {
               <Ionicons 
                 name={item.type === 'voice' ? 'mic' : 'document-text'} 
                 size={16} 
-                color="#8E8E93" 
+                color={theme.colors.textSecondary} 
               />
             </View>
           </View>
-          <Text style={styles.dateText}>{formatDate(item.createdAt)}</Text>
+          <Text style={[styles.dateText, { color: theme.colors.textSecondary }]}>
+            {formatDate(item.createdAt)}
+          </Text>
         </View>
         
-        <Text style={styles.ideaContent} numberOfLines={3}>
+        <Text style={[styles.ideaContent, { color: theme.colors.text }]} numberOfLines={3}>
           {item.content}
         </Text>
         
         {item.type === 'voice' && item.audioDuration && (
           <View style={styles.audioDuration}>
-            <Ionicons name="time-outline" size={14} color="#8E8E93" />
-            <Text style={styles.audioDurationText}>
+            <Ionicons name="time-outline" size={14} color={theme.colors.textSecondary} />
+            <Text style={[styles.audioDurationText, { color: theme.colors.textSecondary }]}>
               {Math.floor(item.audioDuration / 60)}:{(item.audioDuration % 60).toFixed(0).padStart(2, '0')}
             </Text>
           </View>
         )}
         
-        <View style={styles.ideaActions}>
+        <View style={[styles.ideaActions, { borderTopColor: theme.colors.border }]}>
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => handleEditIdea(item.id)}
           >
-            <Ionicons name="create-outline" size={18} color="#007AFF" />
+            <Ionicons name="create-outline" size={18} color={theme.colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => handleDeleteIdea(item.id)}
           >
-            <Ionicons name="trash-outline" size={18} color="#FF3B30" />
+            <Ionicons name="trash-outline" size={18} color={theme.colors.error} />
           </TouchableOpacity>
         </View>
-      </TouchableOpacity>
-    );
-  };
-
-  /**
-   * Render category filter button
-   */
-  const renderCategoryFilter = ({ item }: { item: Category | { id: '', name: 'All', color: '#000' } }) => {
-    const isSelected = selectedCategoryId === item.id;
-    
-    return (
-      <TouchableOpacity
-        style={[
-          styles.categoryFilter,
-          isSelected && { backgroundColor: item.color },
-        ]}
-        onPress={() => setSelectedCategoryId(item.id)}
-      >
-        <Text style={[
-          styles.categoryFilterText,
-          isSelected && { color: '#FFFFFF' },
-        ]}>
-          {item.name}
-        </Text>
-      </TouchableOpacity>
+      </GradientCard>
     );
   };
 
@@ -234,9 +211,11 @@ const IdeasScreen: React.FC = () => {
    */
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="bulb-outline" size={64} color="#C7C7CC" />
-      <Text style={styles.emptyStateTitle}>No Ideas Yet</Text>
-      <Text style={styles.emptyStateSubtitle}>
+      <Ionicons name="bulb-outline" size={64} color={theme.colors.textSecondary} />
+      <Text style={[styles.emptyStateTitle, { color: theme.colors.textSecondary }]}>
+        No Ideas Yet
+      </Text>
+      <Text style={[styles.emptyStateSubtitle, { color: theme.colors.textSecondary }]}>
         Tap the + button to create your first idea
       </Text>
     </View>
@@ -255,43 +234,36 @@ const IdeasScreen: React.FC = () => {
   }, [applyFilters]);
 
   // Prepare category filter data
-  const categoryFilterData = [
+  const categoryFilterData: Array<Category | { id: '', name: 'All', color: '#000' }> = [
     { id: '', name: 'All', color: '#000' },
     ...categories,
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      {/* Professional Header */}
+      <ProfessionalHeader
+        title="My Ideas"
+        subtitle="Capture and organize your thoughts"
+        variant="primary"
+      />
+
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#8E8E93" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search ideas..."
-            value={searchText}
-            onChangeText={setSearchText}
-            placeholderTextColor="#8E8E93"
-          />
-          {searchText.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchText('')}>
-              <Ionicons name="close-circle" size={20} color="#8E8E93" />
-            </TouchableOpacity>
-          )}
-        </View>
+        <ProfessionalSearchInput
+          placeholder="Search ideas..."
+          value={searchText}
+          onChangeText={setSearchText}
+          onClear={() => setSearchText('')}
+        />
       </View>
 
       {/* Category Filters */}
-      <View style={styles.filtersContainer}>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={categoryFilterData}
-          keyExtractor={(item) => item.id || 'all'}
-          renderItem={renderCategoryFilter}
-          contentContainerStyle={styles.categoryFilters}
-        />
-      </View>
+      <ProfessionalCategoryFilter
+        categories={categoryFilterData}
+        selectedId={selectedCategoryId}
+        onSelect={setSelectedCategoryId}
+      />
 
       {/* Ideas List */}
       <FlatList
@@ -304,20 +276,17 @@ const IdeasScreen: React.FC = () => {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
-            tintColor="#007AFF"
+            tintColor={theme.colors.primary}
           />
         }
         ListEmptyComponent={!loading ? renderEmptyState : null}
       />
 
       {/* Floating Action Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={handleCreateIdea}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="add" size={24} color="#FFFFFF" />
-      </TouchableOpacity>
+      <ProfessionalFAB 
+        icon="add" 
+        onPress={handleCreateIdea} 
+      />
     </View>
   );
 };
@@ -325,69 +294,14 @@ const IdeasScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
   },
   searchContainer: {
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 8,
   },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 16,
-    color: '#000000',
-  },
-  filtersContainer: {
-    paddingBottom: 8,
-  },
-  categoryFilters: {
-    paddingHorizontal: 16,
-  },
-  categoryFilter: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  categoryFilterText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#000000',
-  },
   ideaList: {
-    paddingHorizontal: 16,
-    paddingBottom: 120, // Space for FAB
-  },
-  ideaItem: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingBottom: 100,
   },
   ideaHeader: {
     flexDirection: 'row',
@@ -414,12 +328,10 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
-    color: '#8E8E93',
     fontWeight: '400',
   },
   ideaContent: {
     fontSize: 16,
-    color: '#000000',
     lineHeight: 22,
     marginBottom: 8,
   },
@@ -430,14 +342,12 @@ const styles = StyleSheet.create({
   },
   audioDurationText: {
     fontSize: 12,
-    color: '#8E8E93',
     marginLeft: 4,
   },
   ideaActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     borderTopWidth: 0.5,
-    borderTopColor: '#E5E5EA',
     paddingTop: 8,
   },
   actionButton: {
@@ -453,30 +363,12 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#8E8E93',
     marginTop: 16,
     marginBottom: 8,
   },
   emptyStateSubtitle: {
     fontSize: 16,
-    color: '#C7C7CC',
     textAlign: 'center',
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: Platform.OS === 'ios' ? 40 : 30,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#007AFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
 });
 
