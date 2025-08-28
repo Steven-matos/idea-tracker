@@ -1,14 +1,14 @@
 /**
- * Core data types for the Idea Tracker application
+ * Core data types for the Notes Tracker application
  */
 
 /**
- * Represents the type of idea content
+ * Represents the type of note content
  */
-export type IdeaType = 'text' | 'voice';
+export type NoteType = 'text' | 'voice';
 
 /**
- * Represents a category for organizing ideas
+ * Represents a category for organizing notes
  */
 export interface Category {
   /** Unique identifier for the category */
@@ -22,37 +22,37 @@ export interface Category {
 }
 
 /**
- * Represents an idea in the application
+ * Represents a note in the application
  */
-export interface Idea {
-  /** Unique identifier for the idea */
+export interface Note {
+  /** Unique identifier for the note */
   id: string;
-  /** Type of idea content (text or voice) */
-  type: IdeaType;
-  /** Text content of the idea (for text type) or title for voice ideas */
+  /** Type of note content (text or voice) */
+  type: NoteType;
+  /** Text content of the note (for text type) or title for voice notes */
   content: string;
   /** File path for voice recordings (only for voice type) */
   audioPath?: string;
   /** Duration of voice recording in seconds (only for voice type) */
   audioDuration?: number;
-  /** Category ID this idea belongs to */
+  /** Category ID this note belongs to */
   categoryId: string;
-  /** Timestamp when the idea was created */
+  /** Timestamp when the note was created */
   createdAt: string;
-  /** Timestamp when the idea was last updated */
+  /** Timestamp when the note was last updated */
   updatedAt: string;
-  /** Whether the idea is marked as favorite */
+  /** Whether the note is marked as favorite */
   isFavorite: boolean;
 }
 
 /**
- * Filter options for ideas list
+ * Filter options for notes list
  */
-export interface IdeaFilters {
+export interface NoteFilters {
   /** Filter by category ID */
   categoryId?: string;
-  /** Filter by idea type */
-  type?: IdeaType;
+  /** Filter by note type */
+  type?: NoteType;
   /** Show only favorites */
   favoritesOnly?: boolean;
   /** Search text to filter by content */
@@ -63,7 +63,7 @@ export interface IdeaFilters {
  * Storage keys for AsyncStorage
  */
 export enum StorageKeys {
-  IDEAS = '@ideas',
+  NOTES = '@notes',
   CATEGORIES = '@categories',
   SETTINGS = '@settings'
 }
@@ -77,7 +77,7 @@ export type ThemeMode = 'light' | 'dark' | 'system';
  * Application settings
  */
 export interface AppSettings {
-  /** Default category ID for new ideas */
+  /** Default category ID for new notes */
   defaultCategoryId: string;
   /** Audio recording quality setting */
   audioQuality: 'low' | 'medium' | 'high';
@@ -92,14 +92,14 @@ export interface AppSettings {
  */
 export type RootStackParamList = {
   Home: undefined;
-  CreateIdea: { categoryId?: string };
-  EditIdea: { ideaId: string };
+  CreateNote: { categoryId?: string };
+  EditNote: { noteId: string };
   Categories: undefined;
   Settings: undefined;
 };
 
 export type BottomTabParamList = {
-  Ideas: undefined;
+  Notes: undefined;
   Categories: undefined;
   Settings: undefined;
 };

@@ -1,5 +1,5 @@
 /**
- * Utility functions for the Idea Tracker application
+ * Utility functions for the Notes Tracker application
  */
 
 import { Audio } from 'expo-av';

@@ -6,11 +6,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 
 // Import screens (we'll create these next)
-import IdeasScreen from '../screens/IdeasScreen';
+import NotesScreen from '../screens/NotesScreen';
 import CategoriesScreen from '../screens/CategoriesScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import CreateIdeaScreen from '../screens/CreateIdeaScreen';
-import EditIdeaScreen from '../screens/EditIdeaScreen';
+import CreateNoteScreen from '../screens/CreateNoteScreen';
+import EditNoteScreen from '../screens/EditNoteScreen';
 
 import { RootStackParamList, BottomTabParamList } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
@@ -33,7 +33,7 @@ const TabNavigator: React.FC = () => {
           let iconName: keyof typeof Ionicons.glyphMap;
 
           switch (route.name) {
-            case 'Ideas':
+            case 'Notes':
               iconName = focused ? 'bulb' : 'bulb-outline';
               break;
             case 'Categories':
@@ -74,20 +74,41 @@ const TabNavigator: React.FC = () => {
         },
       })}
     >
+      {/* 
+        Tab screens are intentionally not rendered to hide them from the tab bar.
+        If you want to conditionally hide/show tabs, you can use listeners or set tabBarButton to () => null.
+        Example for hiding all tabs:
+      */}
+      {/* 
+        Hide tab bar buttons and also hide the header for all tab screens to prevent "Notes" or any tab name from showing at the top.
+        This follows KISS and DRY by centralizing the header hiding logic.
+      */}
+      {/* 
+        Tab screens with header hidden to remove the label at the top,
+        but keep the tab bar visible. Follows KISS and DRY by only overriding headerShown.
+      */}
       <Tab.Screen 
-        name="Ideas" 
-        component={IdeasScreen}
-        options={{ title: 'My Ideas' }}
+        name="Notes" 
+        component={NotesScreen}
+        options={{ 
+          headerShown: false // Hide header/title only
+        }}
       />
       <Tab.Screen 
         name="Categories" 
         component={CategoriesScreen}
-        options={{ title: 'Categories' }}
+        options={{ 
+          title: 'Categories',
+          headerShown: false // Hide header/title only
+        }}
       />
       <Tab.Screen 
         name="Settings" 
         component={SettingsScreen}
-        options={{ title: 'Settings' }}
+        options={{ 
+          title: 'Settings',
+          headerShown: false // Hide header/title only
+        }}
       />
     </Tab.Navigator>
   );
@@ -128,7 +149,7 @@ const AppNavigator: React.FC = () => {
             fontWeight: '600',
             color: theme.colors.text,
           },
-          headerBackTitleVisible: false,
+          // headerBackTitleVisible: false, // Deprecated in newer versions
           headerTintColor: theme.colors.primary,
         }}
       >
@@ -138,19 +159,19 @@ const AppNavigator: React.FC = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen 
-          name="CreateIdea" 
-          component={CreateIdeaScreen}
+          name="CreateNote" 
+          component={CreateNoteScreen}
           options={{ 
-            title: 'New Idea',
+            title: 'New Note',
             presentation: 'modal',
             headerLeft: () => null,
           }}
         />
         <Stack.Screen 
-          name="EditIdea" 
-          component={EditIdeaScreen}
+          name="EditNote" 
+          component={EditNoteScreen}
           options={{ 
-            title: 'Edit Idea',
+            title: 'Edit Note',
             presentation: 'modal',
             headerLeft: () => null,
           }}

@@ -3,10 +3,11 @@ import {
   TouchableOpacity, 
   StyleSheet, 
   ViewStyle,
-  Platform 
+  Platform,
+  View
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { useTheme } from '../../contexts/ThemeContext';
 
 /**
@@ -21,7 +22,7 @@ interface ProfessionalFABProps {
 }
 
 /**
- * ProfessionalFAB component with modern gradient styling
+ * ProfessionalFAB component with modern solid color styling
  * Implements SOLID principles with single responsibility for floating action button
  * Follows DRY principle by centralizing FAB styling logic
  * Uses KISS principle with simple, focused component design
@@ -36,18 +37,18 @@ const ProfessionalFAB: React.FC<ProfessionalFABProps> = ({
   const { theme } = useTheme();
 
   /**
-   * Get gradient colors based on variant
+   * Get solid colors based on variant
    */
-  const getGradientColors = (): string[] => {
+  const getFABColor = (): string => {
     switch (variant) {
       case 'primary':
-        return [theme.colors.primary, theme.colors.primaryDark];
+        return '#2563EB'; // Professional blue (same as buttons)
       case 'secondary':
-        return [theme.colors.secondary, theme.colors.secondaryDark];
+        return theme.isDark ? '#CA8A04' : '#FDE047'; // Dark yellow for dark mode, bright yellow for light mode
       case 'accent':
-        return [theme.colors.accent, theme.colors.accentLight];
+        return theme.colors.accent;
       default:
-        return [theme.colors.primary, theme.colors.primaryDark];
+        return '#2563EB'; // Professional blue
     }
   };
 
@@ -97,13 +98,13 @@ const ProfessionalFAB: React.FC<ProfessionalFABProps> = ({
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <LinearGradient
-        colors={getGradientColors()}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <View
         style={[
           StyleSheet.absoluteFill,
-          { borderRadius: fabSize / 2 }
+          { 
+            borderRadius: fabSize / 2,
+            backgroundColor: getFABColor()
+          }
         ]}
       />
       

@@ -14,25 +14,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-import { Idea, Category, IdeaFilters, RootStackParamList } from '../types';
+import { Note, Category, NoteFilters, RootStackParamList } from '../types';
 import { storageService } from '../services/StorageService';
 import { formatDate, truncateText, filterBySearchText, getLightColor } from '../utils';
 import { useTheme } from '../contexts/ThemeContext';
 import { GradientCard, ProfessionalButton, ProfessionalHeader, ProfessionalSearchInput, ProfessionalCategoryFilter, ProfessionalFAB } from '../components/common';
 
-type IdeasScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+type NotesScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 /**
- * Main screen displaying list of ideas with search and filter functionality
+ * Main screen displaying list of notes with search and filter functionality
  */
-const IdeasScreen: React.FC = () => {
-  const navigation = useNavigation<IdeasScreenNavigationProp>();
+const NotesScreen: React.FC = () => {
+  const navigation = useNavigation<NotesScreenNavigationProp>();
   const { theme } = useTheme();
   
   // State management
-  const [ideas, setIdeas] = useState<Idea[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [filteredIdeas, setFilteredIdeas] = useState<Idea[]>([]);
+  const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
   const [searchText, setSearchText] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -43,16 +43,16 @@ const IdeasScreen: React.FC = () => {
    */
   const loadData = async () => {
     try {
-      const [ideasData, categoriesData] = await Promise.all([
-        storageService.getIdeas(),
+      const [notesData, categoriesData] = await Promise.all([
+        storageService.getNotes(),
         storageService.getCategories(),
       ]);
       
-      setIdeas(ideasData);
+      setNotes(notesData);
       setCategories(categoriesData);
     } catch (error) {
       console.error('Error loading data:', error);
-      Alert.alert('Error', 'Failed to load ideas. Please try again.');
+      Alert.alert('Error', 'Failed to load notes. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -68,14 +68,14 @@ const IdeasScreen: React.FC = () => {
   };
 
   /**
-   * Filter ideas based on search text and selected category
+   * Filter notes based on search text and selected category
    */
   const applyFilters = useCallback(() => {
-    let filtered = [...ideas];
+    let filtered = [...notes];
 
     // Filter by category
     if (selectedCategoryId) {
-      filtered = filtered.filter(idea => idea.categoryId === selectedCategoryId);
+      filtered = filtered.filter(note => note.categoryId === selectedCategoryId);
     }
 
     // Filter by search text
@@ -86,19 +86,16 @@ const IdeasScreen: React.FC = () => {
     // Sort by creation date (newest first)
     filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    setFilteredIdeas(filtered);
-  }, [ideas, searchText, selectedCategoryId]);
+    setFilteredNotes(filtered);
+  }, [notes, searchText, selectedCategoryId]);
 
   /**
-   * Delete an idea with confirmation
+   * Delete a note with confirmation
    */
-  const handleDeleteIdea = (ideaId: string) => {
-    const idea = ideas.find(i => i.id === ideaId);
-    if (!idea) return;
-
+  const deleteNote = (note: Note) => {
     Alert.alert(
-      'Delete Idea',
-      `Are you sure you want to delete "${truncateText(idea.content, 50)}"?`,
+      'Delete Note',
+      'Are you sure you want to delete this note? This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -106,11 +103,11 @@ const IdeasScreen: React.FC = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await storageService.deleteIdea(ideaId);
+              await storageService.deleteNote(note.id);
               await loadData();
             } catch (error) {
-              console.error('Error deleting idea:', error);
-              Alert.alert('Error', 'Failed to delete idea. Please try again.');
+              console.error('Error deleting note:', error);
+              Alert.alert('Error', 'Failed to delete note. Please try again.');
             }
           },
         },
@@ -119,38 +116,36 @@ const IdeasScreen: React.FC = () => {
   };
 
   /**
-   * Navigate to edit idea screen
+   * Navigate to edit note screen
    */
-  const handleEditIdea = (ideaId: string) => {
-    navigation.navigate('EditIdea', { ideaId });
+  const handleEditNote = (note: Note) => {
+    navigation.navigate('EditNote', { noteId: note.id });
   };
 
   /**
-   * Navigate to create idea screen
+   * Navigate to create note screen
    */
-  const handleCreateIdea = () => {
-    navigation.navigate('CreateIdea', { 
-      categoryId: selectedCategoryId || undefined 
-    });
+  const handleCreateNote = () => {
+    navigation.navigate('CreateNote', { categoryId: selectedCategoryId });
   };
 
   /**
    * Get category by ID
    */
   const getCategoryById = (categoryId: string): Category | undefined => {
-    return categories.find(cat => cat.id === categoryId);
+    return categories.find(c => c.id === categoryId);
   };
 
   /**
-   * Render individual idea item
+   * Render individual note item
    */
-  const renderIdeaItem = ({ item }: { item: Idea }) => {
+  const renderNoteItem = ({ item }: { item: Note }) => {
     const category = categories.find(c => c.id === item.categoryId);
     
     return (
       <GradientCard variant="surface" elevated>
-        <View style={styles.ideaHeader}>
-          <View style={styles.ideaTypeAndCategory}>
+        <View style={styles.noteHeader}>
+          <View style={styles.noteTypeAndCategory}>
             <View style={[
               styles.categoryBadge,
               { backgroundColor: category ? getLightColor(category.color, 0.2) : getLightColor(theme.colors.textSecondary, 0.2) }
@@ -162,7 +157,7 @@ const IdeasScreen: React.FC = () => {
                 {category?.name || 'Unknown'}
               </Text>
             </View>
-            <View style={styles.ideaTypeIcon}>
+            <View style={styles.noteTypeIcon}>
               <Ionicons 
                 name={item.type === 'voice' ? 'mic' : 'document-text'} 
                 size={16} 
@@ -175,7 +170,7 @@ const IdeasScreen: React.FC = () => {
           </Text>
         </View>
         
-        <Text style={[styles.ideaContent, { color: theme.colors.text }]} numberOfLines={3}>
+        <Text style={[styles.noteContent, { color: theme.colors.text }]} numberOfLines={3}>
           {item.content}
         </Text>
         
@@ -188,18 +183,21 @@ const IdeasScreen: React.FC = () => {
           </View>
         )}
         
-        <View style={[styles.ideaActions, { borderTopColor: theme.colors.border }]}>
+        <View style={styles.noteActions}>
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => handleEditIdea(item.id)}
+            onPress={() => handleEditNote(item)}
           >
-            <Ionicons name="create-outline" size={18} color={theme.colors.primary} />
+            <Ionicons name="create-outline" size={20} color={theme.colors.primary} />
+            <Text style={[styles.actionText, { color: theme.colors.primary }]}>Edit</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => handleDeleteIdea(item.id)}
+            onPress={() => deleteNote(item)}
           >
-            <Ionicons name="trash-outline" size={18} color={theme.colors.error} />
+            <Ionicons name="trash-outline" size={20} color={theme.colors.error} />
+            <Text style={[styles.actionText, { color: theme.colors.error }]}>Delete</Text>
           </TouchableOpacity>
         </View>
       </GradientCard>
@@ -207,31 +205,37 @@ const IdeasScreen: React.FC = () => {
   };
 
   /**
-   * Render empty state
+   * Render empty state when no notes exist
    */
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Ionicons name="bulb-outline" size={64} color={theme.colors.textSecondary} />
-      <Text style={[styles.emptyStateTitle, { color: theme.colors.textSecondary }]}>
-        No Ideas Yet
+      <Text style={[styles.emptyStateTitle, { color: theme.colors.text }]}>
+        No Notes Yet
       </Text>
       <Text style={[styles.emptyStateSubtitle, { color: theme.colors.textSecondary }]}>
-        Tap the + button to create your first idea
+        Start capturing your thoughts by creating your first note
       </Text>
+      <ProfessionalButton
+        title="Create Note"
+        onPress={handleCreateNote}
+        variant="primary"
+        style={styles.createButton}
+      />
     </View>
   );
 
-  // Load data when screen focuses
+  // Apply filters when data changes
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
+
+  // Load data on screen focus
   useFocusEffect(
     useCallback(() => {
       loadData();
     }, [])
   );
-
-  // Apply filters when dependencies change
-  useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
 
   // Prepare category filter data
   const categoryFilterData: Array<Category | { id: '', name: 'All', color: '#000' }> = [
@@ -243,7 +247,7 @@ const IdeasScreen: React.FC = () => {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Professional Header */}
       <ProfessionalHeader
-        title="My Ideas"
+        title="My Notes"
         subtitle="Capture and organize your thoughts"
         variant="primary"
       />
@@ -251,7 +255,7 @@ const IdeasScreen: React.FC = () => {
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <ProfessionalSearchInput
-          placeholder="Search ideas..."
+          placeholder="Search notes..."
           value={searchText}
           onChangeText={setSearchText}
           onClear={() => setSearchText('')}
@@ -265,12 +269,12 @@ const IdeasScreen: React.FC = () => {
         onSelect={setSelectedCategoryId}
       />
 
-      {/* Ideas List */}
+      {/* Notes List */}
       <FlatList
-        data={filteredIdeas}
+        data={filteredNotes}
         keyExtractor={(item) => item.id}
-        renderItem={renderIdeaItem}
-        contentContainerStyle={styles.ideaList}
+        renderItem={renderNoteItem}
+        contentContainerStyle={styles.noteList}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -282,11 +286,13 @@ const IdeasScreen: React.FC = () => {
         ListEmptyComponent={!loading ? renderEmptyState : null}
       />
 
-      {/* Floating Action Button */}
-      <ProfessionalFAB 
-        icon="add" 
-        onPress={handleCreateIdea} 
-      />
+      {/* Floating Action Button - Only show when there are notes */}
+      {notes.length > 0 && (
+        <ProfessionalFAB 
+          icon="add" 
+          onPress={handleCreateNote} 
+        />
+      )}
     </View>
   );
 };
@@ -296,80 +302,94 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
   },
-  ideaList: {
+  noteList: {
+    paddingHorizontal: 20,
     paddingBottom: 100,
   },
-  ideaHeader: {
+  noteHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
-  ideaTypeAndCategory: {
+  noteTypeAndCategory: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
   categoryBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 6,
-    marginRight: 8,
+    borderRadius: 12,
   },
   categoryText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
   },
-  ideaTypeIcon: {
-    marginLeft: 4,
+  noteTypeIcon: {
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   dateText: {
     fontSize: 12,
     fontWeight: '400',
   },
-  ideaContent: {
+  noteContent: {
     fontSize: 16,
     lineHeight: 22,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   audioDuration: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    gap: 4,
+    marginBottom: 12,
   },
   audioDurationText: {
     fontSize: 12,
-    marginLeft: 4,
+    fontWeight: '400',
   },
-  ideaActions: {
+  noteActions: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    borderTopWidth: 0.5,
-    paddingTop: 8,
+    gap: 16,
   },
   actionButton: {
-    padding: 8,
-    marginLeft: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  actionText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
   emptyState: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    paddingTop: 60,
   },
   emptyStateTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '600',
     marginTop: 16,
     marginBottom: 8,
+    textAlign: 'center',
   },
   emptyStateSubtitle: {
     fontSize: 16,
+    lineHeight: 22,
     textAlign: 'center',
+    marginBottom: 24,
+  },
+  createButton: {
+    minWidth: 140,
   },
 });
 
-export default IdeasScreen;
+export default NotesScreen;

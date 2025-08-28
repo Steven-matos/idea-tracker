@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -19,7 +18,7 @@ interface ProfessionalHeaderProps {
 }
 
 /**
- * ProfessionalHeader component with modern gradient styling
+ * ProfessionalHeader component with modern solid color styling
  * Implements SOLID principles with single responsibility for header display
  * Follows DRY principle by centralizing header styling logic
  * Uses KISS principle with simple, focused component design
@@ -37,40 +36,56 @@ const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
   const { theme } = useTheme();
 
   /**
-   * Get gradient colors based on variant
+   * Get header background color based on variant and theme
    */
-  const getGradientColors = (): string[] => {
-    switch (variant) {
-      case 'primary':
-        return [theme.colors.primary, theme.colors.primaryDark];
-      case 'secondary':
-        return [theme.colors.secondary, theme.colors.secondaryDark];
-      case 'surface':
-        return [theme.colors.surface, theme.colors.surfaceVariant];
-      default:
-        return [theme.colors.primary, theme.colors.primaryDark];
+  const getHeaderColor = (): string => {
+    if (variant === 'surface') {
+      return theme.colors.surface;
     }
+    
+    if (variant === 'secondary') {
+      return theme.isDark ? '#CA8A04' : '#FDE047'; // Dark yellow for dark mode, bright yellow for light mode
+    }
+    
+    // Professional blue that works well in both light and dark modes
+    return theme.isDark ? '#1E40AF' : '#3B82F6';
   };
 
   /**
    * Get text color based on variant
    */
   const getTextColor = (): string => {
-    return variant === 'surface' ? theme.colors.text : '#FFFFFF';
+    if (variant === 'surface') {
+      return theme.colors.text;
+    }
+    
+    if (variant === 'secondary') {
+      return '#1F2937'; // Dark text for yellow background
+    }
+    
+    return '#FFFFFF'; // White text for blue backgrounds
   };
 
   return (
-    <LinearGradient
-      colors={getGradientColors()}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[styles.container, style]}
+    <View
+      style={[
+        styles.container, 
+        { backgroundColor: getHeaderColor() },
+        style
+      ]}
     >
       <View style={styles.content}>
         {/* Left Icon */}
         {leftIcon && (
           <TouchableOpacity
-            style={styles.iconButton}
+            style={[
+              styles.iconButton,
+              { 
+                backgroundColor: variant === 'secondary' 
+                  ? 'rgba(31, 41, 55, 0.1)' // Dark overlay for yellow
+                  : 'rgba(255, 255, 255, 0.1)' // Light overlay for blue
+              }
+            ]}
             onPress={onLeftPress}
             activeOpacity={0.7}
           >
@@ -97,7 +112,14 @@ const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
         {/* Right Icon */}
         {rightIcon && (
           <TouchableOpacity
-            style={styles.iconButton}
+            style={[
+              styles.iconButton,
+              { 
+                backgroundColor: variant === 'secondary' 
+                  ? 'rgba(31, 41, 55, 0.1)' // Dark overlay for yellow
+                  : 'rgba(255, 255, 255, 0.1)' // Light overlay for blue
+              }
+            ]}
             onPress={onRightPress}
             activeOpacity={0.7}
           >
@@ -109,7 +131,7 @@ const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
           </TouchableOpacity>
         )}
       </View>
-    </LinearGradient>
+    </View>
   );
 };
 

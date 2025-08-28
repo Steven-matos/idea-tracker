@@ -119,7 +119,7 @@ const SettingsScreen: React.FC = () => {
   const clearAllData = () => {
     Alert.alert(
       'Clear All Data',
-      'Are you sure you want to delete all ideas and reset the app? This action cannot be undone.',
+                    'Are you sure you want to delete all notes and reset the app? This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -146,8 +146,8 @@ const SettingsScreen: React.FC = () => {
    */
   const showAppInfo = () => {
     Alert.alert(
-      'Idea Tracker',
-      'Version 1.0.0\n\nA simple app to track your ideas with text and voice notes.\n\nBuilt with React Native and Expo.',
+      'Notes Tracker',
+      'Version 1.0.0\n\nA simple app to track your notes with text and voice recordings.\n\nBuilt with React Native and Expo.',
       [{ text: 'OK' }]
     );
   };
@@ -233,7 +233,7 @@ const SettingsScreen: React.FC = () => {
           () => {
             Alert.alert(
               'Default Category',
-              'Choose the default category for new ideas:',
+              'Choose the default category for new notes:',
               [
                 { text: 'Cancel', style: 'cancel' },
                 ...categories.map(category => ({
@@ -283,7 +283,7 @@ const SettingsScreen: React.FC = () => {
         {renderSettingRow(
           'trash-outline',
           'Clear All Data',
-          'Delete all ideas and reset app',
+          'Delete all notes and reset app',
           clearAllData
         )}
       </View>
@@ -305,7 +305,7 @@ const SettingsScreen: React.FC = () => {
           () => {
             Alert.alert(
               'Rate App',
-              'Thank you for using Idea Tracker! Rating and reviews help us improve the app.',
+              'Thank you for using Notes Tracker! Rating and reviews help us improve the app.',
               [{ text: 'OK' }]
             );
           }
@@ -318,7 +318,7 @@ const SettingsScreen: React.FC = () => {
           () => {
             Alert.alert(
               'Contact Support',
-              'For support or feedback, please email us at support@ideatracker.app',
+              'For support or feedback, please email us at support@notestracker.app',
               [{ text: 'OK' }]
             );
           }
@@ -328,7 +328,7 @@ const SettingsScreen: React.FC = () => {
       {/* Footer */}
       <View style={styles.footer}>
         <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>
-          Made with ❤️ for organizing your ideas
+          Made with ❤️ for organizing your notes
         </Text>
         <Text style={[styles.footerVersion, { color: theme.colors.textSecondary }]}>Version 1.0.0</Text>
       </View>
@@ -339,6 +339,7 @@ const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 50, // Add top padding to bring content down
   },
   sectionHeader: {
     fontSize: 13,

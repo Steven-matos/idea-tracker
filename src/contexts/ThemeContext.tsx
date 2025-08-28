@@ -72,8 +72,8 @@ const lightColors: ThemeColors = {
   // Additional professional color variants
   primaryLight: '#D1D5DB', // Light gray for primary
   primaryDark: '#374151', // Dark slate for primary
-  secondaryLight: '#F3F4F6', // Light gray for secondary
-  secondaryDark: '#4B5563', // Dark gray for secondary
+  secondaryLight: '#FEF3C7', // Light yellow for secondary
+  secondaryDark: '#F59E0B', // Dark yellow for secondary
   accent: '#8B5CF6', // Subtle purple for accents
   accentLight: '#E9D5FF', // Light purple for accents
   surfaceVariant: '#F9FAFB', // Subtle variant for surfaces
@@ -102,8 +102,8 @@ const darkColors: ThemeColors = {
   // Additional professional color variants
   primaryLight: '#4B5563', // Dark gray for primary
   primaryDark: '#1F2937', // Dark charcoal for primary
-  secondaryLight: '#6B7280', // Medium gray for secondary
-  secondaryDark: '#374151', // Dark gray for secondary
+  secondaryLight: '#92400E', // Dark amber for secondary in dark mode
+  secondaryDark: '#CA8A04', // Dark yellow for secondary
   accent: '#A78BFA', // Bright purple for accents
   accentLight: '#C7D2FE', // Light purple for accents
   surfaceVariant: '#374151', // Dark variant for surfaces

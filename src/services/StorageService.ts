@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Idea, Category, AppSettings, StorageKeys } from '../types';
+import { Note, Category, AppSettings, StorageKeys } from '../types';
 
 /**
- * Service class for managing local data storage using AsyncStorage
- * Provides methods for CRUD operations on ideas, categories, and settings
+ * Service class for managing data persistence using AsyncStorage
+ * Implements SOLID principles by providing a single responsibility for data storage
+ * Follows DRY principle by centralizing storage operations
  */
 class StorageService {
   /**
@@ -13,100 +14,100 @@ class StorageService {
    */
   private async storeData<T>(key: string, data: T): Promise<void> {
     try {
-      const jsonData = JSON.stringify(data);
-      await AsyncStorage.setItem(key, jsonData);
+      await AsyncStorage.setItem(key, JSON.stringify(data));
     } catch (error) {
       console.error(`Error storing data for key ${key}:`, error);
-      throw new Error(`Failed to store data: ${error}`);
+      throw error;
     }
   }
 
   /**
    * Generic method to retrieve data from AsyncStorage
    * @param key - Storage key
-   * @returns Retrieved data or null if not found
+   * @returns Parsed data or null if not found
    */
   private async getData<T>(key: string): Promise<T | null> {
     try {
-      const jsonData = await AsyncStorage.getItem(key);
-      return jsonData ? JSON.parse(jsonData) : null;
+      const data = await AsyncStorage.getItem(key);
+      return data ? JSON.parse(data) : null;
     } catch (error) {
       console.error(`Error retrieving data for key ${key}:`, error);
-      throw new Error(`Failed to retrieve data: ${error}`);
+      throw error;
     }
   }
 
-  // Ideas management methods
+  // Notes management methods
 
   /**
-   * Retrieve all ideas from storage
-   * @returns Array of ideas
+   * Store notes array in AsyncStorage
+   * @param notes - Array of notes to store
    */
-  async getIdeas(): Promise<Idea[]> {
-    const ideas = await this.getData<Idea[]>(StorageKeys.IDEAS);
-    return ideas || [];
+  private async storeNotes(notes: Note[]): Promise<void> {
+    await this.storeData(StorageKeys.NOTES, notes);
   }
 
   /**
-   * Store all ideas to storage
-   * @param ideas - Array of ideas to store
+   * Retrieve all notes from storage
+   * @returns Array of notes
    */
-  async storeIdeas(ideas: Idea[]): Promise<void> {
-    await this.storeData(StorageKeys.IDEAS, ideas);
+  async getNotes(): Promise<Note[]> {
+    const notes = await this.getData<Note[]>(StorageKeys.NOTES);
+    return notes || [];
   }
 
   /**
-   * Add a new idea to storage
-   * @param idea - Idea to add
+   * Add a new note to storage
+   * @param note - Note object to add
    */
-  async addIdea(idea: Idea): Promise<void> {
-    const ideas = await this.getIdeas();
-    ideas.push(idea);
-    await this.storeIdeas(ideas);
+  async addNote(note: Note): Promise<void> {
+    const notes = await this.getNotes();
+    notes.push(note);
+    await this.storeNotes(notes);
   }
 
   /**
-   * Update an existing idea in storage
-   * @param updatedIdea - Updated idea object
+   * Update an existing note in storage
+   * @param updatedNote - Updated note object
    */
-  async updateIdea(updatedIdea: Idea): Promise<void> {
-    const ideas = await this.getIdeas();
-    const index = ideas.findIndex(idea => idea.id === updatedIdea.id);
+  async updateNote(updatedNote: Note): Promise<void> {
+    const notes = await this.getNotes();
+    const index = notes.findIndex(note => note.id === updatedNote.id);
     
-    if (index === -1) {
-      throw new Error(`Idea with id ${updatedIdea.id} not found`);
+    if (index !== -1) {
+      notes[index] = updatedNote;
+      await this.storeNotes(notes);
     }
-    
-    ideas[index] = updatedIdea;
-    await this.storeIdeas(ideas);
   }
 
   /**
-   * Delete an idea from storage
-   * @param ideaId - ID of the idea to delete
+   * Delete a note from storage
+   * @param noteId - ID of the note to delete
    */
-  async deleteIdea(ideaId: string): Promise<void> {
-    const ideas = await this.getIdeas();
-    const filteredIdeas = ideas.filter(idea => idea.id !== ideaId);
-    
-    if (filteredIdeas.length === ideas.length) {
-      throw new Error(`Idea with id ${ideaId} not found`);
-    }
-    
-    await this.storeIdeas(filteredIdeas);
+  async deleteNote(noteId: string): Promise<void> {
+    const notes = await this.getNotes();
+    const filteredNotes = notes.filter(note => note.id !== noteId);
+    await this.storeNotes(filteredNotes);
   }
 
   /**
-   * Get a specific idea by ID
-   * @param ideaId - ID of the idea to retrieve
-   * @returns Idea object or null if not found
+   * Get a specific note by ID
+   * @param noteId - ID of the note to retrieve
+   * @returns Note object or null if not found
    */
-  async getIdeaById(ideaId: string): Promise<Idea | null> {
-    const ideas = await this.getIdeas();
-    return ideas.find(idea => idea.id === ideaId) || null;
+  async getNoteById(noteId: string): Promise<Note | null> {
+    const notes = await this.getNotes();
+    return notes.find(note => note.id === noteId) || null;
   }
 
   // Categories management methods
+
+  /**
+   * Store categories array in AsyncStorage
+   * @param categories - Array of categories to store
+   */
+  private async storeCategories(categories: Category[]): Promise<void> {
+    await this.storeData(StorageKeys.CATEGORIES, categories);
+  }
 
   /**
    * Retrieve all categories from storage
@@ -114,20 +115,12 @@ class StorageService {
    */
   async getCategories(): Promise<Category[]> {
     const categories = await this.getData<Category[]>(StorageKeys.CATEGORIES);
-    return categories || this.getDefaultCategories();
-  }
-
-  /**
-   * Store all categories to storage
-   * @param categories - Array of categories to store
-   */
-  async storeCategories(categories: Category[]): Promise<void> {
-    await this.storeData(StorageKeys.CATEGORIES, categories);
+    return categories || [];
   }
 
   /**
    * Add a new category to storage
-   * @param category - Category to add
+   * @param category - Category object to add
    */
   async addCategory(category: Category): Promise<void> {
     const categories = await this.getCategories();
@@ -141,14 +134,12 @@ class StorageService {
    */
   async updateCategory(updatedCategory: Category): Promise<void> {
     const categories = await this.getCategories();
-    const index = categories.findIndex(cat => cat.id === updatedCategory.id);
+    const index = categories.findIndex(category => category.id === updatedCategory.id);
     
-    if (index === -1) {
-      throw new Error(`Category with id ${updatedCategory.id} not found`);
+    if (index !== -1) {
+      categories[index] = updatedCategory;
+      await this.storeCategories(categories);
     }
-    
-    categories[index] = updatedCategory;
-    await this.storeCategories(categories);
   }
 
   /**
@@ -157,13 +148,18 @@ class StorageService {
    */
   async deleteCategory(categoryId: string): Promise<void> {
     const categories = await this.getCategories();
-    const filteredCategories = categories.filter(cat => cat.id !== categoryId);
-    
-    if (filteredCategories.length === categories.length) {
-      throw new Error(`Category with id ${categoryId} not found`);
-    }
-    
+    const filteredCategories = categories.filter(category => category.id !== categoryId);
     await this.storeCategories(filteredCategories);
+  }
+
+  /**
+   * Get a specific category by ID
+   * @param categoryId - ID of the category to retrieve
+   * @returns Category object or null if not found
+   */
+  async getCategoryById(categoryId: string): Promise<Category | null> {
+    const categories = await this.getCategories();
+    return categories.find(category => category.id === categoryId) || null;
   }
 
   /**
@@ -232,10 +228,10 @@ class StorageService {
         await this.storeSettings(this.getDefaultSettings());
       }
 
-      // Initialize empty ideas array if it doesn't exist
-      const ideas = await this.getData<Idea[]>(StorageKeys.IDEAS);
-      if (!ideas) {
-        await this.storeIdeas([]);
+      // Initialize empty notes array if it doesn't exist
+      const notes = await this.getData<Note[]>(StorageKeys.NOTES);
+      if (!notes) {
+        await this.storeNotes([]);
       }
     } catch (error) {
       console.error('Error initializing storage:', error);
@@ -249,7 +245,7 @@ class StorageService {
   async clearAllData(): Promise<void> {
     try {
       await AsyncStorage.multiRemove([
-        StorageKeys.IDEAS,
+        StorageKeys.NOTES,
         StorageKeys.CATEGORIES,
         StorageKeys.SETTINGS,
       ]);

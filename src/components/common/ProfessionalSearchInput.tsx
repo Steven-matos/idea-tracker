@@ -8,7 +8,7 @@ import {
   TextInputProps 
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { useTheme } from '../../contexts/ThemeContext';
 
 /**
@@ -24,7 +24,7 @@ interface ProfessionalSearchInputProps extends TextInputProps {
 }
 
 /**
- * ProfessionalSearchInput component with modern gradient styling
+ * ProfessionalSearchInput component with modern solid color styling
  * Implements SOLID principles with single responsibility for search input
  * Follows DRY principle by centralizing search input styling logic
  * Uses KISS principle with simple, focused component design
@@ -41,18 +41,18 @@ const ProfessionalSearchInput: React.FC<ProfessionalSearchInputProps> = ({
   const { theme } = useTheme();
 
   /**
-   * Get gradient colors based on variant
+   * Get solid colors based on variant
    */
-  const getGradientColors = (): string[] => {
+  const getSearchColor = (): string => {
     switch (variant) {
       case 'primary':
-        return [theme.colors.primary, theme.colors.primaryDark];
+        return theme.colors.primary;
       case 'secondary':
-        return [theme.colors.secondary, theme.colors.secondaryDark];
+        return theme.isDark ? '#CA8A04' : '#FDE047'; // Dark yellow for dark mode, bright yellow for light mode
       case 'surface':
-        return [theme.colors.surface, theme.colors.surfaceVariant];
+        return theme.colors.surface;
       default:
-        return [theme.colors.surface, theme.colors.surfaceVariant];
+        return theme.colors.surface;
     }
   };
 
@@ -72,11 +72,14 @@ const ProfessionalSearchInput: React.FC<ProfessionalSearchInputProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      <LinearGradient
-        colors={getGradientColors()}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.gradient, { borderColor: getBorderColor() }]}
+      <View
+        style={[
+          styles.gradient, 
+          { 
+            backgroundColor: getSearchColor(),
+            borderColor: getBorderColor() 
+          }
+        ]}
       >
         <View style={styles.inputContainer}>
           <Ionicons 
@@ -90,8 +93,7 @@ const ProfessionalSearchInput: React.FC<ProfessionalSearchInputProps> = ({
             style={[
               styles.input,
               { 
-                color: variant === 'surface' ? theme.colors.text : '#FFFFFF',
-                placeholderTextColor: variant === 'surface' ? theme.colors.textSecondary : 'rgba(255, 255, 255, 0.7)'
+                color: variant === 'surface' ? theme.colors.text : '#FFFFFF'
               }
             ]}
             placeholder={placeholder}
@@ -111,7 +113,7 @@ const ProfessionalSearchInput: React.FC<ProfessionalSearchInputProps> = ({
             </TouchableOpacity>
           )}
         </View>
-      </LinearGradient>
+      </View>
     </View>
   );
 };

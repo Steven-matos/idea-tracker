@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Idea Tracker",
-    "slug": "idea-tracker",
+    "name": "Notes Tracker",
+    "slug": "notes-tracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,9 +17,9 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourname.ideatracker",
+      "bundleIdentifier": "com.yourname.notestracker",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "This app needs access to the microphone to record voice ideas.",
+        "NSMicrophoneUsageDescription": "This app needs access to the microphone to record voice notes.",
         "UIBackgroundModes": [
           "audio"
         ]
@@ -32,7 +32,7 @@
         "backgroundColor": "#F2F2F7"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.yourname.ideatracker",
+      "package": "com.yourname.notestracker",
       "versionCode": 1,
       "permissions": [
         "android.permission.RECORD_AUDIO",
@@ -48,7 +48,7 @@
       [
         "expo-av",
         {
-          "microphonePermission": "Allow Idea Tracker to access your microphone to record voice ideas."
+          "microphonePermission": "Allow Notes Tracker to access your microphone to record voice notes."
         }
       ]
     ]

@@ -14,15 +14,20 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 
+// Import type definitions for categories
 import { Category } from '../types';
-import { storageService } from '../services/StorageService';
+
+// Import storage service for persistent data operations
+import { storageService } from '../services';
+
+// Import utility functions for ID generation, string validation, and color contrast  
 import { generateId, isValidString, getContrastColor } from '../utils';
 import { useTheme } from '../contexts/ThemeContext';
 import { 
   GradientCard, 
   ProfessionalButton, 
   ProfessionalHeader, 
-  ProfessionalFAB 
+  ProfessionalFAB
 } from '../components/common';
 
 /**
@@ -31,30 +36,27 @@ import {
 const CategoriesScreen: React.FC = () => {
   const { theme } = useTheme();
   
+  // Default color for new categories
+  const defaultColor = '#8B5CF6';
+  
+  // Predefined color options matching CreateNoteScreen
+  const colorOptions = [
+    '#8B5CF6', // Purple
+    '#3B82F6', // Blue  
+    '#10B981', // Green
+    '#F59E0B', // Orange
+    '#EF4444', // Red
+    '#8B5A2B', // Brown
+  ];
+  
   // State management
   const [categories, setCategories] = useState<Category[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [categoryName, setCategoryName] = useState('');
-  const [selectedColor, setSelectedColor] = useState('#6B7280'); // Updated to neutral color
+  const [selectedColor, setSelectedColor] = useState(defaultColor);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Predefined colors for categories - neutral palette
-  const categoryColors = [
-    '#6B7280', // Gray
-    '#9CA3AF', // Slate
-    '#D1D5DB', // Light Gray
-    '#4B5563', // Dark Gray
-    '#F3F4F6', // Very Light Gray
-    '#374151', // Charcoal
-    '#8B5CF6', // Subtle Purple
-    '#A78BFA', // Light Purple
-    '#E9D5FF', // Very Light Purple
-    '#6B7280', // Medium Gray
-    '#9CA3AF', // Light Slate
-    '#D1D5DB', // Pale Gray
-  ];
 
   /**
    * Load categories from storage
@@ -83,7 +85,7 @@ const CategoriesScreen: React.FC = () => {
    */
   const openAddModal = () => {
     setCategoryName('');
-    setSelectedColor(categoryColors[0]);
+    setSelectedColor(defaultColor);
     setEditingCategory(null);
     setShowAddModal(true);
   };
@@ -104,29 +106,36 @@ const CategoriesScreen: React.FC = () => {
   const closeModal = () => {
     setShowAddModal(false);
     setCategoryName('');
-    setSelectedColor(categoryColors[0]);
+    setSelectedColor(defaultColor);
     setEditingCategory(null);
   };
 
   /**
    * Save category (add or edit)
+   * Special handling for General category - only allow color changes, not name changes
    */
   const saveCategory = async () => {
     try {
-      if (!isValidString(categoryName)) {
+      // For General category, skip name validation and duplicate checks
+      const isGeneralCategory = editingCategory?.id === 'general';
+      
+      if (!isGeneralCategory && !isValidString(categoryName)) {
         Alert.alert('Error', 'Please enter a category name.');
         return;
       }
 
       // Check for duplicate names (excluding current category if editing)
-      const existingCategory = categories.find(
-        cat => cat.name.toLowerCase() === categoryName.toLowerCase() && 
-               cat.id !== editingCategory?.id
-      );
+      // Skip this check for General category since name won't change
+      if (!isGeneralCategory) {
+        const existingCategory = categories.find(
+          cat => cat.name.toLowerCase() === categoryName.toLowerCase() && 
+                 cat.id !== editingCategory?.id
+        );
 
-      if (existingCategory) {
-        Alert.alert('Error', 'A category with this name already exists.');
-        return;
+        if (existingCategory) {
+          Alert.alert('Error', 'A category with this name already exists.');
+          return;
+        }
       }
 
       setIsLoading(true);
@@ -135,7 +144,8 @@ const CategoriesScreen: React.FC = () => {
         // Update existing category
         const updatedCategory: Category = {
           ...editingCategory,
-          name: categoryName.trim(),
+          // For General category, keep original name; for others, use edited name
+          name: isGeneralCategory ? editingCategory.name : categoryName.trim(),
           color: selectedColor,
         };
         
@@ -168,12 +178,12 @@ const CategoriesScreen: React.FC = () => {
    */
   const deleteCategory = async (category: Category) => {
     try {
-      // Check if category is being used by any ideas
-      const ideas = await storageService.getIdeas();
-      const ideasInCategory = ideas.filter(idea => idea.categoryId === category.id);
+      // Check if category is being used by any notes
+      const notes = await storageService.getNotes();
+      const notesInCategory = notes.filter(note => note.categoryId === category.id);
       
-      const message = ideasInCategory.length > 0 
-        ? `Are you sure you want to delete "${category.name}"? ${ideasInCategory.length} idea(s) in this category will be moved to "General".`
+      const message = notesInCategory.length > 0 
+        ? `Are you sure you want to delete "${category.name}"? ${notesInCategory.length} note(s) in this category will be moved to "General".`
         : `Are you sure you want to delete "${category.name}"?`;
       
       Alert.alert(
@@ -186,10 +196,10 @@ const CategoriesScreen: React.FC = () => {
             style: 'destructive',
             onPress: async () => {
               try {
-                // First, move any ideas with this category to "General"
-                for (const idea of ideasInCategory) {
-                  await storageService.updateIdea({
-                    ...idea,
+                // First, move any notes with this category to "General"
+                for (const note of notesInCategory) {
+                  await storageService.updateNote({
+                    ...note,
                     categoryId: 'general', // Move to General category
                     updatedAt: new Date().toISOString(),
                   });
@@ -199,11 +209,11 @@ const CategoriesScreen: React.FC = () => {
                 await storageService.deleteCategory(category.id);
                 await loadCategories();
                 
-                // Show success message if ideas were moved
-                if (ideasInCategory.length > 0) {
+                // Show success message if notes were moved
+                if (notesInCategory.length > 0) {
                   Alert.alert(
                     'Category Deleted', 
-                    `"${category.name}" has been deleted and ${ideasInCategory.length} idea(s) moved to "General".`
+                    `"${category.name}" has been deleted and ${notesInCategory.length} note(s) moved to "General".`
                   );
                 }
                 
@@ -264,27 +274,27 @@ const CategoriesScreen: React.FC = () => {
   };
 
   /**
-   * Render color picker
+   * Render color picker with predefined color options
+   * Follows SOLID principles with single responsibility for color selection
+   * Uses DRY principle by reusing the same color selection pattern as CreateNoteScreen
+   * Implements KISS principle with simple color grid interface
    */
   const renderColorPicker = () => (
     <View style={styles.colorPicker}>
       <Text style={[styles.modalLabel, { color: theme.colors.text }]}>Color</Text>
       <View style={styles.colorGrid}>
-        {categoryColors.map((color) => (
+        {colorOptions.map((color) => (
           <TouchableOpacity
             key={color}
             style={[
               styles.colorOption,
               { backgroundColor: color },
-              selectedColor === color && { 
-                borderColor: theme.colors.surface,
-                shadowColor: theme.colors.shadow
-              },
+              selectedColor === color && styles.selectedColorOption
             ]}
             onPress={() => setSelectedColor(color)}
           >
             {selectedColor === color && (
-              <Ionicons name="checkmark" size={16} color={getContrastColor(color)} />
+              <Ionicons name="checkmark" size={16} color="#fff" />
             )}
           </TouchableOpacity>
         ))}
@@ -319,7 +329,7 @@ const CategoriesScreen: React.FC = () => {
       {/* Professional Header */}
       <ProfessionalHeader
         title="Categories"
-        subtitle="Organize your ideas"
+        subtitle="Organize your notes"
         variant="primary"
       />
 
@@ -378,19 +388,41 @@ const CategoriesScreen: React.FC = () => {
           <View style={styles.modalContent}>
             <View style={styles.inputSection}>
               <Text style={[styles.modalLabel, { color: theme.colors.text }]}>Name</Text>
-              <TextInput
-                style={[styles.textInput, { 
-                  backgroundColor: theme.colors.surface,
-                  color: theme.colors.text,
-                  borderColor: theme.colors.border,
-                  shadowColor: theme.colors.shadow
-                }]}
-                placeholder="Category name"
-                value={categoryName}
-                onChangeText={setCategoryName}
-                placeholderTextColor={theme.colors.textSecondary}
-                maxLength={30}
-              />
+              {editingCategory?.id === 'general' ? (
+                // Disabled input for General category with explanation
+                <View>
+                  <TextInput
+                    style={[styles.textInput, { 
+                      backgroundColor: theme.colors.border,
+                      color: theme.colors.textSecondary,
+                      borderColor: theme.colors.border,
+                      shadowColor: theme.colors.shadow
+                    }]}
+                    value={categoryName}
+                    editable={false}
+                    placeholder="Category name"
+                    placeholderTextColor={theme.colors.textSecondary}
+                  />
+                  <Text style={[styles.helperText, { color: theme.colors.textSecondary }]}>
+                    The General category name cannot be changed
+                  </Text>
+                </View>
+              ) : (
+                // Editable input for all other categories
+                <TextInput
+                  style={[styles.textInput, { 
+                    backgroundColor: theme.colors.surface,
+                    color: theme.colors.text,
+                    borderColor: theme.colors.border,
+                    shadowColor: theme.colors.shadow
+                  }]}
+                  placeholder="Category name"
+                  value={categoryName}
+                  onChangeText={setCategoryName}
+                  placeholderTextColor={theme.colors.textSecondary}
+                  maxLength={30}
+                />
+              )}
             </View>
 
             {renderColorPicker()}
@@ -517,26 +549,13 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
+  helperText: {
+    fontSize: 12,
+    marginTop: 6,
+    fontStyle: 'italic',
+  },
   colorPicker: {
     marginBottom: 32,
-  },
-  colorGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  colorOption: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    marginBottom: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   previewSection: {
     marginBottom: 32,
@@ -556,6 +575,34 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     marginLeft: 12,
+  },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 12,
+    marginTop: 8,
+  },
+  colorOption: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  selectedColorOption: {
+    borderColor: '#fff',
+    borderWidth: 3,
+    elevation: 4,
+    shadowOpacity: 0.3,
   },
 });
 

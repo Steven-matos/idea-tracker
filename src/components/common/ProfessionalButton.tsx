@@ -7,7 +7,7 @@ import {
   TextStyle,
   ActivityIndicator 
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { useTheme } from '../../contexts/ThemeContext';
 
 /**
@@ -16,7 +16,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 interface ProfessionalButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'success';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
   loading?: boolean;
@@ -26,7 +26,7 @@ interface ProfessionalButtonProps {
 }
 
 /**
- * ProfessionalButton component with modern gradient styling
+ * ProfessionalButton component with modern solid color styling
  * Implements SOLID principles with single responsibility for button interactions
  * Follows DRY principle by centralizing button styling logic
  * Uses KISS principle with simple, focused component design
@@ -44,27 +44,7 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
 }) => {
   const { theme } = useTheme();
 
-  /**
-   * Get button colors based on variant
-   */
-  const getButtonColors = (): string[] => {
-    if (disabled) {
-      return [theme.colors.textSecondary, theme.colors.border];
-    }
 
-    switch (variant) {
-      case 'primary':
-        return [theme.colors.primary, theme.colors.primaryDark];
-      case 'secondary':
-        return [theme.colors.secondary, theme.colors.secondaryDark];
-      case 'outline':
-        return [theme.colors.surface, theme.colors.surface];
-      case 'ghost':
-        return ['transparent', 'transparent'];
-      default:
-        return [theme.colors.primary, theme.colors.primaryDark];
-    }
-  };
 
   /**
    * Get button styles based on variant and size
@@ -76,6 +56,32 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
       justifyContent: 'center',
       flexDirection: 'row',
     };
+
+    // Add solid background colors for variants
+    if (!disabled) {
+      switch (variant) {
+        case 'primary':
+          baseStyles.backgroundColor = '#2563EB'; // Professional blue
+          break;
+        case 'secondary':
+          baseStyles.backgroundColor = theme.isDark ? '#CA8A04' : '#FDE047'; // Dark yellow for dark mode, bright yellow for light mode
+          break;
+        case 'destructive':
+          baseStyles.backgroundColor = theme.colors.error;
+          break;
+        case 'success':
+          baseStyles.backgroundColor = theme.colors.success;
+          break;
+        case 'outline':
+          baseStyles.backgroundColor = 'transparent';
+          break;
+        case 'ghost':
+          baseStyles.backgroundColor = 'transparent';
+          break;
+      }
+    } else {
+      baseStyles.backgroundColor = theme.colors.border;
+    }
 
     // Size variations
     switch (size) {
@@ -143,8 +149,6 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
     return baseStyles;
   };
 
-  const isGradientVariant = variant === 'primary' || variant === 'secondary';
-
   return (
     <TouchableOpacity
       style={[getButtonStyles(), style]}
@@ -152,24 +156,6 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
       disabled={disabled || loading}
       activeOpacity={0.8}
     >
-      {isGradientVariant ? (
-        <LinearGradient
-          colors={getButtonColors()}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[StyleSheet.absoluteFill, { borderRadius: 12 }]}
-        />
-      ) : null}
-      
-      <LinearGradient
-        colors={getButtonColors()}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[
-          StyleSheet.absoluteFill,
-          { borderRadius: 12, opacity: isGradientVariant ? 0 : 1 }
-        ]}
-      />
       
       {loading ? (
         <ActivityIndicator 

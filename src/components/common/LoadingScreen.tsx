@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../../contexts/ThemeContext';
 
 /**
@@ -12,7 +11,7 @@ interface LoadingScreenProps {
 }
 
 /**
- * LoadingScreen component with modern professional styling
+ * LoadingScreen component with modern solid color styling
  * Implements SOLID principles with single responsibility for loading display
  * Follows DRY principle by centralizing loading UI logic
  * Uses KISS principle with simple, focused component design
@@ -24,18 +23,18 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   const { theme } = useTheme();
 
   /**
-   * Get gradient colors based on variant
+   * Get solid colors based on variant
    */
-  const getGradientColors = (): string[] => {
+  const getLoadingColor = (): string => {
     switch (variant) {
       case 'primary':
-        return [theme.colors.primary, theme.colors.primaryDark];
+        return theme.colors.primary;
       case 'secondary':
-        return [theme.colors.secondary, theme.colors.secondaryDark];
+        return theme.isDark ? '#CA8A04' : '#FDE047'; // Dark yellow for dark mode, bright yellow for light mode
       case 'surface':
-        return [theme.colors.surface, theme.colors.surfaceVariant];
+        return theme.colors.surface;
       default:
-        return [theme.colors.primary, theme.colors.primaryDark];
+        return theme.colors.primary;
     }
   };
 
@@ -47,11 +46,11 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   };
 
   return (
-    <LinearGradient
-      colors={getGradientColors()}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: getLoadingColor() }
+      ]}
     >
       <View style={styles.content}>
         <ActivityIndicator 
@@ -63,7 +62,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
           {message}
         </Text>
       </View>
-    </LinearGradient>
+    </View>
   );
 };
 

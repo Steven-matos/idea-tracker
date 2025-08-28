@@ -48,7 +48,7 @@ const AppContent: React.FC = () => {
   return (
     <>
       <AppNavigator />
-      <StatusBar style={theme.statusBarStyle} />
+      <StatusBar style={theme.statusBarStyle as any} />
     </>
   );
 };

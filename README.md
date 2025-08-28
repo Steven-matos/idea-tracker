@@ -1,21 +1,21 @@
-# Idea Tracker
+# Notes Tracker
 
-A React Native application built with Expo for tracking and organizing your ideas. Capture ideas through text or voice recordings, categorize them, and manage them locally on your device.
+A React Native application built with Expo for tracking and organizing your notes. Capture notes through text or voice recordings, categorize them, and manage them locally on your device.
 
 ## Features
 
 ### ✨ Core Features
-- **Text Ideas**: Create and edit text-based ideas
-- **Voice Ideas**: Record voice notes with playback functionality
-- **Categories**: Organize ideas with customizable categories
+- **Text Notes**: Create and edit text-based notes
+- **Voice Notes**: Record voice notes with playback functionality
+- **Categories**: Organize notes with customizable categories
 - **Local Storage**: All data stored locally on device (no backend required)
-- **Search & Filter**: Find ideas by content or category
+- **Search & Filter**: Find notes by content or category
 - **iOS-Focused Design**: Native iOS design patterns and interactions
 
 ### 📱 User Interface
 - Clean, iOS-native design with proper navigation
 - Tab-based navigation for main features
-- Modal screens for creating and editing ideas
+- Modal screens for creating and editing notes
 - Intuitive voice recording with visual feedback
 - Category color coding and filtering
 - Pull-to-refresh functionality
@@ -23,7 +23,7 @@ A React Native application built with Expo for tracking and organizing your idea
 ### 🎙️ Voice Recording Features
 - High-quality audio recording
 - Real-time duration display
-- Playback controls for voice ideas
+- Playback controls for voice notes
 - Automatic file management
 - Recording quality settings
 
@@ -33,7 +33,7 @@ A React Native application built with Expo for tracking and organizing your idea
 - Default "General" category (cannot be deleted)
 - Category-based filtering
 - Visual category indicators
-- Ideas automatically moved to "General" when category is deleted
+- Notes automatically moved to "General" when category is deleted
 
 ## Tech Stack
 
@@ -50,7 +50,7 @@ A React Native application built with Expo for tracking and organizing your idea
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd idea-tracker
+   cd notes-tracker
    ```
 
 2. **Install dependencies**
@@ -80,14 +80,14 @@ src/
 ├── components/          # Reusable UI components
 │   ├── category/       # Category-related components
 │   ├── common/         # Common UI components
-│   └── idea/           # Idea-related components
+│   └── note/           # Note-related components
 ├── hooks/              # Custom React hooks
 ├── navigation/         # Navigation configuration
 │   └── AppNavigator.tsx
 ├── screens/            # Main application screens
-│   ├── IdeasScreen.tsx
-│   ├── CreateIdeaScreen.tsx
-│   ├── EditIdeaScreen.tsx
+│   ├── NotesScreen.tsx
+│   ├── CreateNoteScreen.tsx
+│   ├── EditNoteScreen.tsx
 │   ├── CategoriesScreen.tsx
 │   └── SettingsScreen.tsx
 ├── services/           # Business logic and data services
@@ -102,7 +102,7 @@ src/
 
 ### Local Storage
 - Uses AsyncStorage for persistent data storage
-- Structured data models for ideas and categories
+- Structured data models for notes and categories
 - Automatic initialization with default categories
 - Data export/import capabilities
 
@@ -120,9 +120,9 @@ src/
 
 ## Data Models
 
-### Idea
+### Note
 ```typescript
-interface Idea {
+interface Note {
   id: string;
   type: 'text' | 'voice';
   content: string;
@@ -148,51 +148,46 @@ interface Category {
 ## Permissions
 
 ### iOS
-- Microphone access for voice recording
-- Background audio for playback
+- **Microphone**: Required for voice recording functionality
+- **Audio Background Modes**: Enables audio playback in background
 
 ### Android
-- Record audio permission
-- Storage permissions for file management
+- **RECORD_AUDIO**: Required for voice recording
+- **WRITE_EXTERNAL_STORAGE**: Required for saving audio files
+- **READ_EXTERNAL_STORAGE**: Required for accessing saved audio files
 
-## Development Guidelines
+## Development
 
 ### Code Style
-- TypeScript strict mode enabled
-- JSDoc comments for all functions
-- DRY principles applied throughout
-- Consistent iOS design patterns
+- Follows SOLID principles for clean architecture
+- Implements DRY (Don't Repeat Yourself) methodology
+- Adheres to KISS (Keep It Simple, Stupid) principle
+- Comprehensive JSDoc documentation for all functions
 
-### Architecture
-- Service-based architecture for data management
-- Type-safe interfaces for all data models
-- Modular component structure
-- Clean separation of concerns
+### State Management
+- React hooks for local component state
+- Context API for theme management
+- AsyncStorage for persistent data storage
 
-## Building for Production
-
-### iOS
-1. Update `bundleIdentifier` in `app.json`
-2. Configure signing in Xcode
-3. Build with `eas build --platform ios`
-
-### Android
-1. Update `package` in `app.json`
-2. Configure keystore
-3. Build with `eas build --platform android`
+### Error Handling
+- Comprehensive error handling with user-friendly messages
+- Graceful fallbacks for failed operations
+- Proper cleanup of resources and listeners
 
 ## Contributing
 
-1. Follow the existing code style and patterns
-2. Add JSDoc comments for new functions
-3. Ensure TypeScript compliance
-4. Test on both iOS and Android
-5. Update documentation as needed
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Support
+## Acknowledgments
 
-For support or questions, please create an issue in the repository.
+- Built with React Native and Expo
+- Icons provided by Ionicons
+- Design inspired by iOS Human Interface Guidelines

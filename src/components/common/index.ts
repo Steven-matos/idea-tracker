@@ -10,3 +10,5 @@ export { default as LoadingScreen } from './LoadingScreen';
 export { default as ProfessionalSearchInput } from './ProfessionalSearchInput';
 export { default as ProfessionalCategoryFilter } from './ProfessionalCategoryFilter';
 export { default as ProfessionalFAB } from './ProfessionalFAB';
+export { default as ColorSpectrumSlider } from './ColorSpectrumSlider';
+export { default as HueSlider } from './HueSlider';

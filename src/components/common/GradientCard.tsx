@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../../contexts/ThemeContext';
 
 /**
@@ -15,8 +14,8 @@ interface GradientCardProps {
 
 /**
  * GradientCard component for creating modern, professional card surfaces
- * Implements SOLID principles with single responsibility for gradient styling
- * Follows DRY principle by centralizing gradient logic
+ * Implements SOLID principles with single responsibility for card styling
+ * Follows DRY principle by centralizing card logic
  * Uses KISS principle with simple, focused component design
  */
 const GradientCard: React.FC<GradientCardProps> = ({ 
@@ -28,21 +27,19 @@ const GradientCard: React.FC<GradientCardProps> = ({
   const { theme } = useTheme();
 
   /**
-   * Get gradient colors based on variant and theme
+   * Get solid colors based on variant and theme
    */
-  const getGradientColors = (): string[] => {
+  const getCardColor = (): string => {
     switch (variant) {
       case 'primary':
-        return [theme.colors.primary, theme.colors.primaryDark];
+        return theme.colors.primary;
       case 'secondary':
-        return [theme.colors.secondary, theme.colors.secondaryDark];
+        return theme.isDark ? '#CA8A04' : '#FDE047'; // Dark yellow for dark mode, bright yellow for light mode
       case 'accent':
-        return [theme.colors.accent, theme.colors.accentLight];
+        return theme.colors.accent;
       case 'surface':
       default:
-        return elevated 
-          ? [theme.colors.surfaceElevated, theme.colors.surfaceVariant]
-          : [theme.colors.surface, theme.colors.surfaceVariant];
+        return elevated ? theme.colors.surfaceElevated : theme.colors.surface;
     }
   };
 
@@ -71,14 +68,14 @@ const GradientCard: React.FC<GradientCardProps> = ({
 
   return (
     <View style={[getCardStyles(), style]}>
-      <LinearGradient
-        colors={getGradientColors()}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradient}
+      <View
+        style={[
+          styles.gradient,
+          { backgroundColor: getCardColor() }
+        ]}
       >
         {children}
-      </LinearGradient>
+      </View>
     </View>
   );
 };
