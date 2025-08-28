@@ -369,7 +369,7 @@ const CategoriesScreen: React.FC = () => {
             borderBottomColor: theme.colors.border 
           }]}>
             <TouchableOpacity onPress={closeModal}>
-              <Text style={[styles.cancelButton, { color: theme.colors.primary }]}>Cancel</Text>
+              <Text style={[styles.cancelButton, { color: '#EF4444' }]}>Cancel</Text>
             </TouchableOpacity>
             <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
               {editingCategory ? 'Edit Category' : 'New Category'}

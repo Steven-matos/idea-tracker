@@ -162,9 +162,8 @@ const AppNavigator: React.FC = () => {
           name="CreateNote" 
           component={CreateNoteScreen}
           options={{ 
-            title: 'New Note',
+            headerShown: false,
             presentation: 'modal',
-            headerLeft: () => null,
           }}
         />
         <Stack.Screen 

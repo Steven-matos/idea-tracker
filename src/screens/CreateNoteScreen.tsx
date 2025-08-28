@@ -29,7 +29,7 @@ import { generateId, formatDuration, isValidString } from '../utils';
 import { useTheme } from '../contexts/ThemeContext';
 
 // Import common UI components
-import { GradientCard, ProfessionalButton, ProfessionalHeader } from '../components/common';
+import { GradientCard, ProfessionalButton } from '../components/common';
 
 type CreateNoteScreenNavigationProp = any;
 type CreateNoteScreenRouteProp = RouteProp<RootStackParamList, 'CreateNote'>;
@@ -427,12 +427,30 @@ const CreateNoteScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <ProfessionalHeader
-        title="New Note"
-        subtitle="Capture your thoughts"
-        variant="primary"
-      />
+      {/* Action Buttons at Top */}
+      <View style={[styles.actionBar, { 
+        backgroundColor: theme.colors.background,
+        borderBottomColor: theme.colors.border 
+      }]}>
+        <TouchableOpacity onPress={handleCancel}>
+          <Text style={[styles.cancelButton, { color: '#EF4444' }]}>Cancel</Text>
+        </TouchableOpacity>
+        <Text style={[styles.actionBarTitle, { color: theme.colors.text }]}>
+          New Note
+        </Text>
+        <TouchableOpacity 
+          onPress={saveNote} 
+          disabled={isLoading || (noteType === 'text' && !textContent.trim()) || (noteType === 'voice' && !recordedUri)}
+        >
+          <Text style={[
+            styles.saveButton, 
+            { color: theme.colors.primary },
+            (isLoading || (noteType === 'text' && !textContent.trim()) || (noteType === 'voice' && !recordedUri)) && { color: theme.colors.textSecondary }
+          ]}>
+            {isLoading ? 'Saving...' : 'Save Note'}
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       <ScrollView 
         style={styles.content}
@@ -631,24 +649,6 @@ const CreateNoteScreen: React.FC = () => {
         </GradientCard>
       </ScrollView>
 
-      {/* Action Buttons */}
-      <View style={[styles.actionBar, { backgroundColor: theme.colors.surface }]}>
-        <ProfessionalButton
-          title="Cancel"
-          onPress={handleCancel}
-          variant="destructive"
-          style={styles.cancelButton}
-        />
-        <ProfessionalButton
-          title="Save Note"
-          onPress={saveNote}
-          variant="success"
-          style={styles.saveButton}
-          loading={isLoading}
-          disabled={isLoading || (noteType === 'text' && !textContent.trim()) || (noteType === 'voice' && !recordedUri)}
-        />
-      </View>
-
       {/* Category Creation Modal */}
       <Modal
         visible={showCategoryModal}
@@ -722,7 +722,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
@@ -850,17 +850,23 @@ const styles = StyleSheet.create({
   },
   actionBar: {
     flexDirection: 'row',
-    padding: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 60 : 20,
+    paddingBottom: 16,
+    borderBottomWidth: 0.5,
+  },
+  actionBarTitle: {
+    fontSize: 17,
+    fontWeight: '600',
   },
   cancelButton: {
-    flex: 1,
+    fontSize: 17,
   },
   saveButton: {
-    flex: 2,
+    fontSize: 17,
+    fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
