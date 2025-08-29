@@ -6,7 +6,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/theme.context';
 
 /**
  * Props for ColorSpectrumSlider component

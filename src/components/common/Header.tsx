@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/theme.context';
+import { Colors, TextStyles, Spacing, PlatformStyles } from '../../styles';
 
 /**
  * Props for ProfessionalHeader component
@@ -37,6 +38,7 @@ const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
 
   /**
    * Get header background color based on variant and theme
+   * Uses shared color constants for consistency
    */
   const getHeaderColor = (): string => {
     if (variant === 'surface') {
@@ -44,15 +46,16 @@ const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
     }
     
     if (variant === 'secondary') {
-      return theme.isDark ? '#CA8A04' : '#FDE047'; // Dark yellow for dark mode, bright yellow for light mode
+      return theme.isDark ? Colors.SECONDARY_YELLOW_DARK : Colors.SECONDARY_YELLOW;
     }
     
     // Professional blue that works well in both light and dark modes
-    return theme.isDark ? '#1E40AF' : '#3B82F6';
+    return theme.isDark ? Colors.PRIMARY_BLUE_DARK : Colors.PRIMARY_BLUE_LIGHT;
   };
 
   /**
    * Get text color based on variant
+   * Uses shared color constants for consistency
    */
   const getTextColor = (): string => {
     if (variant === 'surface') {
@@ -60,10 +63,10 @@ const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
     }
     
     if (variant === 'secondary') {
-      return '#1F2937'; // Dark text for yellow background
+      return Colors.GRAY_800; // Dark text for yellow background
     }
     
-    return '#FFFFFF'; // White text for blue backgrounds
+    return Colors.WHITE; // White text for blue backgrounds
   };
 
   return (
@@ -137,9 +140,9 @@ const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 60, // Account for status bar
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingTop: PlatformStyles.statusBarHeight,
+    paddingBottom: Spacing.LG,
+    paddingHorizontal: Spacing.LG,
   },
   content: {
     flexDirection: 'row',
@@ -157,17 +160,15 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 1,
     alignItems: 'center',
-    marginHorizontal: 16,
+    marginHorizontal: Spacing.BASE,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
+    ...TextStyles.h1,
     textAlign: 'center',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
-    fontWeight: '400',
+    ...TextStyles.body,
     textAlign: 'center',
     opacity: 0.9,
   },

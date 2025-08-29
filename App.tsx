@@ -3,10 +3,10 @@ import { StatusBar } from 'expo-status-bar';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import AppNavigator from './src/navigation/AppNavigator';
-import { storageService } from './src/services/StorageService';
-import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
-import { LoadingScreen } from './src/components/common';
+import RootNavigator from './src/navigation/RootNavigator';
+import { storageService } from './src/services/storage.service';
+import { ThemeProvider, useTheme } from './src/contexts/theme.context';
+import { LoadingSpinner } from './src/components/common';
 
 /**
  * App content component that uses theme context
@@ -38,7 +38,7 @@ const AppContent: React.FC = () => {
   // Show loading state while initializing
   if (!isInitialized) {
     return (
-      <LoadingScreen 
+      <LoadingSpinner 
         message={initError || 'Initializing...'} 
         variant="primary"
       />
@@ -47,7 +47,7 @@ const AppContent: React.FC = () => {
 
   return (
     <>
-      <AppNavigator />
+      <RootNavigator />
       <StatusBar style={theme.statusBarStyle as any} />
     </>
   );

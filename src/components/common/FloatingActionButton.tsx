@@ -8,7 +8,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/theme.context';
+import { Colors, Layout, Shadows, PlatformStyles } from '../../styles';
 
 /**
  * Props for ProfessionalFAB component
@@ -38,46 +39,44 @@ const ProfessionalFAB: React.FC<ProfessionalFABProps> = ({
 
   /**
    * Get solid colors based on variant
+   * Uses shared color constants for consistency
    */
   const getFABColor = (): string => {
     switch (variant) {
       case 'primary':
-        return '#2563EB'; // Professional blue (same as buttons)
+        return Colors.PRIMARY_BLUE;
       case 'secondary':
-        return theme.isDark ? '#CA8A04' : '#FDE047'; // Dark yellow for dark mode, bright yellow for light mode
+        return theme.isDark ? Colors.SECONDARY_YELLOW_DARK : Colors.SECONDARY_YELLOW;
       case 'accent':
         return theme.colors.accent;
       default:
-        return '#2563EB'; // Professional blue
+        return Colors.PRIMARY_BLUE;
     }
   };
 
   /**
    * Get FAB size based on size prop
+   * Uses shared layout constants
    */
   const getFABSize = (): number => {
-    switch (size) {
-      case 'small':
-        return 48;
-      case 'large':
-        return 64;
-      default: // medium
-        return 56;
-    }
+    const sizes = {
+      small: Layout.FAB_SIZE_SM,
+      medium: Layout.FAB_SIZE_MD,
+      large: Layout.FAB_SIZE_LG,
+    };
+    return sizes[size];
   };
 
   /**
    * Get icon size based on FAB size
    */
   const getIconSize = (): number => {
-    switch (size) {
-      case 'small':
-        return 20;
-      case 'large':
-        return 28;
-      default: // medium
-        return 24;
-    }
+    const iconSizes = {
+      small: 20,
+      medium: 24,
+      large: 28,
+    };
+    return iconSizes[size];
   };
 
   const fabSize = getFABSize();
@@ -111,7 +110,7 @@ const ProfessionalFAB: React.FC<ProfessionalFABProps> = ({
       <Ionicons 
         name={icon} 
         size={iconSize} 
-        color="#FFFFFF" 
+        color={Colors.WHITE} 
       />
     </TouchableOpacity>
   );
@@ -123,10 +122,7 @@ const styles = StyleSheet.create({
     right: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 12,
+    ...Shadows.LARGE,
   },
 });
 

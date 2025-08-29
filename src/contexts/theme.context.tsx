@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useColorScheme, StatusBarStyle } from 'react-native';
 import { ThemeMode } from '../types';
-import { storageService } from '../services/StorageService';
+import { storageService } from '../services/storage.service';
 
 /**
  * Theme colors for light and dark modes

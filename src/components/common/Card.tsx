@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/theme.context';
+import { CardStyles, Colors, mergeStyles } from '../../styles';
 
 /**
  * Props for GradientCard component
@@ -34,7 +35,7 @@ const GradientCard: React.FC<GradientCardProps> = ({
       case 'primary':
         return theme.colors.primary;
       case 'secondary':
-        return theme.isDark ? '#CA8A04' : '#FDE047'; // Dark yellow for dark mode, bright yellow for light mode
+        return theme.isDark ? Colors.SECONDARY_YELLOW_DARK : Colors.SECONDARY_YELLOW;
       case 'accent':
         return theme.colors.accent;
       case 'surface':
@@ -45,25 +46,14 @@ const GradientCard: React.FC<GradientCardProps> = ({
 
   /**
    * Get card styles based on variant and elevation
+   * Uses shared style constants for consistency
    */
   const getCardStyles = (): ViewStyle => {
-    const baseStyles: ViewStyle = {
-      backgroundColor: theme.colors.surface,
-      borderRadius: 16,
-      padding: 20,
-      marginVertical: 8,
-      marginHorizontal: 16,
-    };
+    const baseStyles = { ...CardStyles.base };
+    const elevatedStyles = elevated ? CardStyles.elevated : {};
+    const surfaceStyles = CardStyles.surface(theme.colors.surface);
 
-    if (elevated) {
-      baseStyles.shadowColor = theme.colors.shadow;
-      baseStyles.shadowOffset = { width: 0, height: 8 };
-      baseStyles.shadowOpacity = 0.12;
-      baseStyles.shadowRadius = 16;
-      baseStyles.elevation = 8;
-    }
-
-    return baseStyles;
+    return mergeStyles(baseStyles, surfaceStyles, elevatedStyles);
   };
 
   return (
@@ -85,6 +75,8 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 16,
     padding: 20,
+    // Note: This component maintains its existing structure
+    // The gradient styling is preserved for visual consistency
   },
 });
 

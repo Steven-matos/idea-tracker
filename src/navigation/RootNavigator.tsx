@@ -5,15 +5,15 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 
-// Import screens (we'll create these next)
-import NotesScreen from '../screens/NotesScreen';
-import CategoriesScreen from '../screens/CategoriesScreen';
+// Import screens with updated names
+import NotesListScreen from '../screens/NotesListScreen';
+import CategoriesListScreen from '../screens/CategoriesListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import CreateNoteScreen from '../screens/CreateNoteScreen';
-import EditNoteScreen from '../screens/EditNoteScreen';
+import NoteCreateScreen from '../screens/NoteCreateScreen';
+import NoteEditScreen from '../screens/NoteEditScreen';
 
 import { RootStackParamList, BottomTabParamList } from '../types';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../contexts/theme.context';
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
@@ -89,14 +89,14 @@ const TabNavigator: React.FC = () => {
       */}
       <Tab.Screen 
         name="Notes" 
-        component={NotesScreen}
+        component={NotesListScreen}
         options={{ 
           headerShown: false // Hide header/title only
         }}
       />
       <Tab.Screen 
         name="Categories" 
-        component={CategoriesScreen}
+        component={CategoriesListScreen}
         options={{ 
           title: 'Categories',
           headerShown: false // Hide header/title only
@@ -160,7 +160,7 @@ const AppNavigator: React.FC = () => {
         />
         <Stack.Screen 
           name="CreateNote" 
-          component={CreateNoteScreen}
+          component={NoteCreateScreen}
           options={{ 
             headerShown: false,
             presentation: 'modal',
@@ -168,7 +168,7 @@ const AppNavigator: React.FC = () => {
         />
         <Stack.Screen 
           name="EditNote" 
-          component={EditNoteScreen}
+          component={NoteEditScreen}
           options={{ 
             title: 'Edit Note',
             presentation: 'modal',

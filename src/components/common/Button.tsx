@@ -8,7 +8,8 @@ import {
   ActivityIndicator 
 } from 'react-native';
 
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/theme.context';
+import { ButtonStyles, Colors, TextStyles, mergeStyles } from '../../styles';
 
 /**
  * Props for ProfessionalButton component
@@ -48,102 +49,73 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
 
   /**
    * Get button styles based on variant and size
+   * Uses shared style constants for consistency
    */
   const getButtonStyles = (): ViewStyle => {
-    const baseStyles: ViewStyle = {
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'row',
-    };
+    const baseStyles = { ...ButtonStyles.base };
+    const sizeStyles = ButtonStyles.sizes[size];
 
-    // Add solid background colors for variants
+    // Add variant-specific styles
+    let variantStyles: ViewStyle = {};
+    
     if (!disabled) {
       switch (variant) {
         case 'primary':
-          baseStyles.backgroundColor = '#2563EB'; // Professional blue
+          variantStyles = ButtonStyles.variants.primary;
           break;
         case 'secondary':
-          baseStyles.backgroundColor = theme.isDark ? '#CA8A04' : '#FDE047'; // Dark yellow for dark mode, bright yellow for light mode
+          variantStyles = ButtonStyles.variants.secondary(theme.isDark);
           break;
         case 'destructive':
-          baseStyles.backgroundColor = theme.colors.error;
+          variantStyles = ButtonStyles.variants.destructive;
           break;
         case 'success':
-          baseStyles.backgroundColor = theme.colors.success;
+          variantStyles = ButtonStyles.variants.success;
           break;
         case 'outline':
-          baseStyles.backgroundColor = 'transparent';
+          variantStyles = {
+            ...ButtonStyles.variants.outline(theme.colors.primary),
+            borderColor: theme.colors.primary,
+          };
           break;
         case 'ghost':
-          baseStyles.backgroundColor = 'transparent';
+          variantStyles = ButtonStyles.variants.ghost;
           break;
       }
     } else {
-      baseStyles.backgroundColor = theme.colors.border;
+      variantStyles = { backgroundColor: theme.colors.border };
     }
 
-    // Size variations
-    switch (size) {
-      case 'small':
-        baseStyles.paddingHorizontal = 16;
-        baseStyles.paddingVertical = 8;
-        baseStyles.minHeight = 36;
-        break;
-      case 'large':
-        baseStyles.paddingHorizontal = 32;
-        baseStyles.paddingVertical = 16;
-        baseStyles.minHeight = 56;
-        break;
-      default: // medium
-        baseStyles.paddingHorizontal = 24;
-        baseStyles.paddingVertical = 12;
-        baseStyles.minHeight = 48;
-    }
-
-    // Variant-specific styles
-    if (variant === 'outline') {
-      baseStyles.borderWidth = 2;
-      baseStyles.borderColor = theme.colors.primary;
-    }
-
-    if (variant === 'ghost') {
-      baseStyles.backgroundColor = 'transparent';
-    }
-
-    return baseStyles;
+    return mergeStyles(baseStyles, sizeStyles, variantStyles);
   };
 
   /**
    * Get text styles based on variant and size
+   * Uses shared typography styles for consistency
    */
   const getTextStyles = (): TextStyle => {
     const baseStyles: TextStyle = {
-      fontWeight: '600',
+      fontWeight: TextStyles.bodyMedium.fontWeight,
       textAlign: 'center',
     };
 
-    // Size variations
-    switch (size) {
-      case 'small':
-        baseStyles.fontSize = 14;
-        break;
-      case 'large':
-        baseStyles.fontSize = 18;
-        break;
-      default: // medium
-        baseStyles.fontSize = 16;
-    }
+    // Size-based font sizes
+    const fontSizes = {
+      small: 14,
+      medium: 16,
+      large: 18,
+    };
+    baseStyles.fontSize = fontSizes[size];
 
     // Variant-specific text colors
     if (disabled) {
       baseStyles.color = theme.colors.textSecondary;
-    } else if (variant === 'outline') {
+    } else if (variant === 'outline' || variant === 'ghost') {
       baseStyles.color = theme.colors.primary;
-    } else if (variant === 'ghost') {
-      baseStyles.color = theme.colors.primary;
+    } else if (variant === 'secondary') {
+      baseStyles.color = '#1F2937'; // Dark text for yellow background
     } else {
-      baseStyles.color = '#FFFFFF';
+      baseStyles.color = Colors.WHITE;
     }
 
     return baseStyles;
@@ -159,7 +131,7 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
       
       {loading ? (
         <ActivityIndicator 
-          color={variant === 'outline' || variant === 'ghost' ? theme.colors.primary : '#FFFFFF'} 
+          color={variant === 'outline' || variant === 'ghost' ? theme.colors.primary : Colors.WHITE} 
           size="small" 
         />
       ) : (

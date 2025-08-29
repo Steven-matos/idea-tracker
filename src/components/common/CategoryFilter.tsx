@@ -7,7 +7,7 @@ import {
   ViewStyle,
   FlatList 
 } from 'react-native';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/theme.context';
 
 /**
  * Props for ProfessionalCategoryFilter component

@@ -1,6 +1,11 @@
 /**
- * Services module exports
- * Centralizes all service exports for cleaner imports
+ * Services index file
+ * Centralized export for all application services
+ * Implements SOLID principles by organizing services into focused modules
  */
 
-export { storageService, default as StorageService } from './StorageService';
+// Storage Services
+export { storageService, default as StorageService } from './storage.service';
+
+// Re-export for convenience
+export { storageService as storage } from './storage.service';

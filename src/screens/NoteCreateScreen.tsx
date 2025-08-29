@@ -33,10 +33,11 @@ import { storageService } from '../services';
 import { generateId, formatDuration, isValidString } from '../utils';
 
 // Import custom theme context hook for theming
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../contexts/theme.context';
 
 // Import common UI components
-import { GradientCard, ProfessionalButton } from '../components/common';
+import { GradientCard, ProfessionalButton, ColorPicker } from '../components/common';
+import { COLOR_OPTIONS, Spacing, TextStyles, Colors, InputStyles } from '../styles';
 
 type CreateNoteScreenNavigationProp = any;
 type CreateNoteScreenRouteProp = RouteProp<RootStackParamList, 'CreateNote'>;
@@ -80,15 +81,8 @@ const CreateNoteScreen: React.FC = () => {
   const [newCategoryColor, setNewCategoryColor] = useState('#8B5CF6');
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
 
-  // Predefined color options
-  const colorOptions = [
-    '#8B5CF6', // Purple
-    '#3B82F6', // Blue  
-    '#10B981', // Green
-    '#F59E0B', // Orange
-    '#EF4444', // Red
-    '#8B5A2B', // Brown
-  ];
+  // Use shared color options for consistency
+  const colorOptions = COLOR_OPTIONS;
   
   // Animation
   const pulseAnim = useState(new Animated.Value(1))[0];
@@ -611,7 +605,7 @@ const CreateNoteScreen: React.FC = () => {
         borderBottomColor: theme.colors.border 
       }]}>
         <TouchableOpacity onPress={handleCancel}>
-          <Text style={[styles.cancelButton, { color: '#EF4444' }]}>Cancel</Text>
+          <Text style={[styles.cancelButton, { color: Colors.ERROR_RED }]}>Cancel</Text>
         </TouchableOpacity>
         <Text style={[styles.actionBarTitle, { color: theme.colors.text }]}>
           New Note
@@ -875,28 +869,13 @@ const CreateNoteScreen: React.FC = () => {
               value={newCategoryName}
               onChangeText={setNewCategoryName}
             />
-            <View style={styles.modalColorPicker}>
-              <Text style={[styles.modalLabel, { color: theme.colors.text }]}>
-                Choose a color for your category
-              </Text>
-              <View style={styles.colorGrid}>
-                {colorOptions.map((color) => (
-                  <TouchableOpacity
-                    key={color}
-                    style={[
-                      styles.colorOption,
-                      { backgroundColor: color },
-                      newCategoryColor === color && styles.selectedColorOption
-                    ]}
-                    onPress={() => setNewCategoryColor(color)}
-                  >
-                    {newCategoryColor === color && (
-                      <Ionicons name="checkmark" size={16} color="#fff" />
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+            <ColorPicker
+              label="Choose a color for your category"
+              selectedColor={newCategoryColor}
+              onColorSelect={setNewCategoryColor}
+              colors={colorOptions}
+              style={styles.modalColorPicker}
+            />
             
             <View style={styles.modalButtons}>
               <ProfessionalButton
@@ -928,49 +907,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    padding: 20,
-    paddingBottom: 20,
+    padding: Spacing.LG,
+    paddingBottom: Spacing.LG,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
+    ...TextStyles.h3,
+    marginBottom: Spacing.BASE,
   },
   typeSelector: {
     flexDirection: 'row',
-    gap: 12,
+    gap: Spacing.MD,
   },
   typeOption: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    gap: Spacing.SM,
+    paddingVertical: Spacing.BASE,
+    paddingHorizontal: Spacing.LG,
     borderRadius: 12,
     backgroundColor: '#f0f0f0',
   },
   typeText: {
-    fontSize: 16,
-    fontWeight: '500',
+    ...TextStyles.bodyMedium,
   },
   textInput: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    lineHeight: 22,
-    minHeight: 120,
+    ...InputStyles.base,
+    ...InputStyles.multiline,
   },
   characterCount: {
-    fontSize: 12,
+    ...TextStyles.label,
     textAlign: 'right',
-    marginTop: 8,
+    marginTop: Spacing.SM,
   },
   recordingControls: {
     alignItems: 'center',
-    marginVertical: 20,
+    marginVertical: Spacing.LG,
   },
   recordingActions: {
     flexDirection: 'row',

@@ -14,9 +14,9 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import * as Audio from 'expo-audio';
 
 import { Note, Category, RootStackParamList } from '../types';
-import { storageService } from '../services/StorageService';
+import { storageService } from '../services/storage.service';
 import { isValidString } from '../utils';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../contexts/theme.context';
 import { GradientCard, ProfessionalButton, ProfessionalHeader } from '../components/common';
 
 type EditNoteScreenNavigationProp = any;

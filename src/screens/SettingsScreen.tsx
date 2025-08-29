@@ -12,8 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { AppSettings, ThemeMode } from '../types';
-import { storageService } from '../services/StorageService';
-import { useTheme } from '../contexts/ThemeContext';
+import { storageService } from '../services/storage.service';
+import { useTheme } from '../contexts/theme.context';
 
 /**
  * Screen for app settings and preferences

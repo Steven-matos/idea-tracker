@@ -15,10 +15,21 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 import { Note, Category, NoteFilters, RootStackParamList } from '../types';
-import { storageService } from '../services/StorageService';
+import { storageService } from '../services/storage.service';
 import { formatDate, truncateText, filterBySearchText, getLightColor } from '../utils';
-import { useTheme } from '../contexts/ThemeContext';
-import { GradientCard, ProfessionalButton, ProfessionalHeader, ProfessionalSearchInput, ProfessionalCategoryFilter, ProfessionalFAB } from '../components/common';
+import { useTheme } from '../contexts/theme.context';
+import { useAsyncOperation } from '../hooks';
+import { 
+  GradientCard, 
+  ProfessionalButton, 
+  ProfessionalHeader, 
+  ProfessionalSearchInput, 
+  ProfessionalCategoryFilter, 
+  ProfessionalFAB,
+  EmptyState,
+  ActionButton
+} from '../components/common';
+import { Spacing, TextStyles, Colors } from '../styles';
 
 type NotesScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -184,21 +195,19 @@ const NotesScreen: React.FC = () => {
         )}
         
         <View style={styles.noteActions}>
-          <TouchableOpacity
-            style={styles.actionButton}
+          <ActionButton
+            icon="create-outline"
+            text="Edit"
             onPress={() => handleEditNote(item)}
-          >
-            <Ionicons name="create-outline" size={20} color={theme.colors.primary} />
-            <Text style={[styles.actionText, { color: theme.colors.primary }]}>Edit</Text>
-          </TouchableOpacity>
+            color={theme.colors.primary}
+          />
           
-          <TouchableOpacity
-            style={styles.actionButton}
+          <ActionButton
+            icon="trash-outline"
+            text="Delete"
             onPress={() => deleteNote(item)}
-          >
-            <Ionicons name="trash-outline" size={20} color={theme.colors.error} />
-            <Text style={[styles.actionText, { color: theme.colors.error }]}>Delete</Text>
-          </TouchableOpacity>
+            color={theme.colors.error}
+          />
         </View>
       </GradientCard>
     );
@@ -206,23 +215,17 @@ const NotesScreen: React.FC = () => {
 
   /**
    * Render empty state when no notes exist
+   * Uses shared EmptyState component for consistency
    */
   const renderEmptyState = () => (
-    <View style={styles.emptyState}>
-      <Ionicons name="bulb-outline" size={64} color={theme.colors.textSecondary} />
-      <Text style={[styles.emptyStateTitle, { color: theme.colors.text }]}>
-        No Notes Yet
-      </Text>
-      <Text style={[styles.emptyStateSubtitle, { color: theme.colors.textSecondary }]}>
-        Start capturing your thoughts by creating your first note
-      </Text>
-      <ProfessionalButton
-        title="Create Note"
-        onPress={handleCreateNote}
-        variant="primary"
-        style={styles.createButton}
-      />
-    </View>
+    <EmptyState
+      icon="bulb-outline"
+      title="No Notes Yet"
+      subtitle="Start capturing your thoughts by creating your first note"
+      actionText="Create Note"
+      onAction={handleCreateNote}
+      actionVariant="primary"
+    />
   );
 
   // Apply filters when data changes
@@ -302,32 +305,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingHorizontal: Spacing.LG,
+    paddingBottom: Spacing.BASE,
   },
   noteList: {
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.LG,
     paddingBottom: 100,
   },
   noteHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing.MD,
   },
   noteTypeAndCategory: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: Spacing.SM,
   },
   categoryBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: Spacing.SM,
+    paddingVertical: Spacing.XS,
     borderRadius: 12,
   },
   categoryText: {
-    fontSize: 12,
-    fontWeight: '500',
+    ...TextStyles.label,
   },
   noteTypeIcon: {
     width: 20,
@@ -336,59 +338,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dateText: {
-    fontSize: 12,
-    fontWeight: '400',
+    ...TextStyles.label,
   },
   noteContent: {
-    fontSize: 16,
-    lineHeight: 22,
-    marginBottom: 12,
+    ...TextStyles.body,
+    marginBottom: Spacing.MD,
   },
   audioDuration: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 12,
+    gap: Spacing.XS,
+    marginBottom: Spacing.MD,
   },
   audioDurationText: {
-    fontSize: 12,
-    fontWeight: '400',
+    ...TextStyles.label,
   },
   noteActions: {
     flexDirection: 'row',
-    gap: 16,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  actionText: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingTop: 60,
-  },
-  emptyStateTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginTop: 16,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptyStateSubtitle: {
-    fontSize: 16,
-    lineHeight: 22,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  createButton: {
-    minWidth: 140,
+    gap: Spacing.BASE,
   },
 });
 

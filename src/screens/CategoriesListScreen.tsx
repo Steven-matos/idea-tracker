@@ -22,13 +22,18 @@ import { storageService } from '../services';
 
 // Import utility functions for ID generation, string validation, and color contrast  
 import { generateId, isValidString, getContrastColor } from '../utils';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../contexts/theme.context';
+import { useAsyncOperation } from '../hooks';
 import { 
   GradientCard, 
   ProfessionalButton, 
   ProfessionalHeader, 
-  ProfessionalFAB
+  ProfessionalFAB,
+  EmptyState,
+  ActionButton,
+  ColorPicker
 } from '../components/common';
+import { COLOR_OPTIONS, Spacing, TextStyles, Colors } from '../styles';
 
 /**
  * Screen for managing categories
@@ -39,15 +44,8 @@ const CategoriesScreen: React.FC = () => {
   // Default color for new categories
   const defaultColor = '#8B5CF6';
   
-  // Predefined color options matching CreateNoteScreen
-  const colorOptions = [
-    '#8B5CF6', // Purple
-    '#3B82F6', // Blue  
-    '#10B981', // Green
-    '#F59E0B', // Orange
-    '#EF4444', // Red
-    '#8B5A2B', // Brown
-  ];
+  // Use shared color options for consistency
+  const colorOptions = COLOR_OPTIONS;
   
   // State management
   const [categories, setCategories] = useState<Category[]>([]);
@@ -274,47 +272,28 @@ const CategoriesScreen: React.FC = () => {
   };
 
   /**
-   * Render color picker with predefined color options
-   * Follows SOLID principles with single responsibility for color selection
-   * Uses DRY principle by reusing the same color selection pattern as CreateNoteScreen
-   * Implements KISS principle with simple color grid interface
+   * Render color picker using shared ColorPicker component
+   * Uses shared component for consistency and DRY principles
    */
   const renderColorPicker = () => (
-    <View style={styles.colorPicker}>
-      <Text style={[styles.modalLabel, { color: theme.colors.text }]}>Color</Text>
-      <View style={styles.colorGrid}>
-        {colorOptions.map((color) => (
-          <TouchableOpacity
-            key={color}
-            style={[
-              styles.colorOption,
-              { backgroundColor: color },
-              selectedColor === color && styles.selectedColorOption
-            ]}
-            onPress={() => setSelectedColor(color)}
-          >
-            {selectedColor === color && (
-              <Ionicons name="checkmark" size={16} color="#fff" />
-            )}
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
+    <ColorPicker
+      label="Color"
+      selectedColor={selectedColor}
+      onColorSelect={setSelectedColor}
+      colors={colorOptions}
+      style={styles.colorPicker}
+    />
   );
 
   /**
-   * Render empty state
+   * Render empty state using shared EmptyState component
    */
   const renderEmptyState = () => (
-    <View style={styles.emptyState}>
-      <Ionicons name="folder-outline" size={64} color={theme.colors.textSecondary} />
-      <Text style={[styles.emptyStateTitle, { color: theme.colors.textSecondary }]}>
-        No Categories
-      </Text>
-      <Text style={[styles.emptyStateSubtitle, { color: theme.colors.textSecondary }]}>
-        Tap the + button to create your first category
-      </Text>
-    </View>
+    <EmptyState
+      icon="folder-outline"
+      title="No Categories"
+      subtitle="Tap the + button to create your first category"
+    />
   );
 
   // Load categories when screen focuses
@@ -369,7 +348,7 @@ const CategoriesScreen: React.FC = () => {
             borderBottomColor: theme.colors.border 
           }]}>
             <TouchableOpacity onPress={closeModal}>
-              <Text style={[styles.cancelButton, { color: '#EF4444' }]}>Cancel</Text>
+              <Text style={[styles.cancelButton, { color: Colors.ERROR_RED }]}>Cancel</Text>
             </TouchableOpacity>
             <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
               {editingCategory ? 'Edit Category' : 'New Category'}
@@ -453,8 +432,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoriesList: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.BASE,
+    paddingVertical: Spacing.BASE,
     paddingBottom: 100,
   },
   categoryInfo: {
@@ -466,42 +445,26 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    marginRight: 12,
+    marginRight: Spacing.MD,
   },
   categoryDetails: {
     flex: 1,
   },
   categoryName: {
+    ...TextStyles.bodyMedium,
     fontSize: 17,
-    fontWeight: '600',
     marginBottom: 2,
   },
   categoryDate: {
-    fontSize: 13,
+    ...TextStyles.caption,
   },
   categoryActions: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   actionButton: {
-    padding: 8,
-    marginLeft: 8,
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptyStateSubtitle: {
-    fontSize: 16,
-    textAlign: 'center',
+    padding: Spacing.SM,
+    marginLeft: Spacing.SM,
   },
   modalContainer: {
     flex: 1,
@@ -510,38 +473,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.BASE,
     paddingTop: 60,
-    paddingBottom: 16,
+    paddingBottom: Spacing.BASE,
     borderBottomWidth: 0.5,
   },
   modalTitle: {
+    ...TextStyles.bodyMedium,
     fontSize: 17,
-    fontWeight: '600',
   },
   cancelButton: {
+    ...TextStyles.body,
     fontSize: 17,
   },
   saveButton: {
+    ...TextStyles.bodyMedium,
     fontSize: 17,
-    fontWeight: '600',
   },
   modalContent: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingHorizontal: Spacing.BASE,
+    paddingTop: Spacing.BASE,
   },
   inputSection: {
-    marginBottom: 32,
+    marginBottom: Spacing.XXL,
   },
   modalLabel: {
+    ...TextStyles.bodyMedium,
     fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: Spacing.MD,
   },
   textInput: {
     borderRadius: 12,
-    padding: 16,
+    padding: Spacing.BASE,
     fontSize: 16,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
@@ -550,19 +514,19 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   helperText: {
-    fontSize: 12,
+    ...TextStyles.label,
     marginTop: 6,
     fontStyle: 'italic',
   },
   colorPicker: {
-    marginBottom: 32,
+    marginBottom: Spacing.XXL,
   },
   previewSection: {
-    marginBottom: 32,
+    marginBottom: Spacing.XXL,
   },
   previewContainer: {
     borderRadius: 12,
-    padding: 16,
+    padding: Spacing.BASE,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
@@ -572,37 +536,9 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   previewText: {
+    ...TextStyles.bodyMedium,
     fontSize: 17,
-    fontWeight: '600',
-    marginLeft: 12,
-  },
-  colorGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 12,
-    marginTop: 8,
-  },
-  colorOption: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  selectedColorOption: {
-    borderColor: '#fff',
-    borderWidth: 3,
-    elevation: 4,
-    shadowOpacity: 0.3,
+    marginLeft: Spacing.MD,
   },
 });
 
