@@ -1,4 +1,4 @@
-# Idea Tracker
+# Note Taker
 
 A React Native application built with Expo for capturing and organizing your ideas. Create text-based ideas or record voice notes, organize them with customizable categories, and manage them locally on your device with a beautiful iOS-inspired interface.
 
@@ -234,10 +234,6 @@ interface AppSettings {
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
