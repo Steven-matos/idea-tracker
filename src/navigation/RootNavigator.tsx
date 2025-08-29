@@ -13,6 +13,7 @@ import CategoriesListScreen from '../screens/CategoriesListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import NoteCreateScreen from '../screens/NoteCreateScreen';
 import NoteEditScreen from '../screens/NoteEditScreen';
+import NoteViewScreen from '../screens/NoteViewScreen';
 import CategoryCreateScreen from '../screens/CategoryCreateScreen';
 
 import { RootStackParamList, BottomTabParamList } from '../types';
@@ -292,6 +293,14 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen 
           name="EditNote" 
           component={NoteEditScreen}
+          options={{ 
+            headerShown: false,
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen 
+          name="ViewNote" 
+          component={NoteViewScreen}
           options={{ 
             headerShown: false,
             presentation: 'modal',

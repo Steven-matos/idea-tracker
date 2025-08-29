@@ -96,6 +96,7 @@ export type RootStackParamList = {
   Home: undefined;
   CreateNote: { categoryId?: string };
   EditNote: { noteId: string };
+  ViewNote: { noteId: string };
   CreateCategory: undefined;
   Categories: undefined;
   Settings: undefined;

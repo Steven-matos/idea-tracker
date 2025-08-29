@@ -21,10 +21,10 @@ import {
 
 import { Note, Category, RootStackParamList } from '../types';
 import { storageService } from '../services/storage.service';
-import { isValidString } from '../utils';
+import { isValidString, getLightColor } from '../utils';
 import { useTheme } from '../contexts/theme.context';
 import { GradientCard, ProfessionalButton, ColorPicker, NoteFormCard } from '../components/common';
-import { Colors } from '../styles';
+import { Colors, Spacing } from '../styles';
 
 
 type EditNoteScreenNavigationProp = any;
@@ -372,13 +372,33 @@ const EditNoteScreen: React.FC = () => {
 
 
         {/* Delete Note */}
-        <GradientCard variant="surface" elevated>
-          <ProfessionalButton
-            title="Delete Note"
+        <GradientCard variant="surface" elevated style={styles.deleteCard}>
+          <TouchableOpacity
+            style={[
+              styles.deleteButton,
+              { 
+                borderColor: theme.colors.error,
+                backgroundColor: getLightColor(theme.colors.error, 0.05)
+              }
+            ]}
             onPress={deleteNote}
-            variant="destructive"
-            style={styles.deleteNoteButton}
-          />
+            activeOpacity={0.7}
+          >
+            <View style={styles.deleteButtonContent}>
+              <View style={[
+                styles.deleteButtonIcon,
+                { backgroundColor: getLightColor(theme.colors.error, 0.1) }
+              ]}>
+                <Ionicons name="trash-outline" size={16} color={theme.colors.error} />
+              </View>
+              <View style={styles.deleteButtonTextContainer}>
+                <Text style={[styles.deleteButtonText, { color: theme.colors.error }]}>
+                  Delete Note
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={14} color={theme.colors.error} />
+            </View>
+          </TouchableOpacity>
         </GradientCard>
       </ScrollView>
 
@@ -474,8 +494,42 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
   },
-  deleteNoteButton: {
+  deleteCard: {
+    padding: Spacing.MD,
+  },
+  deleteButton: {
     width: '100%',
+    paddingVertical: Spacing.MD,
+    paddingHorizontal: Spacing.MD,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  deleteButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  deleteButtonIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteButtonTextContainer: {
+    flex: 1,
+    marginHorizontal: Spacing.SM,
+  },
+  deleteButtonText: {
+    fontSize: 15,
+    fontWeight: '500',
   },
 
 });

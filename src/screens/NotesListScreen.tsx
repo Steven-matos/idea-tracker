@@ -99,37 +99,13 @@ const NotesScreen: React.FC = () => {
     setFilteredNotes(filtered);
   }, [notes, searchText, selectedCategoryId]);
 
-  /**
-   * Delete a note with confirmation
-   */
-  const deleteNote = (note: Note) => {
-    Alert.alert(
-      'Delete Note',
-      'Are you sure you want to delete this note? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await storageService.deleteNote(note.id);
-              await loadData();
-            } catch (error) {
-              console.error('Error deleting note:', error);
-              Alert.alert('Error', 'Failed to delete note. Please try again.');
-            }
-          },
-        },
-      ]
-    );
-  };
+
 
   /**
-   * Navigate to edit note screen
+   * Navigate to view note screen
    */
-  const handleEditNote = (note: Note) => {
-    navigation.navigate('EditNote', { noteId: note.id });
+  const handleViewNote = (note: Note) => {
+    navigation.navigate('ViewNote', { noteId: note.id });
   };
 
   /**
@@ -153,62 +129,57 @@ const NotesScreen: React.FC = () => {
     const category = categories.find(c => c.id === item.categoryId);
     
     return (
-      <GradientCard variant="surface" elevated>
-        <View style={styles.noteHeader}>
-          <View style={styles.noteTypeAndCategory}>
-            <View style={[
-              styles.categoryBadge,
-              { backgroundColor: category ? getLightColor(category.color, 0.2) : getLightColor(theme.colors.textSecondary, 0.2) }
-            ]}>
-              <Text style={[
-                styles.categoryText,
-                { color: category?.color || theme.colors.textSecondary }
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => handleViewNote(item)}
+        style={styles.noteTouchable}
+      >
+        <GradientCard variant="surface" elevated>
+          <View style={styles.noteHeader}>
+            <View style={styles.noteTypeAndCategory}>
+              <View style={[
+                styles.categoryBadge,
+                { backgroundColor: category ? getLightColor(category.color, 0.2) : getLightColor(theme.colors.textSecondary, 0.2) }
               ]}>
-                {category?.name || 'Unknown'}
-              </Text>
+                <Text style={[
+                  styles.categoryText,
+                  { color: category?.color || theme.colors.textSecondary }
+                ]}>
+                  {category?.name || 'Unknown'}
+                </Text>
+              </View>
+              <View style={styles.noteTypeIcon}>
+                <Ionicons 
+                  name={item.type === 'voice' ? 'mic' : 'document-text'} 
+                  size={16} 
+                  color={theme.colors.textSecondary} 
+                />
+              </View>
             </View>
-            <View style={styles.noteTypeIcon}>
-              <Ionicons 
-                name={item.type === 'voice' ? 'mic' : 'document-text'} 
-                size={16} 
-                color={theme.colors.textSecondary} 
-              />
-            </View>
-          </View>
-          <Text style={[styles.dateText, { color: theme.colors.textSecondary }]}>
-            {formatDate(item.createdAt)}
-          </Text>
-        </View>
-        
-        <Text style={[styles.noteContent, { color: theme.colors.text }]} numberOfLines={3}>
-          {item.label}
-        </Text>
-        
-        {item.type === 'voice' && item.audioDuration && (
-          <View style={styles.audioDuration}>
-            <Ionicons name="time-outline" size={14} color={theme.colors.textSecondary} />
-            <Text style={[styles.audioDurationText, { color: theme.colors.textSecondary }]}>
-              {Math.floor(item.audioDuration / 60)}:{(item.audioDuration % 60).toFixed(0).padStart(2, '0')}
+            <Text style={[styles.dateText, { color: theme.colors.textSecondary }]}>
+              {formatDate(item.createdAt)}
             </Text>
           </View>
-        )}
-        
-        <View style={styles.noteActions}>
-          <ActionButton
-            icon="create-outline"
-            text="Edit"
-            onPress={() => handleEditNote(item)}
-            color={theme.colors.primary}
-          />
           
-          <ActionButton
-            icon="trash-outline"
-            text="Delete"
-            onPress={() => deleteNote(item)}
-            color={theme.colors.error}
-          />
-        </View>
-      </GradientCard>
+          <Text style={[styles.noteContent, { color: theme.colors.text }]} numberOfLines={3}>
+            {item.label}
+          </Text>
+          
+          {item.type === 'voice' && item.audioDuration && (
+            <View style={styles.audioDuration}>
+              <Ionicons name="time-outline" size={14} color={theme.colors.textSecondary} />
+              <Text style={[styles.audioDurationText, { color: theme.colors.textSecondary }]}>
+                {Math.floor(item.audioDuration / 60)}:{(item.audioDuration % 60).toFixed(0).padStart(2, '0')}
+              </Text>
+            </View>
+          )}
+          
+          {/* View indicator */}
+          <View style={styles.viewIndicator}>
+            <Ionicons name="chevron-forward" size={16} color={theme.colors.textSecondary} />
+          </View>
+        </GradientCard>
+      </TouchableOpacity>
     );
   };
 
@@ -346,9 +317,12 @@ const styles = StyleSheet.create({
   audioDurationText: {
     ...TextStyles.label,
   },
-  noteActions: {
-    flexDirection: 'row',
-    gap: Spacing.BASE,
+  noteTouchable: {
+    marginBottom: Spacing.MD,
+  },
+  viewIndicator: {
+    alignItems: 'flex-end',
+    marginTop: Spacing.SM,
   },
 });
 
