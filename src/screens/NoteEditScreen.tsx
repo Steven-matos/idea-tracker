@@ -49,7 +49,6 @@ const EditNoteScreen: React.FC = () => {
   // Voice playback state
   const [playbackObject, setPlaybackObject] = useState<any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackCheckInterval, setPlaybackCheckInterval] = useState<NodeJS.Timeout | null>(null);
   
 
   
@@ -91,10 +90,10 @@ const EditNoteScreen: React.FC = () => {
 
       if (playbackObject) {
         if (isPlaying) {
-          await playbackObject.pauseAsync();
+          playbackObject.pause();
           setIsPlaying(false);
         } else {
-          await playbackObject.playAsync();
+          playbackObject.play();
           setIsPlaying(true);
         }
         return;
@@ -108,15 +107,13 @@ const EditNoteScreen: React.FC = () => {
       player.play();
       setIsPlaying(true);
 
-      // Start playback check interval
-      const interval = setInterval(() => {
-        // Simple approach: check if still playing
-        if (playbackObject && !playbackObject.playing) {
+      // Set timeout to handle playback completion based on duration
+      if (note.audioDuration) {
+        setTimeout(() => {
           setIsPlaying(false);
-          setPlaybackCheckInterval(null);
-        }
-      }, 500);
-      setPlaybackCheckInterval(interval);
+          setPlaybackObject(null);
+        }, note.audioDuration * 1000);
+      }
 
     } catch (error) {
       console.error('Error playing recording:', error);
@@ -247,9 +244,6 @@ const EditNoteScreen: React.FC = () => {
     return () => {
       if (playbackObject) {
         stopPlayback();
-      }
-      if (playbackCheckInterval) {
-        clearInterval(playbackCheckInterval);
       }
     };
   }, []);

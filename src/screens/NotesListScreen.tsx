@@ -194,7 +194,6 @@ const NotesScreen: React.FC = () => {
       subtitle="Start capturing your thoughts by creating your first note"
       actionText="Create Note"
       onAction={handleCreateNote}
-      actionVariant="primary"
     />
   );
 

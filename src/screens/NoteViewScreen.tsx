@@ -117,7 +117,7 @@ const NoteViewScreen: React.FC = () => {
     try {
       if (isPlaying && audioPlayer) {
         // Stop current playback
-        audioPlayer.stop();
+        audioPlayer.pause();
         setIsPlaying(false);
         setAudioPlayer(null);
       } else {
@@ -151,7 +151,7 @@ const NoteViewScreen: React.FC = () => {
     return () => {
       if (audioPlayer) {
         try {
-          audioPlayer.stop();
+          audioPlayer.pause();
         } catch (error) {
           console.error('Error stopping audio player:', error);
         }

@@ -623,18 +623,21 @@ const CreateNoteScreen: React.FC = () => {
             <TouchableOpacity
               style={[
                 styles.typeOption,
-                noteType === 'text' && { backgroundColor: theme.colors.secondaryLight }
+                noteType === 'text' && { 
+                  backgroundColor: theme.colors.secondaryLight,
+                  borderColor: theme.colors.secondary
+                }
               ]}
               onPress={() => setNoteType('text')}
             >
               <Ionicons
                 name="document-text"
-                size={24}
-                color={noteType === 'text' ? theme.colors.text : (theme.isDark ? '#000000' : theme.colors.text)}
+                size={20}
+                color={noteType === 'text' ? theme.colors.secondary : theme.colors.textSecondary}
               />
               <Text style={[
                 styles.typeText,
-                { color: noteType === 'text' ? theme.colors.text : (theme.isDark ? '#000000' : theme.colors.text) }
+                { color: noteType === 'text' ? theme.colors.secondary : theme.colors.textSecondary }
               ]}>
                 Text
               </Text>
@@ -643,25 +646,28 @@ const CreateNoteScreen: React.FC = () => {
             <TouchableOpacity
               style={[
                 styles.typeOption,
-                noteType === 'voice' && { backgroundColor: theme.colors.secondaryLight }
+                noteType === 'voice' && { 
+                  backgroundColor: theme.colors.secondaryLight,
+                  borderColor: theme.colors.secondary
+                }
               ]}
               onPress={() => setNoteType('voice')}
             >
               <Ionicons
                 name="mic"
-                size={24}
-                color={noteType === 'voice' ? theme.colors.text : (theme.isDark ? '#000000' : theme.colors.text)}
+                size={20}
+                color={noteType === 'voice' ? theme.colors.secondary : theme.colors.textSecondary}
               />
               <Text style={[
                 styles.typeText,
-                { color: noteType === 'voice' ? theme.colors.text : (theme.isDark ? '#000000' : theme.colors.text) }
+                { color: noteType === 'voice' ? theme.colors.secondary : theme.colors.textSecondary }
               ]}>
                 Voice
               </Text>
             </TouchableOpacity>
           </View>
         </GradientCard>
-        {/* Note Form Card - Combined Label and Content */}
+        {/* Note Form Card - Combined Label and Content with Voice Recording */}
         <NoteFormCard
           noteLabel={noteLabel}
           onNoteLabelChange={setNoteLabel}
@@ -670,115 +676,21 @@ const CreateNoteScreen: React.FC = () => {
           isTextNote={noteType === 'text'}
           maxLabelLength={100}
           maxContentLength={1000}
+          noteType={noteType}
+          isRecording={isRecording}
+          isPlaying={isPlaying}
+          recordedUri={recordedUri}
+          recordingDeleted={recordingDeleted}
+          recordingDuration={recordingDuration}
+          playbackPosition={playbackPosition}
+          playbackDuration={playbackDuration}
+          onStartRecording={startRecording}
+          onStopRecording={stopRecording}
+          onPlayRecording={playRecording}
+          onStopPlayback={stopPlayback}
+          onDeleteRecording={deleteRecording}
+          pulseAnim={pulseAnim}
         />
-
-        {/* Voice Recording Section - Only show for voice notes */}
-        {noteType === 'voice' && (
-          <GradientCard variant="surface" elevated>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-              Voice Recording
-            </Text>
-
-            {/* Recording Controls */}
-            <View style={styles.recordingControls}>
-              {/* Show record button when no recording exists and not currently recording */}
-              {(!recordedUri || recordingDeleted) && !isRecording && (
-                <TouchableOpacity
-                  style={[styles.recordButton, { backgroundColor: theme.colors.secondaryLight }]}
-                  onPress={startRecording}
-                >
-                  <Ionicons name="mic" size={32} color={theme.colors.text} />
-                </TouchableOpacity>
-              )}
-
-              {/* Show stop button when recording */}
-              {isRecording && (
-                <TouchableOpacity
-                  style={[styles.stopButton, { backgroundColor: theme.colors.error }]}
-                  onPress={stopRecording}
-                >
-                  <Ionicons name="stop" size={32} color={theme.colors.text} />
-                </TouchableOpacity>
-              )}
-
-              {/* Show playback controls when we have a recording and not currently recording */}
-              {recordedUri && !isRecording && (
-                <View style={styles.recordingPlaybackControls}>
-                  {/* Play/Stop button */}
-                  <TouchableOpacity
-                    style={[
-                      isPlaying ? styles.stopButton : styles.playButton,
-                      { backgroundColor: isPlaying ? theme.colors.error : theme.colors.success }
-                    ]}
-                    onPress={isPlaying ? stopPlayback : playRecording}
-                  >
-                    <Ionicons
-                      name={isPlaying ? "stop" : "play"}
-                      size={32}
-                      color={theme.colors.text}
-                    />
-                  </TouchableOpacity>
-
-                  {/* Action buttons row - only show when not playing */}
-                  {!isPlaying && (
-                    <View style={styles.recordingActionButtons}>
-                      <TouchableOpacity
-                        style={[styles.actionButton, { backgroundColor: theme.colors.primary }]}
-                        onPress={startRecording}
-                      >
-                        <Ionicons name="mic" size={20} color={theme.colors.text} />
-                        <Text style={[styles.actionButtonText, { color: theme.colors.text }]}>
-                          Re-record
-                        </Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={[styles.actionButton, { backgroundColor: theme.colors.error }]}
-                        onPress={deleteRecording}
-                      >
-                        <Ionicons name="trash" size={20} color={theme.colors.text} />
-                        <Text style={[styles.actionButtonText, { color: theme.colors.text }]}>
-                          Delete
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
-              )}
-            </View>
-
-            {/* Recording Status */}
-            {isRecording && (
-              <View style={styles.recordingStatus}>
-                <Animated.View style={[styles.recordingIndicator, { transform: [{ scale: pulseAnim }] }]}>
-                  <View style={[styles.recordingDot, { backgroundColor: theme.colors.error }]} />
-                </Animated.View>
-                <Text style={[styles.recordingText, { color: theme.colors.error }]}>
-                  Recording... {formatDuration(recordingDuration)}
-                </Text>
-              </View>
-            )}
-
-            {/* Playback Status */}
-            {isPlaying && (
-              <View style={styles.recordingStatus}>
-                <View style={[styles.recordingIndicator]}>
-                  <View style={[styles.recordingDot, { backgroundColor: theme.colors.success }]} />
-                </View>
-                <Text style={[styles.recordingText, { color: theme.colors.success }]}>
-                  Playing... {formatDuration(playbackPosition)} / {formatDuration(playbackDuration)}
-                </Text>
-              </View>
-            )}
-
-            {/* Recording Duration */}
-            {recordedUri && !isRecording && !isPlaying && (
-              <Text style={[styles.durationText, { color: theme.colors.textSecondary }]}>
-                Duration: {formatDuration(recordingDuration)}
-              </Text>
-            )}
-          </GradientCard>
-        )}
 
         {/* Category Selection */}
         <GradientCard variant="surface" elevated>
@@ -846,13 +758,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.SM,
-    paddingVertical: Spacing.BASE,
-    paddingHorizontal: Spacing.LG,
-    borderRadius: 12,
-    backgroundColor: '#f0f0f0',
+    paddingVertical: Spacing.SM,
+    paddingHorizontal: Spacing.MD,
+    borderRadius: 8,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   typeText: {
     ...TextStyles.bodyMedium,
+    fontSize: 14,
+    fontWeight: '500',
   },
 
 
@@ -878,54 +794,62 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    elevation: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   actionButtonText: {
     fontSize: 14,
     fontWeight: '500',
   },
   recordButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 4,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   stopButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 4,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   playButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 4,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   recordingStatus: {
     flexDirection: 'row',

@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Animated } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/theme.context';
 import GradientCard from './Card';
+import { formatDuration } from '../../utils';
 
 interface NoteFormCardProps {
   /**
@@ -32,6 +34,23 @@ interface NoteFormCardProps {
    * Maximum length for the text content
    */
   maxContentLength?: number;
+  /**
+   * Voice recording related props
+   */
+  noteType?: 'text' | 'voice';
+  isRecording?: boolean;
+  isPlaying?: boolean;
+  recordedUri?: string | null;
+  recordingDeleted?: boolean;
+  recordingDuration?: number;
+  playbackPosition?: number;
+  playbackDuration?: number;
+  onStartRecording?: () => void;
+  onStopRecording?: () => void;
+  onPlayRecording?: () => void;
+  onStopPlayback?: () => void;
+  onDeleteRecording?: () => void;
+  pulseAnim?: any;
 }
 
 /**
@@ -46,6 +65,20 @@ export const NoteFormCard: React.FC<NoteFormCardProps> = ({
   isTextNote = true,
   maxLabelLength = 100,
   maxContentLength = 1000,
+  noteType = 'text',
+  isRecording = false,
+  isPlaying = false,
+  recordedUri = null,
+  recordingDeleted = false,
+  recordingDuration = 0,
+  playbackPosition = 0,
+  playbackDuration = 0,
+  onStartRecording,
+  onStopRecording,
+  onPlayRecording,
+  onStopPlayback,
+  onDeleteRecording,
+  pulseAnim,
 }) => {
   const { theme } = useTheme();
 
@@ -125,6 +158,129 @@ export const NoteFormCard: React.FC<NoteFormCardProps> = ({
                 {textContent.length}/{maxContentLength}
               </Text>
             </View>
+          </View>
+        )}
+
+        {/* Voice Recording Section - Only show for voice notes */}
+        {noteType === 'voice' && (
+          <View style={styles.inputSection}>
+            <Text style={[styles.inputLabel, { color: theme.colors.text }]}>
+              Voice Recording
+            </Text>
+            
+            {/* Recording Controls */}
+            <View style={styles.recordingControls}>
+              {/* Show record button when no recording exists and not currently recording */}
+              {(!recordedUri || recordingDeleted) && !isRecording && (
+                <TouchableOpacity
+                  style={[styles.recordButton, { 
+                    backgroundColor: theme.colors.secondaryLight,
+                    borderColor: theme.colors.secondary
+                  }]}
+                  onPress={onStartRecording}
+                >
+                  <Ionicons name="mic" size={24} color={theme.colors.secondary} />
+                </TouchableOpacity>
+              )}
+
+              {/* Show stop button when recording */}
+              {isRecording && (
+                <TouchableOpacity
+                  style={[styles.stopButton, { 
+                    backgroundColor: theme.colors.error,
+                    borderColor: theme.colors.error
+                  }]}
+                  onPress={onStopRecording}
+                >
+                  <Ionicons name="stop" size={24} color={theme.colors.text} />
+                </TouchableOpacity>
+              )}
+
+              {/* Show playback controls when we have a recording and not currently recording */}
+              {recordedUri && !isRecording && (
+                <View style={styles.recordingPlaybackControls}>
+                  {/* Play/Stop button */}
+                  <TouchableOpacity
+                    style={[
+                      isPlaying ? styles.stopButton : styles.playButton,
+                      { 
+                        backgroundColor: isPlaying ? theme.colors.error : theme.colors.success,
+                        borderColor: isPlaying ? theme.colors.error : theme.colors.success
+                      }
+                    ]}
+                    onPress={isPlaying ? onStopPlayback : onPlayRecording}
+                  >
+                    <Ionicons
+                      name={isPlaying ? "stop" : "play"}
+                      size={24}
+                      color={theme.colors.text}
+                    />
+                  </TouchableOpacity>
+
+                  {/* Action buttons row - only show when not playing */}
+                  {!isPlaying && (
+                    <View style={styles.recordingActionButtons}>
+                      <TouchableOpacity
+                        style={[styles.actionButton, { 
+                          backgroundColor: 'transparent',
+                          borderColor: theme.colors.primary
+                        }]}
+                        onPress={onStartRecording}
+                      >
+                        <Ionicons name="mic" size={18} color={theme.colors.primary} />
+                        <Text style={[styles.actionButtonText, { color: theme.colors.primary }]}>
+                          Re-record
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[styles.actionButton, { 
+                          backgroundColor: 'transparent',
+                          borderColor: theme.colors.error
+                        }]}
+                        onPress={onDeleteRecording}
+                      >
+                        <Ionicons name="trash" size={18} color={theme.colors.error} />
+                        <Text style={[styles.actionButtonText, { color: theme.colors.error }]}>
+                          Delete
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              )}
+            </View>
+
+            {/* Recording Status */}
+            {isRecording && (
+              <View style={styles.recordingStatus}>
+                <Animated.View style={[styles.recordingIndicator, { transform: [{ scale: pulseAnim }] }]}>
+                  <View style={[styles.recordingDot, { backgroundColor: theme.colors.error }]} />
+                </Animated.View>
+                <Text style={[styles.recordingText, { color: theme.colors.error }]}>
+                  Recording... {formatDuration(recordingDuration)}
+                </Text>
+              </View>
+            )}
+
+            {/* Playback Status */}
+            {isPlaying && (
+              <View style={styles.recordingStatus}>
+                <View style={styles.recordingIndicator}>
+                  <View style={[styles.recordingDot, { backgroundColor: theme.colors.success }]} />
+                </View>
+                <Text style={[styles.recordingText, { color: theme.colors.success }]}>
+                  Playing... {formatDuration(playbackPosition)} / {formatDuration(playbackDuration)}
+                </Text>
+              </View>
+            )}
+
+            {/* Recording Duration */}
+            {recordedUri && !isRecording && !isPlaying && (
+              <Text style={[styles.durationText, { color: theme.colors.textSecondary }]}>
+                Duration: {formatDuration(recordingDuration)}
+              </Text>
+            )}
           </View>
         )}
 
@@ -210,5 +366,107 @@ const styles = StyleSheet.create({
     height: 1,
     marginTop: 8,
     opacity: 0.3,
+  },
+  // Voice recording styles
+  recordingControls: {
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  recordingPlaybackControls: {
+    alignItems: 'center',
+    gap: 16,
+  },
+  recordingActionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  recordButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  stopButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  playButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  recordingStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 16,
+  },
+  recordingIndicator: {
+    width: 12,
+    height: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  recordingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  recordingText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  durationText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 16,
   },
 });

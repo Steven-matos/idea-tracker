@@ -26,8 +26,6 @@ interface EmptyStateProps {
   actionText?: string;
   /** Action button callback (optional) */
   onAction?: () => void;
-  /** Action button variant */
-  actionVariant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'success';
   /** Custom container style */
   style?: ViewStyle;
 }
@@ -43,7 +41,6 @@ interface EmptyStateProps {
  *   subtitle="Start capturing your thoughts by creating your first note"
  *   actionText="Create Note"
  *   onAction={handleCreateNote}
- *   actionVariant="primary"
  * />
  * ```
  */
@@ -53,7 +50,6 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   subtitle,
   actionText,
   onAction,
-  actionVariant = 'primary',
   style,
 }) => {
   const { theme } = useTheme();
@@ -92,7 +88,9 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         <Button
           title={actionText}
           onPress={onAction}
-          variant={actionVariant}
+          variant="outline"
+          size="small"
+          customColor="#2563EB"
           style={styles.actionButton}
         />
       )}
@@ -116,7 +114,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.XL,
   },
   actionButton: {
-    minWidth: 140,
+    minWidth: 120,
   },
 });
 

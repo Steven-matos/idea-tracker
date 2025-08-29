@@ -24,6 +24,7 @@ interface ProfessionalButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   icon?: React.ReactNode;
+  customColor?: string;
 }
 
 /**
@@ -41,7 +42,8 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
   loading = false,
   style,
   textStyle,
-  icon
+  icon,
+  customColor
 }) => {
   const { theme } = useTheme();
 
@@ -73,9 +75,10 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
           variantStyles = ButtonStyles.variants.success;
           break;
         case 'outline':
+          const outlineColor = customColor || theme.colors.primary;
           variantStyles = {
-            ...ButtonStyles.variants.outline(theme.colors.primary),
-            borderColor: theme.colors.primary,
+            ...ButtonStyles.variants.outline(outlineColor),
+            borderColor: outlineColor,
           };
           break;
         case 'ghost':
@@ -86,7 +89,7 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
       variantStyles = { backgroundColor: theme.colors.border };
     }
 
-    return mergeStyles(baseStyles, sizeStyles, variantStyles);
+    return { ...baseStyles, ...sizeStyles, ...variantStyles };
   };
 
   /**
@@ -111,7 +114,7 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
     if (disabled) {
       baseStyles.color = theme.colors.textSecondary;
     } else if (variant === 'outline' || variant === 'ghost') {
-      baseStyles.color = theme.colors.primary;
+      baseStyles.color = customColor || theme.colors.primary;
     } else if (variant === 'secondary') {
       baseStyles.color = '#1F2937'; // Dark text for yellow background
     } else {
@@ -131,7 +134,7 @@ const ProfessionalButton: React.FC<ProfessionalButtonProps> = ({
       
       {loading ? (
         <ActivityIndicator 
-          color={variant === 'outline' || variant === 'ghost' ? theme.colors.primary : Colors.WHITE} 
+          color={variant === 'outline' || variant === 'ghost' ? (customColor || theme.colors.primary) : Colors.WHITE} 
           size="small" 
         />
       ) : (

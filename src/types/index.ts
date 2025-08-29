@@ -103,7 +103,7 @@ export type RootStackParamList = {
 export type BottomTabParamList = {
   AI: undefined;
   Notes: undefined;
-  CreateNote: undefined;
+  AddButton: undefined;
   Categories: undefined;
   Settings: undefined;
 };

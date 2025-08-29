@@ -5,7 +5,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Platform, TouchableOpacity, View, Text, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Colors } from '../styles/constants';
 
 // Import screens with updated names
 import NotesListScreen from '../screens/NotesListScreen';
@@ -29,13 +28,13 @@ const Stack = createStackNavigator<RootStackParamList>();
  */
 const CenteredButton: React.FC<{ onPress: () => void; theme: any }> = ({ onPress, theme }) => (
   <TouchableOpacity
-    style={[styles.centeredButton, { backgroundColor: Colors.PRIMARY_BLUE }]}
+    style={[styles.centeredButton, { backgroundColor: '#2563EB' }]}
     onPress={onPress}
     activeOpacity={0.8}
   >
     <Ionicons name="add" size={36} color="#fff" />
   </TouchableOpacity>
-);
+  );
 
 /**
  * Bottom tab navigator component with theme support
@@ -164,8 +163,8 @@ const TabNavigator: React.FC = () => {
         }}
       />
       <Tab.Screen 
-        name="CreateNote" 
-        component={View} // Placeholder component
+        name="AddButton" 
+        component={View} // Placeholder component for + button
         options={{ 
           title: '',
           headerShown: false,
