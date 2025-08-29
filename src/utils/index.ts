@@ -269,11 +269,8 @@ export const filterBySearchText = <T extends Record<string, any>>(
  */
 export const configureAudioForRecording = async (): Promise<void> => {
   await Audio.setAudioModeAsync({
-    allowsRecordingIOS: true,
-    playsInSilentModeIOS: true,
-    shouldDuckAndroid: true,
-    playThroughEarpieceAndroid: false,
-    staysActiveInBackground: false,
+    allowsRecording: true,
+    playsInSilentMode: true,
   });
 };
 
@@ -294,10 +291,87 @@ export const configureAudioForRecording = async (): Promise<void> => {
  */
 export const configureAudioForSpeakerPlayback = async (): Promise<void> => {
   await Audio.setAudioModeAsync({
-    allowsRecordingIOS: false,
-    playsInSilentModeIOS: true,
-    shouldDuckAndroid: true,
-    playThroughEarpieceAndroid: false,
-    staysActiveInBackground: false,
+    allowsRecording: false,
+    playsInSilentMode: true,
   });
+};
+
+/**
+ * Get iOS recording options based on audio quality setting
+ * Maps app audio quality settings to expo-audio RecordingOptions for optimal iOS recording
+ * Implements SOLID principles with single responsibility for iOS audio configuration
+ * 
+ * @param audioQuality - Audio quality setting from app settings ('low' | 'medium' | 'high')
+ * @returns Recording options object for expo-audio on iOS
+ * @example
+ * ```typescript
+ * const options = getIOSRecordingOptions('high');
+ * const recorder = useAudioRecorder(options);
+ * ```
+ */
+export const getIOSRecordingOptions = (audioQuality: 'low' | 'medium' | 'high'): Audio.RecordingOptions => {
+  // Configure quality-specific settings following expo-audio API structure
+  switch (audioQuality) {
+    case 'low':
+      return {
+        isMeteringEnabled: true,
+        extension: '.m4a',
+        sampleRate: 22050, // Lower sample rate for smaller files
+        numberOfChannels: 1, // Mono for smaller file size
+        bitRate: 64000, // 64 kbps - compatible with iOS AAC limitations
+        android: {
+          extension: '.3gp',
+          outputFormat: '3gp',
+          audioEncoder: 'amr_nb',
+        },
+        ios: {
+          outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
+          audioQuality: Audio.AudioQuality.LOW,
+          linearPCMBitDepth: 16,
+          linearPCMIsBigEndian: false,
+          linearPCMIsFloat: false,
+        },
+      };
+
+    case 'high':
+      return {
+        isMeteringEnabled: true,
+        extension: '.m4a',
+        sampleRate: 44100, // CD quality sample rate
+        numberOfChannels: 2, // Stereo for better quality
+        bitRate: 128000, // 128 kbps - higher quality
+        android: {
+          outputFormat: 'mpeg4',
+          audioEncoder: 'aac',
+        },
+        ios: {
+          outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
+          audioQuality: Audio.AudioQuality.MAX,
+          linearPCMBitDepth: 16,
+          linearPCMIsBigEndian: false,
+          linearPCMIsFloat: false,
+        },
+      };
+
+    case 'medium':
+    default:
+      return {
+        isMeteringEnabled: true,
+        extension: '.m4a',
+        sampleRate: 44100, // Standard sample rate
+        numberOfChannels: 1, // Mono for balanced file size
+        bitRate: 96000, // 96 kbps - balanced quality and size
+        android: {
+          outputFormat: 'mpeg4',
+          audioEncoder: 'aac',
+        },
+        ios: {
+          outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
+          audioQuality: Audio.AudioQuality.MEDIUM,
+          linearPCMBitDepth: 16,
+          linearPCMIsBigEndian: false,
+          linearPCMIsFloat: false,
+        },
+      };
+  }
 };

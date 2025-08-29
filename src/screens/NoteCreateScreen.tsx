@@ -29,8 +29,8 @@ import type { Note, Category, NoteType, RootStackParamList } from '../types';
 // Import storage service for persistent data operations
 import { storageService } from '../services';
 
-// Import utility functions for ID generation, duration formatting, and string validation
-import { generateId, formatDuration, isValidString } from '../utils';
+// Import utility functions for ID generation, duration formatting, string validation, and iOS recording options
+import { generateId, formatDuration, isValidString, getIOSRecordingOptions } from '../utils';
 
 // Import custom theme context hook for theming
 import { useTheme } from '../contexts/theme.context';
@@ -56,9 +56,15 @@ const CreateNoteScreen: React.FC = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState(route.params?.categoryId || '');
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [audioQuality, setAudioQuality] = useState<'low' | 'medium' | 'high'>('medium');
   
   // Voice recording state using expo-audio hooks
-  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  // Use iOS-specific recording options based on audio quality setting when on iOS
+  const recordingOptions = Platform.OS === 'ios' 
+    ? getIOSRecordingOptions(audioQuality)
+    : RecordingPresets.HIGH_QUALITY;
+  
+  const audioRecorder = useAudioRecorder(recordingOptions);
   const recorderState = useAudioRecorderState(audioRecorder, 100);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [durationInterval, setDurationInterval] = useState<NodeJS.Timeout | null>(null);
@@ -102,6 +108,19 @@ const CreateNoteScreen: React.FC = () => {
     } catch (error) {
       console.error('Error loading categories:', error);
       Alert.alert('Error', 'Failed to load categories.');
+    }
+  };
+
+  /**
+   * Load app settings from storage to get audio quality preference
+   */
+  const loadAppSettings = async () => {
+    try {
+      const settings = await storageService.getSettings();
+      setAudioQuality(settings.audioQuality);
+    } catch (error) {
+      console.error('Error loading app settings:', error);
+      // Continue with default audio quality if loading fails
     }
   };
 
@@ -526,9 +545,16 @@ const CreateNoteScreen: React.FC = () => {
     navigation.goBack();
   };
 
-  // Load categories on mount
+  // Load categories and settings on mount
   useEffect(() => {
-    loadCategories();
+    const loadInitialData = async () => {
+      await Promise.all([
+        loadCategories(),
+        loadAppSettings(),
+      ]);
+    };
+    
+    loadInitialData();
   }, []);
 
   // Setup audio permissions on mount
@@ -582,6 +608,15 @@ const CreateNoteScreen: React.FC = () => {
       setPlaybackCheckInterval(null);
     }
   }, [playbackObject, isPlaying, recordingDuration]);
+
+  // Update recording options when audio quality changes (iOS only)
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      // The audioRecorder will automatically use the new recordingOptions
+      // since it's recalculated on each render when audioQuality changes
+      console.log(`Audio quality updated to: ${audioQuality}`);
+    }
+  }, [audioQuality]);
 
   // Cleanup on unmount
   useEffect(() => {
