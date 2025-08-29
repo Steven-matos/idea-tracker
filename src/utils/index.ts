@@ -2,7 +2,7 @@
  * Utility functions for the Notes Tracker application
  */
 
-import { Audio } from 'expo-av';
+import * as Audio from 'expo-audio';
 
 /**
  * Generate a unique ID using timestamp and random number

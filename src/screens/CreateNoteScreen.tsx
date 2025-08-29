@@ -13,7 +13,14 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { Audio } from 'expo-av';
+import {
+  useAudioRecorder,
+  useAudioRecorderState,
+  createAudioPlayer,
+  AudioModule,
+  RecordingPresets,
+  setAudioModeAsync,
+} from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 
 // Import type definitions for notes, categories, and navigation
@@ -49,14 +56,23 @@ const CreateNoteScreen: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Voice recording state
-  const [recording, setRecording] = useState<any>(null);
-  const [isRecording, setIsRecording] = useState(false);
+  // Voice recording state using expo-audio hooks
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(audioRecorder, 100);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [recordedUri, setRecordedUri] = useState<string | null>(null);
+  const [durationInterval, setDurationInterval] = useState<NodeJS.Timeout | null>(null);
   const [playbackObject, setPlaybackObject] = useState<any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [durationInterval, setDurationInterval] = useState<NodeJS.Timeout | null>(null);
+  const [recordingDeleted, setRecordingDeleted] = useState(false);
+  const [isNewSession, setIsNewSession] = useState(true);
+  const [playbackCheckInterval, setPlaybackCheckInterval] = useState<NodeJS.Timeout | null>(null);
+  const [playbackPosition, setPlaybackPosition] = useState(0);
+  const [playbackDuration, setPlaybackDuration] = useState(0);
+  
+  // Get recording state from hook
+  const isRecording = recorderState.isRecording;
+  const recordedUri = (recordingDeleted || isNewSession) ? null : audioRecorder.uri;
+  const canRecord = recorderState.canRecord;
   
   // Category creation state
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -76,8 +92,6 @@ const CreateNoteScreen: React.FC = () => {
   
   // Animation
   const pulseAnim = useState(new Animated.Value(1))[0];
-
-
 
   /**
    * Load categories from storage
@@ -159,45 +173,130 @@ const CreateNoteScreen: React.FC = () => {
   };
 
   /**
-   * Request audio permissions
+   * Request audio permissions and setup audio mode
    */
-  const requestAudioPermissions = async () => {
+  const setupAudio = async () => {
     try {
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== 'granted') {
+      const status = await AudioModule.requestRecordingPermissionsAsync();
+      
+      if (!status.granted) {
         Alert.alert('Permission Required', 'Microphone access is required to record voice notes.');
         return false;
       }
+
+      await setAudioModeAsync({
+        playsInSilentMode: true,
+        allowsRecording: true,
+      });
+      
       return true;
     } catch (error) {
-      console.error('Error requesting audio permissions:', error);
+      console.error('Error setting up audio:', error);
       return false;
     }
   };
 
   /**
-   * Start voice recording
+   * Configure audio mode for speaker playback
+   */
+  const configureAudioForPlayback = async () => {
+    try {
+      await setAudioModeAsync({
+        playsInSilentMode: true,
+        allowsRecording: false,
+        // On Android, setting playThroughEarpiece to false routes audio to speaker
+        // On iOS, audio typically plays through speaker by default
+        ...(Platform.OS === 'android' && { playThroughEarpiece: false })
+      });
+    } catch (error) {
+      console.error('Error configuring audio for playback:', error);
+    }
+  };
+
+  /**
+   * Clear/reset recording state for a new recording
+   */
+  const clearRecording = (resetDuration = true) => {
+    if (resetDuration) {
+      setRecordingDuration(0);
+    }
+    setRecordingDeleted(false); // Reset deleted state when starting new recording
+    setIsPlaying(false); // Ensure playing state is cleared
+    setIsNewSession(true); // Mark as new session to ignore persisted URI
+    setPlaybackPosition(0);
+    setPlaybackDuration(0);
+    if (durationInterval) {
+      clearInterval(durationInterval);
+      setDurationInterval(null);
+    }
+    if (playbackCheckInterval) {
+      clearInterval(playbackCheckInterval);
+      setPlaybackCheckInterval(null);
+    }
+    if (playbackObject) {
+      playbackObject.pause();
+      setPlaybackObject(null);
+    }
+  };
+
+  /**
+   * Check if audio playback has finished using simple timer
+   */
+  const checkPlaybackStatus = () => {
+    if (playbackObject && isPlaying) {
+      try {
+        // Simple approach: increment playback position and check against recorded duration
+        setPlaybackPosition(prev => {
+          const newPosition = prev + 0.5; // Increment by 0.5 seconds (500ms interval)
+          
+          // Check if we've reached the recorded duration
+          if (recordingDuration > 0 && newPosition >= recordingDuration) {
+            // Audio has finished playing - useEffect will handle clearing interval
+            setIsPlaying(false);
+            return 0; // Reset position
+          }
+          
+          return newPosition;
+        });
+        
+        // Set playback duration to recording duration if not set
+        if (playbackDuration === 0 && recordingDuration > 0) {
+          setPlaybackDuration(recordingDuration);
+        }
+      } catch (error) {
+        console.error('Error checking playback status:', error);
+        // Fallback: just check if still playing
+        if (playbackObject && !playbackObject.playing) {
+          setIsPlaying(false);
+          setPlaybackPosition(0);
+          // useEffect will handle clearing interval
+        }
+      }
+    }
+  };
+
+  /**
+   * Start voice recording using expo-audio hooks
    */
   const startRecording = async () => {
     try {
-      const hasPermission = await requestAudioPermissions();
+      const hasPermission = await setupAudio();
       if (!hasPermission) return;
 
-      // Configure audio mode
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
+      // Stop any active playback first
+      if (isPlaying) {
+        await stopPlayback();
+      }
 
-      // Start recording
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-
-      setRecording(recording);
-      setIsRecording(true);
-      setRecordingDuration(0);
-      setRecordedUri(null);
+      // Clear previous recording state
+      clearRecording();
+      
+      // Prepare and start recording
+      await audioRecorder.prepareToRecordAsync();
+      audioRecorder.record();
+      
+      // Mark that we're no longer in a new session
+      setIsNewSession(false);
 
       // Start duration timer
       const interval = setInterval(() => {
@@ -210,24 +309,19 @@ const CreateNoteScreen: React.FC = () => {
 
     } catch (error) {
       console.error('Error starting recording:', error);
-      Alert.alert('Error', 'Failed to start recording. Please try again.');
+      Alert.alert('Error', `Failed to start recording: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   /**
-   * Stop voice recording
+   * Stop voice recording using expo-audio hooks
    */
   const stopRecording = async () => {
     try {
-      if (!recording) return;
+      if (!isRecording) return;
 
-      // Stop recording
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
-      
-      setRecording(null);
-      setIsRecording(false);
-      setRecordedUri(uri);
+      // Stop recording - the recording will be available on audioRecorder.uri
+      await audioRecorder.stop();
       
       // Stop duration timer
       if (durationInterval) {
@@ -245,7 +339,34 @@ const CreateNoteScreen: React.FC = () => {
   };
 
   /**
-   * Play recorded audio
+   * Delete current recording and reset to initial state
+   */
+  const deleteRecording = () => {
+    Alert.alert(
+      'Delete Recording',
+      'Are you sure you want to delete this recording?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            // Stop any playback
+            if (isPlaying) {
+              stopPlayback();
+            }
+            
+            // Clear the recording state and mark as deleted
+            clearRecording();
+            setRecordingDeleted(true);
+          },
+        },
+      ]
+    );
+  };
+
+  /**
+   * Play recorded audio using expo-audio
    */
   const playRecording = async () => {
     try {
@@ -253,24 +374,22 @@ const CreateNoteScreen: React.FC = () => {
 
       // Stop any existing playback
       if (playbackObject) {
-        await playbackObject.stopAsync();
+        playbackObject.pause();
         setPlaybackObject(null);
       }
 
-      // Create new playback object
-      const { sound } = await Audio.Sound.createAsync({ uri: recordedUri });
-      setPlaybackObject(sound);
+      // Configure audio mode for speaker playback
+      await configureAudioForPlayback();
 
-      // Play audio
-      await sound.playAsync();
+      // Create and play audio using createAudioPlayer
+      const player = createAudioPlayer({ uri: recordedUri });
+      player.play();
+      
+      // Set all states at once - useEffect will handle starting the interval
+      setPlaybackObject(player);
       setIsPlaying(true);
-
-      // Listen for playback status
-      sound.setOnPlaybackStatusUpdate((status: any) => {
-        if (status.didJustFinish) {
-          setIsPlaying(false);
-        }
-      });
+      setPlaybackPosition(0);
+      setPlaybackDuration(recordingDuration);
 
     } catch (error) {
       console.error('Error playing recording:', error);
@@ -284,12 +403,16 @@ const CreateNoteScreen: React.FC = () => {
   const stopPlayback = async () => {
     try {
       if (playbackObject) {
-        await playbackObject.stopAsync();
+        playbackObject.pause();
         setPlaybackObject(null);
-        setIsPlaying(false);
       }
+      setIsPlaying(false);
+      setPlaybackPosition(0); // Reset playback position
+      // useEffect will handle clearing the interval when isPlaying becomes false
     } catch (error) {
       console.error('Error stopping playback:', error);
+      setIsPlaying(false); // Ensure playing state is cleared even on error
+      setPlaybackPosition(0);
     }
   };
 
@@ -413,11 +536,66 @@ const CreateNoteScreen: React.FC = () => {
     loadCategories();
   }, []);
 
+  // Setup audio permissions on mount
+  useEffect(() => {
+    (async () => {
+      const status = await AudioModule.requestRecordingPermissionsAsync();
+      if (!status.granted) {
+        Alert.alert('Permission to access microphone was denied');
+      }
+
+      setAudioModeAsync({
+        playsInSilentMode: true,
+        allowsRecording: true,
+      });
+    })();
+  }, []);
+
+  // Initialize recording state
+  useEffect(() => {
+    // Reset any previous recording state
+    setRecordingDeleted(false);
+    setIsPlaying(false);
+    setRecordingDuration(0);
+    setPlaybackPosition(0);
+    setPlaybackDuration(0);
+    if (playbackObject) {
+      playbackObject.pause();
+      setPlaybackObject(null);
+    }
+    if (durationInterval) {
+      clearInterval(durationInterval);
+      setDurationInterval(null);
+    }
+    if (playbackCheckInterval) {
+      clearInterval(playbackCheckInterval);
+      setPlaybackCheckInterval(null);
+    }
+  }, []);
+
+  // Start playback interval when playback state changes
+  useEffect(() => {
+    if (playbackObject && isPlaying && recordingDuration > 0) {
+      const interval = setInterval(checkPlaybackStatus, 500);
+      setPlaybackCheckInterval(interval);
+      
+      return () => {
+        clearInterval(interval);
+      };
+    } else if (playbackCheckInterval) {
+      clearInterval(playbackCheckInterval);
+      setPlaybackCheckInterval(null);
+    }
+  }, [playbackObject, isPlaying, recordingDuration]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (durationInterval) {
         clearInterval(durationInterval);
+      }
+      if (playbackCheckInterval) {
+        clearInterval(playbackCheckInterval);
       }
       if (playbackObject) {
         stopPlayback();
@@ -440,12 +618,12 @@ const CreateNoteScreen: React.FC = () => {
         </Text>
         <TouchableOpacity 
           onPress={saveNote} 
-          disabled={isLoading || (noteType === 'text' && !textContent.trim()) || (noteType === 'voice' && !recordedUri)}
+          disabled={isLoading || (noteType === 'text' && !textContent.trim()) || (noteType === 'voice' && (!recordedUri || recordingDeleted))}
         >
           <Text style={[
             styles.saveButton, 
             { color: theme.colors.primary },
-            (isLoading || (noteType === 'text' && !textContent.trim()) || (noteType === 'voice' && !recordedUri)) && { color: theme.colors.textSecondary }
+            (isLoading || (noteType === 'text' && !textContent.trim()) || (noteType === 'voice' && (!recordedUri || recordingDeleted))) && { color: theme.colors.textSecondary }
           ]}>
             {isLoading ? 'Saving...' : 'Save Note'}
           </Text>
@@ -540,7 +718,8 @@ const CreateNoteScreen: React.FC = () => {
             
             {/* Recording Controls */}
             <View style={styles.recordingControls}>
-              {!isRecording && !recordedUri && (
+              {/* Show record button when no recording exists and not currently recording */}
+              {(!recordedUri || recordingDeleted) && !isRecording && (
                 <TouchableOpacity
                   style={[styles.recordButton, { backgroundColor: theme.colors.secondaryLight }]}
                   onPress={startRecording}
@@ -549,6 +728,7 @@ const CreateNoteScreen: React.FC = () => {
                 </TouchableOpacity>
               )}
 
+              {/* Show stop button when recording */}
               {isRecording && (
                 <TouchableOpacity
                   style={[styles.stopButton, { backgroundColor: theme.colors.error }]}
@@ -558,22 +738,49 @@ const CreateNoteScreen: React.FC = () => {
                 </TouchableOpacity>
               )}
 
+              {/* Show playback controls when we have a recording and not currently recording */}
               {recordedUri && !isRecording && (
-                <TouchableOpacity
-                  style={[styles.playButton, { backgroundColor: theme.colors.success }]}
-                  onPress={playRecording}
-                >
-                  <Ionicons name="play" size={32} color={theme.colors.text} />
-                </TouchableOpacity>
-              )}
-
-              {isPlaying && (
-                <TouchableOpacity
-                  style={[styles.stopButton, { backgroundColor: theme.colors.error }]}
-                  onPress={stopPlayback}
-                >
-                  <Ionicons name="stop" size={32} color={theme.colors.text} />
-                </TouchableOpacity>
+                <View style={styles.recordingPlaybackControls}>
+                  {/* Play/Stop button */}
+                  <TouchableOpacity
+                    style={[
+                      isPlaying ? styles.stopButton : styles.playButton, 
+                      { backgroundColor: isPlaying ? theme.colors.error : theme.colors.success }
+                    ]}
+                    onPress={isPlaying ? stopPlayback : playRecording}
+                  >
+                    <Ionicons 
+                      name={isPlaying ? "stop" : "play"} 
+                      size={32} 
+                      color={theme.colors.text} 
+                    />
+                  </TouchableOpacity>
+                  
+                  {/* Action buttons row - only show when not playing */}
+                  {!isPlaying && (
+                    <View style={styles.recordingActionButtons}>
+                      <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: theme.colors.primary }]}
+                        onPress={startRecording}
+                      >
+                        <Ionicons name="mic" size={20} color={theme.colors.text} />
+                        <Text style={[styles.actionButtonText, { color: theme.colors.text }]}>
+                          Re-record
+                        </Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: theme.colors.error }]}
+                        onPress={deleteRecording}
+                      >
+                        <Ionicons name="trash" size={20} color={theme.colors.text} />
+                        <Text style={[styles.actionButtonText, { color: theme.colors.text }]}>
+                          Delete
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
               )}
             </View>
 
@@ -596,7 +803,7 @@ const CreateNoteScreen: React.FC = () => {
                   <View style={[styles.recordingDot, { backgroundColor: theme.colors.success }]} />
                 </View>
                 <Text style={[styles.recordingText, { color: theme.colors.success }]}>
-                  Playing... {formatDuration(recordingDuration)}
+                  Playing... {formatDuration(playbackPosition)} / {formatDuration(playbackDuration)}
                 </Text>
               </View>
             )}
@@ -764,6 +971,37 @@ const styles = StyleSheet.create({
   recordingControls: {
     alignItems: 'center',
     marginVertical: 20,
+  },
+  recordingActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recordingPlaybackControls: {
+    alignItems: 'center',
+    gap: 16,
+  },
+  recordingActionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
   recordButton: {
     width: 80,

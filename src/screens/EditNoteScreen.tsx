@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { Audio } from 'expo-av';
+import * as Audio from 'expo-audio';
 
 import { Note, Category, RootStackParamList } from '../types';
 import { storageService } from '../services/StorageService';
@@ -90,7 +90,8 @@ const EditNoteScreen: React.FC = () => {
       }
 
       // Create new playback object
-      const { sound } = await Audio.Sound.createAsync({ uri: note.audioPath });
+      const sound = new Audio.Sound();
+      await sound.loadAsync({ uri: note.audioPath });
       setPlaybackObject(sound);
 
       // Play audio
