@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   createAudioPlayer,
   AudioModule,
@@ -24,7 +25,7 @@ import { isValidString } from '../utils';
 import { useTheme } from '../contexts/theme.context';
 import { GradientCard, ProfessionalButton, ColorPicker, NoteFormCard } from '../components/common';
 import { Colors } from '../styles';
-import { useCategoryManager } from '../hooks';
+
 
 type EditNoteScreenNavigationProp = any;
 type EditNoteScreenRouteProp = RouteProp<RootStackParamList, 'EditNote'>;
@@ -50,8 +51,7 @@ const EditNoteScreen: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackCheckInterval, setPlaybackCheckInterval] = useState<NodeJS.Timeout | null>(null);
   
-  // Use category management hook
-  const categoryManager = useCategoryManager();
+
   
   /**
    * Load note and categories data
@@ -216,16 +216,7 @@ const EditNoteScreen: React.FC = () => {
     );
   };
 
-  /**
-   * Handle category creation using the hook
-   */
-  const handleCreateCategory = async () => {
-    await categoryManager.createNewCategory(categories, (newCategory) => {
-      // Update local state
-      setCategories(prev => [...prev, newCategory]);
-      setSelectedCategoryId(newCategory.id);
-    });
-  };
+
 
   /**
    * Cancel and go back
@@ -243,6 +234,13 @@ const EditNoteScreen: React.FC = () => {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Refresh categories when screen comes into focus (e.g., after creating a new category)
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+    }, [])
+  );
 
   // Cleanup on unmount
   useEffect(() => {
@@ -364,7 +362,7 @@ const EditNoteScreen: React.FC = () => {
             ))}
             <TouchableOpacity
               style={[styles.categoryOption, { borderColor: theme.colors.border }]}
-              onPress={categoryManager.openCategoryModal}
+              onPress={() => navigation.navigate('CreateCategory', {})}
             >
               <Ionicons name="add-circle" size={15} color={theme.colors.textSecondary} />
             </TouchableOpacity>
@@ -384,51 +382,7 @@ const EditNoteScreen: React.FC = () => {
         </GradientCard>
       </ScrollView>
 
-      {/* Category Creation Modal */}
-      <Modal
-        visible={categoryManager.showCategoryModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={categoryManager.closeCategoryModal}
-      >
-        <View style={[styles.modalOverlay, { backgroundColor: theme.colors.background }]}>
-          <View style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
-            <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
-              Create New Category
-            </Text>
-            <TextInput
-              style={[styles.modalInput, { color: theme.colors.text, borderColor: theme.colors.border }]}
-              placeholder="Category Name"
-              placeholderTextColor={theme.colors.textSecondary}
-              value={categoryManager.newCategoryName}
-              onChangeText={categoryManager.setNewCategoryName}
-            />
-            <ColorPicker
-              label="Choose a color for your category"
-              selectedColor={categoryManager.newCategoryColor}
-              onColorSelect={categoryManager.setNewCategoryColor}
-              colors={categoryManager.colorOptions}
-              style={styles.modalColorPicker}
-            />
-            
-            <View style={styles.modalButtons}>
-              <ProfessionalButton
-                title="Cancel"
-                onPress={categoryManager.resetCategoryForm}
-                variant="destructive"
-                style={styles.modalCancelButton}
-              />
-              <ProfessionalButton
-                title={categoryManager.isCreatingCategory ? 'Creating...' : 'Create Category'}
-                onPress={handleCreateCategory}
-                variant="success"
-                style={styles.modalSaveButton}
-                loading={categoryManager.isCreatingCategory}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Category creation now handled by CategoryCreateScreen */}
     </View>
   );
 };
@@ -523,50 +477,7 @@ const styles = StyleSheet.create({
   deleteNoteButton: {
     width: '100%',
   },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    width: '80%',
-    borderRadius: 15,
-    padding: 25,
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  modalInput: {
-    width: '100%',
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 15,
-    fontSize: 18,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  modalColorPicker: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-  },
-  modalCancelButton: {
-    flex: 1,
-    marginRight: 10,
-  },
-  modalSaveButton: {
-    flex: 1,
-    marginLeft: 10,
-  },
+
 });
 
 export default EditNoteScreen;

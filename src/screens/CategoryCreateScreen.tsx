@@ -65,7 +65,7 @@ const CategoryCreateScreen: React.FC = () => {
       
       await storageService.addCategory(newCategory);
       
-      // Navigate back to categories list
+      // Navigate back
       navigation.goBack();
       
     } catch (error) {

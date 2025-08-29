@@ -52,7 +52,7 @@ const TabNavigator: React.FC = () => {
    */
   const handleAddPress = () => {
     if (currentTab === 'Categories') {
-      navigation.navigate('CreateCategory');
+      navigation.navigate('CreateCategory', {});
     } else {
       navigation.navigate('CreateNote');
     }

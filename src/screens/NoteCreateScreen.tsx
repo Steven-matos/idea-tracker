@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   useAudioRecorder,
   useAudioRecorderState,
@@ -38,7 +39,6 @@ import { useTheme } from '../contexts/theme.context';
 // Import common UI components
 import { GradientCard, ProfessionalButton, ColorPicker, NoteFormCard } from '../components/common';
 import { Spacing, TextStyles, Colors, InputStyles } from '../styles';
-import { useCategoryManager } from '../hooks';
 
 type CreateNoteScreenNavigationProp = any;
 type CreateNoteScreenRouteProp = RouteProp<RootStackParamList, 'CreateNote'>;
@@ -83,8 +83,7 @@ const CreateNoteScreen: React.FC = () => {
   const recordedUri = (recordingDeleted || isNewSession) ? null : audioRecorder.uri;
   const canRecord = recorderState.canRecord;
 
-  // Use category management hook
-  const categoryManager = useCategoryManager();
+
 
   // Animation
   const pulseAnim = useState(new Animated.Value(1))[0];
@@ -120,16 +119,7 @@ const CreateNoteScreen: React.FC = () => {
     }
   };
 
-  /**
-   * Handle category creation using the hook
-   */
-  const handleCreateCategory = async () => {
-    await categoryManager.createNewCategory(categories, (newCategory) => {
-      // Update local state
-      setCategories(prev => [...prev, newCategory]);
-      setSelectedCategoryId(newCategory.id);
-    });
-  };
+
 
   /**
    * Request audio permissions and setup audio mode
@@ -509,6 +499,13 @@ const CreateNoteScreen: React.FC = () => {
     loadInitialData();
   }, []);
 
+  // Refresh categories when screen comes into focus (e.g., after creating a new category)
+  useFocusEffect(
+    React.useCallback(() => {
+      loadCategories();
+    }, [])
+  );
+
   // Setup audio permissions on mount
   useEffect(() => {
     (async () => {
@@ -811,7 +808,7 @@ const CreateNoteScreen: React.FC = () => {
             ))}
             <TouchableOpacity
               style={[styles.categoryOption, { borderColor: theme.colors.border }]}
-              onPress={categoryManager.openCategoryModal}
+              onPress={() => navigation.navigate('CreateCategory', {})}
             >
               <Ionicons name="add-circle" size={15} color={theme.colors.textSecondary} />
             </TouchableOpacity>
@@ -819,51 +816,7 @@ const CreateNoteScreen: React.FC = () => {
         </GradientCard>
       </ScrollView>
 
-      {/* Category Creation Modal */}
-      <Modal
-        visible={categoryManager.showCategoryModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={categoryManager.closeCategoryModal}
-      >
-        <View style={[styles.modalOverlay, { backgroundColor: theme.colors.background }]}>
-          <View style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
-            <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
-              Create New Category
-            </Text>
-            <TextInput
-              style={[styles.modalInput, { color: theme.colors.text, borderColor: theme.colors.border }]}
-              placeholder="Category Name"
-              placeholderTextColor={theme.colors.textSecondary}
-              value={categoryManager.newCategoryName}
-              onChangeText={categoryManager.setNewCategoryName}
-            />
-            <ColorPicker
-              label="Choose a color for your category"
-              selectedColor={categoryManager.newCategoryColor}
-              onColorSelect={categoryManager.setNewCategoryColor}
-              colors={categoryManager.colorOptions}
-              style={styles.modalColorPicker}
-            />
-
-            <View style={styles.modalButtons}>
-              <ProfessionalButton
-                title="Cancel"
-                onPress={categoryManager.resetCategoryForm}
-                variant="destructive"
-                style={styles.modalCancelButton}
-              />
-              <ProfessionalButton
-                title={categoryManager.isCreatingCategory ? 'Creating...' : 'Create Category'}
-                onPress={handleCreateCategory}
-                variant="success"
-                style={styles.modalSaveButton}
-                loading={categoryManager.isCreatingCategory}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Category creation now handled by CategoryCreateScreen */}
     </View>
   );
 };
@@ -1044,37 +997,11 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
   },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    width: '80%',
-    borderRadius: 15,
-    padding: 25,
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  modalInput: {
-    width: '100%',
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 15,
-    fontSize: 18,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  modalColorPicker: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
+
+
+
+
+
   colorGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1103,19 +1030,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-  },
-  modalCancelButton: {
-    flex: 1,
-    marginRight: 10,
-  },
-  modalSaveButton: {
-    flex: 1,
-    marginLeft: 10,
-  },
+
   modalLabel: {
     fontSize: 16,
     fontWeight: '600',
