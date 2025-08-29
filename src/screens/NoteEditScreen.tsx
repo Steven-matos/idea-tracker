@@ -8,16 +8,23 @@ import {
   Alert,
   ScrollView,
   Platform,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import * as Audio from 'expo-audio';
+import {
+  createAudioPlayer,
+  AudioModule,
+  setAudioModeAsync,
+} from 'expo-audio';
 
 import { Note, Category, RootStackParamList } from '../types';
 import { storageService } from '../services/storage.service';
 import { isValidString } from '../utils';
 import { useTheme } from '../contexts/theme.context';
-import { GradientCard, ProfessionalButton, ProfessionalHeader } from '../components/common';
+import { GradientCard, ProfessionalButton, ColorPicker } from '../components/common';
+import { Colors } from '../styles';
+import { useCategoryManager } from '../hooks';
 
 type EditNoteScreenNavigationProp = any;
 type EditNoteScreenRouteProp = RouteProp<RootStackParamList, 'EditNote'>;
@@ -32,6 +39,7 @@ const EditNoteScreen: React.FC = () => {
   
   // State management
   const [note, setNote] = useState<Note | null>(null);
+  const [noteLabel, setNoteLabel] = useState('');
   const [textContent, setTextContent] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
@@ -41,6 +49,10 @@ const EditNoteScreen: React.FC = () => {
   // Voice playback state
   const [playbackObject, setPlaybackObject] = useState<any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackCheckInterval, setPlaybackCheckInterval] = useState<NodeJS.Timeout | null>(null);
+  
+  // Use category management hook
+  const categoryManager = useCategoryManager();
   
   /**
    * Load note and categories data
@@ -59,6 +71,7 @@ const EditNoteScreen: React.FC = () => {
       }
       
       setNote(noteData);
+      setNoteLabel(noteData.label);
       setTextContent(noteData.content);
       setSelectedCategoryId(noteData.categoryId);
       setIsFavorite(noteData.isFavorite);
@@ -90,20 +103,22 @@ const EditNoteScreen: React.FC = () => {
       }
 
       // Create new playback object
-      const sound = new Audio.Sound();
-      await sound.loadAsync({ uri: note.audioPath });
-      setPlaybackObject(sound);
+      const player = createAudioPlayer({ uri: note.audioPath });
+      setPlaybackObject(player);
 
       // Play audio
-      await sound.playAsync();
+      player.play();
       setIsPlaying(true);
 
-      // Listen for playback status
-      sound.setOnPlaybackStatusUpdate((status: any) => {
-        if (status.didJustFinish) {
+      // Start playback check interval
+      const interval = setInterval(() => {
+        // Simple approach: check if still playing
+        if (playbackObject && !playbackObject.playing) {
           setIsPlaying(false);
+          setPlaybackCheckInterval(null);
         }
-      });
+      }, 500);
+      setPlaybackCheckInterval(interval);
 
     } catch (error) {
       console.error('Error playing recording:', error);
@@ -117,7 +132,7 @@ const EditNoteScreen: React.FC = () => {
   const stopPlayback = async () => {
     try {
       if (playbackObject) {
-        await playbackObject.stopAsync();
+        playbackObject.pause();
         setPlaybackObject(null);
         setIsPlaying(false);
       }
@@ -132,6 +147,12 @@ const EditNoteScreen: React.FC = () => {
   const saveChanges = async () => {
     try {
       if (!note) return;
+
+      // Validation
+      if (!noteLabel.trim()) {
+        Alert.alert('Error', 'Please enter a label for your note.');
+        return;
+      }
 
       // Validation for text notes
       if (note.type === 'text' && !isValidString(textContent)) {
@@ -149,6 +170,7 @@ const EditNoteScreen: React.FC = () => {
       // Create updated note object
       const updatedNote: Note = {
         ...note,
+        label: noteLabel.trim(),
         content: note.type === 'text' ? textContent.trim() : note.content,
         categoryId: selectedCategoryId,
         isFavorite,
@@ -198,6 +220,17 @@ const EditNoteScreen: React.FC = () => {
   };
 
   /**
+   * Handle category creation using the hook
+   */
+  const handleCreateCategory = async () => {
+    await categoryManager.createNewCategory(categories, (newCategory) => {
+      // Update local state
+      setCategories(prev => [...prev, newCategory]);
+      setSelectedCategoryId(newCategory.id);
+    });
+  };
+
+  /**
    * Cancel and go back
    */
   const handleCancel = () => {
@@ -220,6 +253,9 @@ const EditNoteScreen: React.FC = () => {
       if (playbackObject) {
         stopPlayback();
       }
+      if (playbackCheckInterval) {
+        clearInterval(playbackCheckInterval);
+      }
     };
   }, []);
 
@@ -229,33 +265,59 @@ const EditNoteScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <ProfessionalHeader
-        title="Edit Note"
-        subtitle="Modify your note"
-        variant="primary"
-      />
+      {/* Action Buttons at Top */}
+      <View style={[styles.actionBar, { 
+        backgroundColor: theme.colors.background,
+        borderBottomColor: theme.colors.border 
+      }]}>
+        <TouchableOpacity onPress={handleCancel}>
+          <Text style={[styles.cancelButton, { color: Colors.ERROR_RED }]}>Cancel</Text>
+        </TouchableOpacity>
+        <Text style={[styles.actionBarTitle, { color: theme.colors.text }]}>
+          Edit Note
+        </Text>
+        <TouchableOpacity 
+          onPress={saveChanges} 
+          disabled={isLoading}
+        >
+          <Text style={[
+            styles.saveButton, 
+            { color: theme.colors.primary },
+            isLoading && { color: theme.colors.textSecondary }
+          ]}>
+            {isLoading ? 'Saving...' : 'Save'}
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       <ScrollView 
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Note Type Display */}
+        {/* Note Label Input */}
         <GradientCard variant="surface" elevated>
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-            Note Type
+            Note Label
           </Text>
-          <View style={styles.typeDisplay}>
-            <Ionicons 
-              name={note.type === 'voice' ? 'mic' : 'document-text'} 
-              size={24} 
-              color={theme.colors.text} 
-            />
-            <Text style={[styles.typeText, { color: theme.colors.text }]}>
-              {note.type === 'voice' ? 'Voice Note' : 'Text Note'}
-            </Text>
-          </View>
+          <TextInput
+            style={[
+              styles.labelInput,
+              { 
+                color: theme.colors.text,
+                borderColor: theme.colors.border,
+                backgroundColor: theme.colors.surface
+              }
+            ]}
+            placeholder="Enter a label for your note..."
+            placeholderTextColor={theme.colors.textSecondary}
+            value={noteLabel}
+            onChangeText={setNoteLabel}
+            maxLength={100}
+          />
+          <Text style={[styles.characterCount, { color: theme.colors.textSecondary }]}>
+            {noteLabel.length}/100
+          </Text>
         </GradientCard>
 
         {/* Content Input */}
@@ -343,6 +405,12 @@ const EditNoteScreen: React.FC = () => {
                 </Text>
               </TouchableOpacity>
             ))}
+            <TouchableOpacity
+              style={[styles.categoryOption, { borderColor: theme.colors.border }]}
+              onPress={categoryManager.openCategoryModal}
+            >
+              <Ionicons name="add-circle" size={15} color={theme.colors.textSecondary} />
+            </TouchableOpacity>
           </View>
         </GradientCard>
 
@@ -362,25 +430,63 @@ const EditNoteScreen: React.FC = () => {
             </Text>
           </TouchableOpacity>
         </GradientCard>
+
+        {/* Delete Note */}
+        <GradientCard variant="surface" elevated>
+          <ProfessionalButton
+            title="Delete Note"
+            onPress={deleteNote}
+            variant="destructive"
+            style={styles.deleteNoteButton}
+          />
+        </GradientCard>
       </ScrollView>
 
-      {/* Action Buttons */}
-      <View style={[styles.actionBar, { backgroundColor: theme.colors.surface }]}>
-        <ProfessionalButton
-          title="Save & Close"
-          onPress={saveChanges}
-          variant="success"
-          style={styles.saveButton}
-          loading={isLoading}
-          disabled={isLoading}
-        />
-        <ProfessionalButton
-          title="Delete"
-          onPress={deleteNote}
-          variant="destructive"
-          style={styles.deleteButton}
-        />
-      </View>
+      {/* Category Creation Modal */}
+      <Modal
+        visible={categoryManager.showCategoryModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={categoryManager.closeCategoryModal}
+      >
+        <View style={[styles.modalOverlay, { backgroundColor: theme.colors.background }]}>
+          <View style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
+              Create New Category
+            </Text>
+            <TextInput
+              style={[styles.modalInput, { color: theme.colors.text, borderColor: theme.colors.border }]}
+              placeholder="Category Name"
+              placeholderTextColor={theme.colors.textSecondary}
+              value={categoryManager.newCategoryName}
+              onChangeText={categoryManager.setNewCategoryName}
+            />
+            <ColorPicker
+              label="Choose a color for your category"
+              selectedColor={categoryManager.newCategoryColor}
+              onColorSelect={categoryManager.setNewCategoryColor}
+              colors={categoryManager.colorOptions}
+              style={styles.modalColorPicker}
+            />
+            
+            <View style={styles.modalButtons}>
+              <ProfessionalButton
+                title="Cancel"
+                onPress={categoryManager.resetCategoryForm}
+                variant="destructive"
+                style={styles.modalCancelButton}
+              />
+              <ProfessionalButton
+                title={categoryManager.isCreatingCategory ? 'Creating...' : 'Create Category'}
+                onPress={handleCreateCategory}
+                variant="success"
+                style={styles.modalSaveButton}
+                loading={categoryManager.isCreatingCategory}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -394,21 +500,21 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 16,
+    marginBottom: 12,
   },
-  typeDisplay: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  typeText: {
+
+  labelInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 16,
     fontSize: 16,
-    fontWeight: '500',
+    lineHeight: 22,
+    minHeight: 80,
   },
   textInput: {
     borderWidth: 1,
@@ -453,17 +559,22 @@ const styles = StyleSheet.create({
   categoryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
+    marginTop: 8,
   },
   categoryOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1.5,
     borderColor: '#e0e0e0',
+    minHeight: 32,
+    maxHeight: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   categoryText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
   },
   favoriteToggle: {
@@ -478,17 +589,70 @@ const styles = StyleSheet.create({
   },
   actionBar: {
     flexDirection: 'row',
-    padding: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 60 : 20,
+    paddingBottom: 16,
+    borderBottomWidth: 0.5,
+  },
+  actionBarTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+  },
+  cancelButton: {
+    fontSize: 17,
   },
   saveButton: {
-    flex: 1,
+    fontSize: 17,
+    fontWeight: '600',
   },
-  deleteButton: {
+  deleteNoteButton: {
+    width: '100%',
+  },
+  modalOverlay: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    borderRadius: 15,
+    padding: 25,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalInput: {
+    width: '100%',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 15,
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalColorPicker: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  modalCancelButton: {
+    flex: 1,
+    marginRight: 10,
+  },
+  modalSaveButton: {
+    flex: 1,
+    marginLeft: 10,
   },
 });
 

@@ -27,6 +27,8 @@ export interface Category {
 export interface Note {
   /** Unique identifier for the note */
   id: string;
+  /** Custom label/title for the note */
+  label: string;
   /** Type of note content (text or voice) */
   type: NoteType;
   /** Text content of the note (for text type) or title for voice notes */

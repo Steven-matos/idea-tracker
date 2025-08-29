@@ -232,10 +232,44 @@ class StorageService {
       const notes = await this.getData<Note[]>(StorageKeys.NOTES);
       if (!notes) {
         await this.storeNotes([]);
+      } else {
+        // Migrate existing notes to include labels if they don't have them
+        await this.migrateNotesToIncludeLabels(notes);
       }
     } catch (error) {
       console.error('Error initializing storage:', error);
       throw new Error(`Failed to initialize storage: ${error}`);
+    }
+  }
+
+  /**
+   * Migrate existing notes to include labels
+   * @param notes - Array of existing notes
+   */
+  private async migrateNotesToIncludeLabels(notes: Note[]): Promise<void> {
+    let hasChanges = false;
+    
+    for (let i = 0; i < notes.length; i++) {
+      const note = notes[i];
+      if (note && !note.label) {
+        // Generate a label from content or use a default
+        let label = '';
+        if (note.type === 'text') {
+          label = note.content.length > 50 ? note.content.substring(0, 50) + '...' : note.content;
+        } else {
+          label = `Voice Note (${note.audioDuration ? Math.floor(note.audioDuration / 60) + ':' + (note.audioDuration % 60).toFixed(0).padStart(2, '0') : 'Unknown'})`;
+        }
+        
+        notes[i] = {
+          ...note,
+          label: label || 'Untitled Note'
+        };
+        hasChanges = true;
+      }
+    }
+    
+    if (hasChanges) {
+      await this.storeNotes(notes);
     }
   }
 

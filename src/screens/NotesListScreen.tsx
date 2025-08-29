@@ -91,7 +91,7 @@ const NotesScreen: React.FC = () => {
 
     // Filter by search text
     if (searchText.trim()) {
-      filtered = filterBySearchText(filtered, searchText, ['content']);
+      filtered = filterBySearchText(filtered, searchText, ['label', 'content']);
     }
 
     // Sort by creation date (newest first)
@@ -182,7 +182,7 @@ const NotesScreen: React.FC = () => {
         </View>
         
         <Text style={[styles.noteContent, { color: theme.colors.text }]} numberOfLines={3}>
-          {item.content}
+          {item.label}
         </Text>
         
         {item.type === 'voice' && item.audioDuration && (

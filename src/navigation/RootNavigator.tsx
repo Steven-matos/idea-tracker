@@ -170,9 +170,8 @@ const AppNavigator: React.FC = () => {
           name="EditNote" 
           component={NoteEditScreen}
           options={{ 
-            title: 'Edit Note',
+            headerShown: false,
             presentation: 'modal',
-            headerLeft: () => null,
           }}
         />
       </Stack.Navigator>
