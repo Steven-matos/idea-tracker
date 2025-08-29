@@ -20,15 +20,14 @@ import { Category } from '../types';
 // Import storage service for persistent data operations
 import { storageService } from '../services';
 
-// Import utility functions for ID generation, string validation, and color contrast  
-import { generateId, isValidString, getContrastColor } from '../utils';
+// Import utility functions for string validation and color contrast  
+import { isValidString, getContrastColor } from '../utils';
 import { useTheme } from '../contexts/theme.context';
 import { useAsyncOperation } from '../hooks';
 import { 
   GradientCard, 
   ProfessionalButton, 
   ProfessionalHeader, 
-  ProfessionalFAB,
   EmptyState,
   ActionButton,
   ColorPicker
@@ -41,16 +40,12 @@ import { COLOR_OPTIONS, Spacing, TextStyles, Colors } from '../styles';
 const CategoriesScreen: React.FC = () => {
   const { theme } = useTheme();
   
-  // Default color for new categories
+  // Default color for editing categories
   const defaultColor = '#8B5CF6';
-  
-  // Use shared color options for consistency
-  const colorOptions = COLOR_OPTIONS;
   
   // State management
   const [categories, setCategories] = useState<Category[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [categoryName, setCategoryName] = useState('');
   const [selectedColor, setSelectedColor] = useState(defaultColor);
@@ -79,43 +74,33 @@ const CategoriesScreen: React.FC = () => {
   };
 
   /**
-   * Open add category modal
-   */
-  const openAddModal = () => {
-    setCategoryName('');
-    setSelectedColor(defaultColor);
-    setEditingCategory(null);
-    setShowAddModal(true);
-  };
-
-  /**
    * Open edit category modal
    */
   const openEditModal = (category: Category) => {
     setCategoryName(category.name);
     setSelectedColor(category.color);
     setEditingCategory(category);
-    setShowAddModal(true);
   };
 
   /**
    * Close modal and reset state
    */
   const closeModal = () => {
-    setShowAddModal(false);
     setCategoryName('');
     setSelectedColor(defaultColor);
     setEditingCategory(null);
   };
 
   /**
-   * Save category (add or edit)
+   * Save category (edit only)
    * Special handling for General category - only allow color changes, not name changes
    */
   const saveCategory = async () => {
     try {
+      if (!editingCategory) return;
+      
       // For General category, skip name validation and duplicate checks
-      const isGeneralCategory = editingCategory?.id === 'general';
+      const isGeneralCategory = editingCategory.id === 'general';
       
       if (!isGeneralCategory && !isValidString(categoryName)) {
         Alert.alert('Error', 'Please enter a category name.');
@@ -127,7 +112,7 @@ const CategoriesScreen: React.FC = () => {
       if (!isGeneralCategory) {
         const existingCategory = categories.find(
           cat => cat.name.toLowerCase() === categoryName.toLowerCase() && 
-                 cat.id !== editingCategory?.id
+                 cat.id !== editingCategory.id
         );
 
         if (existingCategory) {
@@ -138,28 +123,15 @@ const CategoriesScreen: React.FC = () => {
 
       setIsLoading(true);
 
-      if (editingCategory) {
-        // Update existing category
-        const updatedCategory: Category = {
-          ...editingCategory,
-          // For General category, keep original name; for others, use edited name
-          name: isGeneralCategory ? editingCategory.name : categoryName.trim(),
-          color: selectedColor,
-        };
-        
-        await storageService.updateCategory(updatedCategory);
-      } else {
-        // Add new category
-        const newCategory: Category = {
-          id: generateId(),
-          name: categoryName.trim(),
-          color: selectedColor,
-          createdAt: new Date().toISOString(),
-        };
-        
-        await storageService.addCategory(newCategory);
-      }
-
+      // Update existing category
+      const updatedCategory: Category = {
+        ...editingCategory,
+        // For General category, keep original name; for others, use edited name
+        name: isGeneralCategory ? editingCategory.name : categoryName.trim(),
+        color: selectedColor,
+      };
+      
+      await storageService.updateCategory(updatedCategory);
       await loadCategories();
       closeModal();
       
@@ -280,7 +252,7 @@ const CategoriesScreen: React.FC = () => {
       label="Color"
       selectedColor={selectedColor}
       onColorSelect={setSelectedColor}
-      colors={colorOptions}
+      colors={COLOR_OPTIONS}
       style={styles.colorPicker}
     />
   );
@@ -329,15 +301,11 @@ const CategoriesScreen: React.FC = () => {
         ListEmptyComponent={renderEmptyState}
       />
 
-      {/* Professional Floating Action Button */}
-      <ProfessionalFAB 
-        icon="add" 
-        onPress={openAddModal} 
-      />
+      {/* + Button is now handled by navigation bar */}
 
-      {/* Add/Edit Category Modal */}
+      {/* Edit Category Modal */}
       <Modal
-        visible={showAddModal}
+        visible={editingCategory !== null}
         animationType="slide"
         presentationStyle="pageSheet"
         onRequestClose={closeModal}
@@ -351,7 +319,7 @@ const CategoriesScreen: React.FC = () => {
               <Text style={[styles.cancelButton, { color: Colors.ERROR_RED }]}>Cancel</Text>
             </TouchableOpacity>
             <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
-              {editingCategory ? 'Edit Category' : 'New Category'}
+              Edit Category
             </Text>
             <TouchableOpacity onPress={saveCategory} disabled={isLoading}>
               <Text style={[

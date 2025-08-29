@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TextInput } from 'react-native';
 import { useTheme } from '../../contexts/theme.context';
-import { GradientCard } from './index';
+import GradientCard from './Card';
 
 interface NoteFormCardProps {
   /**

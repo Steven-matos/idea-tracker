@@ -96,12 +96,15 @@ export type RootStackParamList = {
   Home: undefined;
   CreateNote: { categoryId?: string };
   EditNote: { noteId: string };
+  CreateCategory: undefined;
   Categories: undefined;
   Settings: undefined;
 };
 
 export type BottomTabParamList = {
+  AI: undefined;
   Notes: undefined;
+  CreateNote: undefined;
   Categories: undefined;
   Settings: undefined;
 };

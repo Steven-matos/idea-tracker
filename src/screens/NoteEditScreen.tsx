@@ -44,7 +44,6 @@ const EditNoteScreen: React.FC = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
   
   // Voice playback state
   const [playbackObject, setPlaybackObject] = useState<any>(null);
@@ -74,7 +73,6 @@ const EditNoteScreen: React.FC = () => {
       setNoteLabel(noteData.label);
       setTextContent(noteData.content);
       setSelectedCategoryId(noteData.categoryId);
-      setIsFavorite(noteData.isFavorite);
       setCategories(categoriesData);
       
     } catch (error) {
@@ -173,7 +171,6 @@ const EditNoteScreen: React.FC = () => {
         label: noteLabel.trim(),
         content: note.type === 'text' ? textContent.trim() : note.content,
         categoryId: selectedCategoryId,
-        isFavorite,
         updatedAt: new Date().toISOString(),
       };
 
@@ -374,22 +371,7 @@ const EditNoteScreen: React.FC = () => {
           </View>
         </GradientCard>
 
-        {/* Favorite Toggle */}
-        <GradientCard variant="surface" elevated>
-          <TouchableOpacity
-            style={styles.favoriteToggle}
-            onPress={() => setIsFavorite(!isFavorite)}
-          >
-            <Ionicons 
-              name={isFavorite ? 'heart' : 'heart-outline'} 
-              size={24} 
-              color={isFavorite ? theme.colors.error : theme.colors.textSecondary} 
-            />
-            <Text style={[styles.favoriteText, { color: theme.colors.text }]}>
-              {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-            </Text>
-          </TouchableOpacity>
-        </GradientCard>
+
 
         {/* Delete Note */}
         <GradientCard variant="surface" elevated>
@@ -517,16 +499,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
   },
-  favoriteToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 8,
-  },
-  favoriteText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
+
   actionBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -25,7 +25,6 @@ import {
   ProfessionalHeader, 
   ProfessionalSearchInput, 
   ProfessionalCategoryFilter, 
-  ProfessionalFAB,
   EmptyState,
   ActionButton
 } from '../components/common';
@@ -289,13 +288,7 @@ const NotesScreen: React.FC = () => {
         ListEmptyComponent={!loading ? renderEmptyState : null}
       />
 
-      {/* Floating Action Button - Only show when there are notes */}
-      {notes.length > 0 && (
-        <ProfessionalFAB 
-          icon="add" 
-          onPress={handleCreateNote} 
-        />
-      )}
+
     </View>
   );
 };
