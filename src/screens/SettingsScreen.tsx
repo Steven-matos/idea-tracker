@@ -14,6 +14,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { AppSettings, ThemeMode } from '../types';
 import { storageService } from '../services/storage.service';
 import { useTheme } from '../contexts/theme.context';
+import { StorageStatsCard } from '../components/common';
+import { calculateStorageStats, StorageStats } from '../utils';
 
 /**
  * Screen for app settings and preferences
@@ -26,26 +28,35 @@ const SettingsScreen: React.FC = () => {
   const [settings, setSettings] = useState<AppSettings>({
     defaultCategoryId: 'general',
     audioQuality: 'medium',
-    showTutorial: true,
     themeMode: 'system',
   });
   const [categories, setCategories] = useState<any[]>([]);
+  const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
 
   /**
-   * Load settings and categories from storage
+   * Load settings, categories, and calculate storage stats
    */
   const loadData = async () => {
     try {
-      const [settingsData, categoriesData] = await Promise.all([
+      setIsLoadingStats(true);
+      const [settingsData, categoriesData, notesData] = await Promise.all([
         storageService.getSettings(),
         storageService.getCategories(),
+        storageService.getNotes(),
       ]);
       
       setSettings(settingsData);
       setCategories(categoriesData);
+      
+      // Calculate storage statistics
+      const stats = await calculateStorageStats(notesData, categoriesData);
+      setStorageStats(stats);
     } catch (error) {
       console.error('Error loading settings:', error);
       Alert.alert('Error', 'Failed to load settings.');
+    } finally {
+      setIsLoadingStats(false);
     }
   };
 
@@ -75,14 +86,6 @@ const SettingsScreen: React.FC = () => {
    */
   const updateDefaultCategory = (categoryId: string) => {
     const updatedSettings = { ...settings, defaultCategoryId: categoryId };
-    saveSettings(updatedSettings);
-  };
-
-  /**
-   * Toggle tutorial setting
-   */
-  const toggleTutorial = (value: boolean) => {
-    const updatedSettings = { ...settings, showTutorial: value };
     saveSettings(updatedSettings);
   };
 
@@ -161,10 +164,17 @@ const SettingsScreen: React.FC = () => {
     title: string,
     subtitle?: string,
     onPress?: () => void,
-    rightComponent?: React.ReactNode
+    rightComponent?: React.ReactNode,
+    isLastRow: boolean = false
   ) => (
     <TouchableOpacity
-      style={[styles.settingRow, { borderBottomColor: theme.colors.border }]}
+      style={[
+        styles.settingRow, 
+        { 
+          borderBottomWidth: isLastRow ? 0 : 0.5,
+          borderBottomColor: theme.colors.border 
+        }
+      ]}
       onPress={onPress}
       disabled={!onPress}
     >
@@ -219,7 +229,9 @@ const SettingsScreen: React.FC = () => {
                 { text: 'System', onPress: () => updateThemeMode('system') },
               ]
             );
-          }
+          },
+          undefined,
+          true // isLastRow
         )}
       </View>
 
@@ -260,31 +272,44 @@ const SettingsScreen: React.FC = () => {
                 { text: 'High', onPress: () => updateAudioQuality('high') },
               ]
             );
-          }
-        )}
-        
-        {renderSettingRow(
-          'help-circle-outline',
-          'Show Tutorial',
-          'Show tutorial on app start',
+          },
           undefined,
-          <Switch
-            value={settings.showTutorial}
-            onValueChange={toggleTutorial}
-            trackColor={{ false: theme.colors.border, true: theme.colors.success }}
-            thumbColor={theme.colors.surface}
-          />
+          true // isLastRow
         )}
       </View>
 
       {/* Storage */}
       {renderSectionHeader('Storage')}
+      
+      {/* Storage Stats Card */}
+      {isLoadingStats ? (
+        <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
+          <Text style={[styles.settingTitle, { color: theme.colors.textSecondary, textAlign: 'center' }]}>Loading storage stats...</Text>
+        </View>
+      ) : storageStats ? (
+        <StorageStatsCard 
+          stats={storageStats} 
+          onRefresh={loadData}
+          lastUpdated={new Date().toISOString()}
+        />
+      ) : (
+        <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
+          <Text style={[styles.settingTitle, { color: theme.colors.textSecondary, textAlign: 'center' }]}>No data available for storage stats.</Text>
+        </View>
+      )}
+      
+      {/* Spacing between storage stats and clear data button */}
+      <View style={styles.spacing} />
+      
+      {/* Clear Data Section */}
       <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
         {renderSettingRow(
           'trash-outline',
           'Clear All Data',
           'Delete all notes and reset app',
-          clearAllData
+          clearAllData,
+          undefined,
+          true // isLastRow
         )}
       </View>
 
@@ -321,7 +346,9 @@ const SettingsScreen: React.FC = () => {
               'For support or feedback, please email us at support@notestracker.app',
               [{ text: 'OK' }]
             );
-          }
+          },
+          undefined,
+          true // isLastRow
         )}
       </View>
 
@@ -365,7 +392,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 0.5,
   },
   settingLeft: {
     flexDirection: 'row',
@@ -404,6 +430,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
+  spacing: {
+    height: 16,
+  },
+
 });
 
 export default SettingsScreen;

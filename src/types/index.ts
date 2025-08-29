@@ -83,8 +83,6 @@ export interface AppSettings {
   defaultCategoryId: string;
   /** Audio recording quality setting */
   audioQuality: 'low' | 'medium' | 'high';
-  /** Whether to show tutorial on app start */
-  showTutorial: boolean;
   /** Theme mode preference */
   themeMode: ThemeMode;
 }

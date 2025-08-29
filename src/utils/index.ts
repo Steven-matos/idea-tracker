@@ -6,6 +6,9 @@
 
 import * as Audio from 'expo-audio';
 
+// Export storage utilities
+export * from './storage-utils';
+
 // ID Generation
 // =============================================================================
 

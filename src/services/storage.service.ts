@@ -206,7 +206,6 @@ class StorageService {
     return {
       defaultCategoryId: 'general',
       audioQuality: 'medium',
-      showTutorial: true,
       themeMode: 'system',
     };
   }

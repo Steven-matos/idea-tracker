@@ -16,6 +16,7 @@
     "@react-navigation/stack": "^7.4.7",
     "expo": "~53.0.20",
     "expo-audio": "~0.4.9",
+    "expo-file-system": "^18.1.11",
     "expo-linear-gradient": "~14.1.5",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",

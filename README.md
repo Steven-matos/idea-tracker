@@ -1,280 +1,114 @@
-# Note Taker
+# Notes Tracker
 
-A React Native application built with Expo for capturing and organizing your ideas. Create text-based ideas or record voice notes, organize them with customizable categories, and manage them locally on your device with a beautiful iOS-inspired interface.
+A React Native app for organizing and managing notes with text and voice recording capabilities.
 
 ## Features
 
-### ✨ Core Features
-- **Text Ideas**: Create and edit text-based ideas and thoughts
-- **Voice Ideas**: Record voice notes with playback functionality
-- **Categories**: Organize ideas with customizable color-coded categories
-- **Local Storage**: All data stored locally on device (no backend required)
-- **Search & Filter**: Find ideas by content or category
-- **iOS-Inspired Design**: Beautiful native iOS design patterns and interactions
+### Core Functionality
+- **Text Notes**: Create, edit, and organize text-based notes
+- **Voice Notes**: Record and manage audio notes with quality settings
+- **Categories**: Organize notes with customizable categories and colors
+- **Search & Filter**: Find notes quickly with search and category filtering
+- **Favorites**: Mark important notes as favorites for easy access
 
-### 📱 User Interface
-- Clean, modern iOS-inspired design with proper navigation
-- Tab-based navigation for seamless app experience
-- Modal screens for creating and editing ideas
-- Intuitive voice recording with visual feedback
-- Professional color-coded category system
-- Pull-to-refresh functionality
-- Floating Action Button for quick idea creation
+### Settings & Preferences
+- **Theme Support**: Light, dark, and system theme modes
+- **Audio Quality**: Configurable recording quality (low, medium, high)
+- **Default Categories**: Set preferred default category for new notes
+- **Storage Management**: Clear all data with confirmation
+- **Storage Statistics**: Comprehensive view of app storage usage including:
+  - Total storage used by the app
+  - Breakdown by note type (text vs voice)
+  - Metadata storage information
+  - Device storage information when available
+  - Visual progress bar showing storage usage
+  - Real-time statistics with refresh capability
 
-### 🎙️ Voice Recording Features
-- High-quality audio recording with expo-audio
-- Real-time duration display during recording
-- Playback controls for voice ideas
-- Automatic file management and cleanup
-- **Configurable Audio Quality Settings**:
-  - **Low Quality**: 22kHz sample rate, mono, 64kbps bitrate (smaller files)
-  - **Medium Quality**: 44.1kHz sample rate, mono, 96kbps bitrate (balanced)
-  - **High Quality**: 44.1kHz sample rate, stereo, 128kbps bitrate (best quality)
-- Platform-optimized recording options (iOS-specific configurations)
-- Dynamic quality adjustment based on user preferences
+### Technical Features
+- **TypeScript**: Full type safety and modern development experience
+- **Expo**: Managed workflow for cross-platform development
+- **AsyncStorage**: Persistent data storage with efficient caching
+- **Responsive Design**: Optimized for both iOS and Android
+- **Accessibility**: ARIA support and screen reader compatibility
 
-### 📂 Category Management
-- Create unlimited custom categories with color selection
-- Edit existing categories with color picker
-- Default "General" category (cannot be deleted)
-- Advanced category-based filtering
-- Visual category indicators throughout the app
-- Smart category migration when categories are deleted
+## Storage Statistics
 
-## Tech Stack
+The app provides detailed storage analytics in the Settings screen:
 
-- **Framework**: React Native 0.79.5 with Expo ~53.0.20
-- **Language**: TypeScript ~5.8.3 (strict mode)
-- **Navigation**: React Navigation v7 (Stack & Bottom Tabs)
-- **Storage**: AsyncStorage 2.1.2 for data persistence
-- **Audio**: Expo Audio ~0.4.9 for voice recording/playback
-- **Animations**: React Native Reanimated ~3.17.4
-- **Gestures**: React Native Gesture Handler ~2.24.0
-- **Styling**: Expo Linear Gradient ~14.1.5
-- **Icons**: Expo Vector Icons v14.1.0 (Ionicons)
-- **Safe Area**: React Native Safe Area Context 5.4.0
+- **Real-time Calculation**: Automatically calculates storage usage for notes and metadata
+- **Visual Progress**: Color-coded progress bar showing storage utilization
+- **Detailed Breakdown**: Separate statistics for text notes, voice notes, and app metadata
+- **Device Information**: Shows available device storage when possible
+- **Refresh Capability**: Manual refresh button to update statistics
+- **Last Updated**: Timestamp showing when statistics were last calculated
+
+### Storage Calculation Details
+
+- **Text Notes**: Estimated at 2 bytes per character (Unicode support)
+- **Voice Notes**: Estimated at 1MB per minute of audio
+- **Metadata**: Includes JSON overhead, timestamps, and IDs
+- **Device Storage**: Uses expo-file-system when available for accurate device information
 
 ## Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd idea-tracker
-   ```
+```bash
+# Clone the repository
+git clone <repository-url>
+cd idea-tracker
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# Install dependencies
+npm install
 
-3. **Start the development server**
-   ```bash
-   npm start
-   ```
+# Start the development server
+npm start
+```
 
-4. **Run on iOS Simulator**
-   ```bash
-   npm run ios
-   ```
+## Dependencies
 
-5. **Run on Android Emulator**
-   ```bash
-   npm run android
-   ```
+- **React Native**: 0.79.5
+- **Expo**: ~53.0.20
+- **TypeScript**: ~5.8.3
+- **Navigation**: React Navigation v7
+- **Storage**: AsyncStorage with expo-file-system for device info
+- **Audio**: expo-audio for voice recording
+- **Icons**: Expo Vector Icons
 
 ## Project Structure
 
 ```
 src/
 ├── components/          # Reusable UI components
-│   ├── category/       # Category-related components
-│   ├── common/         # Common UI components (Buttons, Cards, Headers, etc.)
-│   │   ├── ActionButton.tsx
-│   │   ├── Button.tsx
-│   │   ├── Card.tsx
-│   │   ├── ColorPicker.tsx
-│   │   ├── EmptyState.tsx
-│   │   ├── FloatingActionButton.tsx
-│   │   ├── Header.tsx
-│   │   ├── LoadingSpinner.tsx
-│   │   └── SearchInput.tsx
-│   └── note/           # Note/Idea-related components
+│   ├── common/         # Common components (buttons, cards, etc.)
+│   ├── category/       # Category-specific components
+│   └── note/           # Note-specific components
 ├── contexts/           # React Context providers
-│   └── theme.context.tsx
 ├── hooks/              # Custom React hooks
-│   ├── useAsyncOperation.ts
-│   └── index.ts
 ├── navigation/         # Navigation configuration
-│   └── RootNavigator.tsx
-├── screens/            # Main application screens
-│   ├── NotesListScreen.tsx
-│   ├── NoteCreateScreen.tsx
-│   ├── NoteEditScreen.tsx
-│   ├── CategoriesListScreen.tsx
-│   └── SettingsScreen.tsx
-├── services/           # Business logic and data services
-│   ├── storage.service.ts
-│   └── index.ts
-├── styles/             # Shared styling and constants
-│   ├── constants.ts
-│   ├── shared.ts
-│   └── index.ts
+├── screens/            # App screens
+├── services/           # Data and API services
+├── styles/             # Global styles and themes
 ├── types/              # TypeScript type definitions
-│   └── index.ts
-└── utils/              # Utility functions
-    └── index.ts
+└── utils/              # Utility functions and helpers
 ```
 
-## Key Features Implementation
+## Development Principles
 
-### Local Storage
-- Uses AsyncStorage 2.1.2 for persistent data storage
-- Structured data models for ideas and categories
-- Automatic initialization with default categories
-- Smart storage service with error handling
-- Theme preferences and app settings persistence
+This project follows modern React Native development best practices:
 
-### Voice Recording
-- Expo Audio integration for high-quality recording
-- Automatic file system management for audio files
-- **Advanced Audio Quality System**:
-  - iOS-optimized recording configurations using latest expo-audio RecordingOptions
-  - Three quality tiers with different bitrates, sample rates, and channel configurations
-  - Automatic quality selection based on user settings from Settings screen
-  - Platform-specific optimizations (iOS uses AAC format with proper quality enum values)
-  - Smart fallback to high-quality presets on non-iOS platforms
-- Advanced playback functionality with progress tracking
-- Proper cleanup of audio resources
-
-### iOS-Inspired Design
-- Modern iOS design system with proper typography
-- Native navigation patterns with React Navigation v7
-- Comprehensive safe area handling
-- Beautiful modal transitions and animations
-- Professional color schemes and gradients
-
-## Data Models
-
-### Note (Idea)
-```typescript
-interface Note {
-  /** Unique identifier for the note */
-  id: string;
-  /** Type of note content (text or voice) */
-  type: NoteType;
-  /** Text content of the note (for text type) or title for voice notes */
-  content: string;
-  /** File path for voice recordings (only for voice type) */
-  audioPath?: string;
-  /** Duration of voice recording in seconds (only for voice type) */
-  audioDuration?: number;
-  /** Category ID this note belongs to */
-  categoryId: string;
-  /** Timestamp when the note was created */
-  createdAt: string;
-  /** Timestamp when the note was last updated */
-  updatedAt: string;
-  /** Whether the note is marked as favorite */
-  isFavorite: boolean;
-}
-```
-
-### Category
-```typescript
-interface Category {
-  /** Unique identifier for the category */
-  id: string;
-  /** Display name of the category */
-  name: string;
-  /** Color code for the category (hex format) */
-  color: string;
-  /** Timestamp when the category was created */
-  createdAt: string;
-}
-```
-
-### App Settings
-```typescript
-interface AppSettings {
-  /** Default category ID for new notes */
-  defaultCategoryId: string;
-  /** Audio recording quality setting */
-  audioQuality: 'low' | 'medium' | 'high';
-  /** Whether to show tutorial on app start */
-  showTutorial: boolean;
-  /** Theme mode preference */
-  themeMode: ThemeMode;
-}
-```
-
-## Audio Quality Configuration
-
-The app features a sophisticated audio quality system that automatically optimizes recording settings based on user preferences.
-
-### Quality Settings
-Users can select their preferred audio quality in the Settings screen:
-
-| Quality | Sample Rate | Channels | Bitrate | File Format | Use Case |
-|---------|-------------|----------|---------|-------------|----------|
-| **Low** | 22kHz | Mono | 64kbps | .m4a (AAC) | Minimal file size, basic quality |
-| **Medium** | 44.1kHz | Mono | 96kbps | .m4a (AAC) | Balanced quality and file size |
-| **High** | 44.1kHz | Stereo | 128kbps | .m4a (AAC) | Maximum quality, larger files |
-
-### Technical Implementation
-- **iOS Optimization**: Uses `expo-audio` RecordingOptions with iOS-specific AudioQuality enum values
-- **Platform Detection**: Automatically applies iOS-optimized settings when `Platform.OS === 'ios'`
-- **Dynamic Configuration**: Recording options update automatically when user changes quality setting
-- **AAC Compatibility**: Follows iOS AAC bitrate limitations for optimal compatibility
-- **Fallback Support**: Uses high-quality presets on non-iOS platforms
-
-### Code Architecture
-- `getIOSRecordingOptions()` utility function maps quality settings to proper RecordingOptions
-- Settings are loaded from AsyncStorage and applied to audio recorder initialization
-- Follows SOLID principles with single responsibility for audio configuration
-- Comprehensive error handling with graceful fallbacks
-
-## Permissions
-
-### iOS
-- **Microphone**: Required for voice recording functionality (`NSMicrophoneUsageDescription`)
-- **Audio Background Modes**: Enables audio playback in background
-
-### Android
-- **RECORD_AUDIO**: Required for voice recording
-- **WRITE_EXTERNAL_STORAGE**: Required for saving audio files  
-- **READ_EXTERNAL_STORAGE**: Required for accessing saved audio files
-
-## Development
-
-### Code Style
-- Follows SOLID principles for clean architecture
-- Implements DRY (Don't Repeat Yourself) methodology
-- Adheres to KISS (Keep It Simple, Stupid) principle
-- Comprehensive JSDoc documentation for all functions
-
-### State Management
-- React hooks for local component state management
-- Context API for theme and global state management
-- AsyncStorage for persistent data storage
-- Custom hooks for async operations and error handling
-
-### Error Handling
-- Comprehensive error handling with user-friendly messages
-- Graceful fallbacks for failed operations
-- Proper cleanup of resources and listeners
+- **SOLID Principles**: Single responsibility, open/closed, Liskov substitution, interface segregation, dependency inversion
+- **DRY (Don't Repeat Yourself)**: Centralized logic and reusable components
+- **KISS (Keep It Simple, Stupid)**: Simple, maintainable code structure
+- **TypeScript**: Strict typing for better development experience
+- **Component Composition**: Modular, reusable component architecture
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes following the established patterns
+4. Add tests for new functionality
+5. Submit a pull request
 
-## Acknowledgments
+## License
 
-- Built with React Native 0.79.5 and Expo ~53.0.20
-- Icons provided by Expo Vector Icons (Ionicons)
-- Design inspired by iOS Human Interface Guidelines
-- Audio functionality powered by Expo Audio
-- Navigation powered by React Navigation v7
+This project is licensed under the MIT License.
