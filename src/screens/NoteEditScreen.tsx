@@ -22,7 +22,7 @@ import { Note, Category, RootStackParamList } from '../types';
 import { storageService } from '../services/storage.service';
 import { isValidString } from '../utils';
 import { useTheme } from '../contexts/theme.context';
-import { GradientCard, ProfessionalButton, ColorPicker } from '../components/common';
+import { GradientCard, ProfessionalButton, ColorPicker, NoteFormCard } from '../components/common';
 import { Colors } from '../styles';
 import { useCategoryManager } from '../hooks';
 
@@ -295,59 +295,19 @@ const EditNoteScreen: React.FC = () => {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Note Label Input */}
-        <GradientCard variant="surface" elevated>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-            Note Label
-          </Text>
-          <TextInput
-            style={[
-              styles.labelInput,
-              { 
-                color: theme.colors.text,
-                borderColor: theme.colors.border,
-                backgroundColor: theme.colors.surface
-              }
-            ]}
-            placeholder="Enter a label for your note..."
-            placeholderTextColor={theme.colors.textSecondary}
-            value={noteLabel}
-            onChangeText={setNoteLabel}
-            maxLength={100}
-          />
-          <Text style={[styles.characterCount, { color: theme.colors.textSecondary }]}>
-            {noteLabel.length}/100
-          </Text>
-        </GradientCard>
+        {/* Note Form Card - Combined Label and Content */}
+        <NoteFormCard
+          noteLabel={noteLabel}
+          onNoteLabelChange={setNoteLabel}
+          textContent={textContent}
+          onTextContentChange={setTextContent}
+          isTextNote={note.type === 'text'}
+          maxLabelLength={100}
+          maxContentLength={1000}
+        />
 
-        {/* Content Input */}
-        {note.type === 'text' ? (
-          <GradientCard variant="surface" elevated>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-              Note Content
-            </Text>
-            <TextInput
-              style={[
-                styles.textInput,
-                { 
-                  color: theme.colors.text,
-                  borderColor: theme.colors.border,
-                  backgroundColor: theme.colors.surface
-                }
-              ]}
-              placeholder="Write your note here..."
-              placeholderTextColor={theme.colors.textSecondary}
-              value={textContent}
-              onChangeText={setTextContent}
-              multiline
-              textAlignVertical="top"
-              maxLength={1000}
-            />
-            <Text style={[styles.characterCount, { color: theme.colors.textSecondary }]}>
-              {textContent.length}/1000
-            </Text>
-          </GradientCard>
-        ) : (
+        {/* Voice Recording Section - Only show for voice notes */}
+        {note.type !== 'text' && (
           <GradientCard variant="surface" elevated>
             <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
               Voice Recording
@@ -508,27 +468,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  labelInput: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    lineHeight: 22,
-    minHeight: 80,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    lineHeight: 22,
-    minHeight: 120,
-  },
-  characterCount: {
-    fontSize: 12,
-    textAlign: 'right',
-    marginTop: 8,
-  },
+
   playbackContainer: {
     flexDirection: 'row',
     alignItems: 'center',

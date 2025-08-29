@@ -14,6 +14,7 @@ export { default as FloatingActionButton } from './FloatingActionButton';
 export { default as SearchInput } from './SearchInput';
 export { default as CategoryFilter } from './CategoryFilter';
 export { default as ColorPicker } from './ColorPicker';
+export { NoteFormCard } from './NoteFormCard';
 
 // Utility Components
 export { default as LoadingSpinner } from './LoadingSpinner';
