@@ -26,7 +26,12 @@ A React Native application built with Expo for capturing and organizing your ide
 - Real-time duration display during recording
 - Playback controls for voice ideas
 - Automatic file management and cleanup
-- Configurable recording quality settings
+- **Configurable Audio Quality Settings**:
+  - **Low Quality**: 22kHz sample rate, mono, 64kbps bitrate (smaller files)
+  - **Medium Quality**: 44.1kHz sample rate, mono, 96kbps bitrate (balanced)
+  - **High Quality**: 44.1kHz sample rate, stereo, 128kbps bitrate (best quality)
+- Platform-optimized recording options (iOS-specific configurations)
+- Dynamic quality adjustment based on user preferences
 
 ### 📂 Category Management
 - Create unlimited custom categories with color selection
@@ -132,7 +137,12 @@ src/
 ### Voice Recording
 - Expo Audio integration for high-quality recording
 - Automatic file system management for audio files
-- Configurable recording quality controls
+- **Advanced Audio Quality System**:
+  - iOS-optimized recording configurations using latest expo-audio RecordingOptions
+  - Three quality tiers with different bitrates, sample rates, and channel configurations
+  - Automatic quality selection based on user settings from Settings screen
+  - Platform-specific optimizations (iOS uses AAC format with proper quality enum values)
+  - Smart fallback to high-quality presets on non-iOS platforms
 - Advanced playback functionality with progress tracking
 - Proper cleanup of audio resources
 
@@ -196,6 +206,32 @@ interface AppSettings {
   themeMode: ThemeMode;
 }
 ```
+
+## Audio Quality Configuration
+
+The app features a sophisticated audio quality system that automatically optimizes recording settings based on user preferences.
+
+### Quality Settings
+Users can select their preferred audio quality in the Settings screen:
+
+| Quality | Sample Rate | Channels | Bitrate | File Format | Use Case |
+|---------|-------------|----------|---------|-------------|----------|
+| **Low** | 22kHz | Mono | 64kbps | .m4a (AAC) | Minimal file size, basic quality |
+| **Medium** | 44.1kHz | Mono | 96kbps | .m4a (AAC) | Balanced quality and file size |
+| **High** | 44.1kHz | Stereo | 128kbps | .m4a (AAC) | Maximum quality, larger files |
+
+### Technical Implementation
+- **iOS Optimization**: Uses `expo-audio` RecordingOptions with iOS-specific AudioQuality enum values
+- **Platform Detection**: Automatically applies iOS-optimized settings when `Platform.OS === 'ios'`
+- **Dynamic Configuration**: Recording options update automatically when user changes quality setting
+- **AAC Compatibility**: Follows iOS AAC bitrate limitations for optimal compatibility
+- **Fallback Support**: Uses high-quality presets on non-iOS platforms
+
+### Code Architecture
+- `getIOSRecordingOptions()` utility function maps quality settings to proper RecordingOptions
+- Settings are loaded from AsyncStorage and applied to audio recorder initialization
+- Follows SOLID principles with single responsibility for audio configuration
+- Comprehensive error handling with graceful fallbacks
 
 ## Permissions
 
