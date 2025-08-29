@@ -22,7 +22,6 @@ export { default as ActionButton } from './ActionButton';
 
 // Specialized Components
 export { default as ColorSlider } from './ColorSlider';
-export { default as HueSlider } from './HueSlider';
 
 // Legacy exports for backward compatibility during transition
 export { default as GradientCard } from './Card';
