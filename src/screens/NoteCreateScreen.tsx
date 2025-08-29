@@ -243,8 +243,9 @@ const CreateNoteScreen: React.FC = () => {
         setPlaybackPosition(prev => {
           const newPosition = prev + 0.5; // Increment by 0.5 seconds (500ms interval)
           
-          // Check if we've reached the recorded duration
-          if (recordingDuration > 0 && newPosition >= recordingDuration) {
+          // Check if we've reached the recorded duration with a small buffer to prevent premature stopping
+          // Add 0.3 second buffer to account for timing discrepancies between our timer and actual audio playback
+          if (recordingDuration > 0 && newPosition >= (recordingDuration + 0.6)) {
             // Audio has finished playing - useEffect will handle clearing interval
             setIsPlaying(false);
             return 0; // Reset position
@@ -645,11 +646,11 @@ const CreateNoteScreen: React.FC = () => {
               <Ionicons 
                 name="document-text" 
                 size={24} 
-                color={theme.colors.text} 
+                color={noteType === 'text' ? theme.colors.text : (theme.isDark ? '#000000' : theme.colors.text)} 
               />
               <Text style={[
                 styles.typeText,
-                noteType === 'text' && { color: theme.colors.text }
+                { color: noteType === 'text' ? theme.colors.text : (theme.isDark ? '#000000' : theme.colors.text) }
               ]}>
                 Text
               </Text>
@@ -665,11 +666,11 @@ const CreateNoteScreen: React.FC = () => {
               <Ionicons 
                 name="mic" 
                 size={24} 
-                color={theme.colors.text} 
+                color={noteType === 'voice' ? theme.colors.text : (theme.isDark ? '#000000' : theme.colors.text)} 
               />
               <Text style={[
                 styles.typeText,
-                noteType === 'voice' && { color: theme.colors.text }
+                { color: noteType === 'voice' ? theme.colors.text : (theme.isDark ? '#000000' : theme.colors.text) }
               ]}>
                 Voice
               </Text>
