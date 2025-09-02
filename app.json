@@ -17,28 +17,28 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourname.notestracker",
+      "bundleIdentifier": "com.tridentinnovation.notestracker",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app needs access to the microphone to record voice notes.",
+        "NSDocumentsFolderUsageDescription": "This app needs access to your documents folder to create and manage backups.",
+        "NSFileProviderDomainUsageDescription": "This app needs access to your files to create and manage backups.",
         "UIBackgroundModes": [
+          "audio",
           "audio"
-        ]
+        ],
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to save and manage note attachments.",
+        "NSCameraUsageDescription": "This app needs access to your camera to capture images for notes.",
+        "NSLocationWhenInUseUsageDescription": "This app may use location data to enhance your notes with location context.",
+        "NSUbiquitousContainers": {
+          "iCloud.com.tridentinnovation.notestracker": {
+            "NSUbiquitousContainerIsDocumentScopePublic": true,
+            "NSUbiquitousContainerName": "Notes Tracker",
+            "NSUbiquitousContainerSupportedFolderLevels": "None"
+          }
+        },
+        "ITSAppUsesNonExemptEncryption": false
       },
       "buildNumber": "1"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#F2F2F7"
-      },
-      "edgeToEdgeEnabled": true,
-      "package": "com.yourname.notestracker",
-      "versionCode": 1,
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.READ_EXTERNAL_STORAGE"
-      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -51,6 +51,11 @@
           "microphonePermission": "Allow Notes Tracker to access your microphone to record voice notes."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f59f2866-bd2a-4ca6-af88-2c36387e79a9"
+      }
+    }
   }
 }

@@ -21,6 +21,7 @@ export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as EmptyState } from './EmptyState';
 export { default as ActionButton } from './ActionButton';
 export { default as StorageStatsCard } from './StorageStatsCard';
+export { BackupManagerCard } from './BackupManagerCard';
 
 // Specialized Components
 export { default as ColorSlider } from './ColorSlider';

@@ -23,6 +23,13 @@ A React Native app for organizing and managing notes with text and voice recordi
   - Device storage information when available
   - Visual progress bar showing storage usage
   - Real-time statistics with refresh capability
+- **True iCloud Integration**: iOS-exclusive iCloud functionality including:
+  - **CloudKit-Ready**: Structured for Apple's CloudKit integration
+  - **iCloud Key-Value Storage**: Backup metadata stored in iCloud
+  - **Cross-Device Sync**: Backups automatically sync across user's iCloud devices
+  - **Real-time Synchronization**: Changes appear instantly across devices
+  - **Automatic Backup Management**: No manual file management required
+  - **Device Management**: Unique device identification for multi-device sync
 
 ### Technical Features
 - **TypeScript**: Full type safety and modern development experience
@@ -72,6 +79,7 @@ npm start
 - **Storage**: AsyncStorage with expo-file-system for device info
 - **Audio**: expo-audio for voice recording
 - **Icons**: Expo Vector Icons
+- **Backup**: expo-document-picker, expo-sharing for iCloud backup functionality
 
 ## Project Structure
 
