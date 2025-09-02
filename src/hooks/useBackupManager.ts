@@ -126,77 +126,190 @@ export const useBackupManager = (): UseBackupManagerReturn => {
    */
   const createBackup = useCallback(async (): Promise<void> => {
     if (!isBackupAvailable) {
-      setError('Backup is only available on iOS devices');
+      const errorMsg = 'CloudKit backup is only available on iOS devices';
+      setError(errorMsg);
+      Alert.alert(
+        '❌ Backup Not Available',
+        errorMsg,
+        [
+          { text: 'OK' },
+          {
+            text: 'Why?',
+            onPress: () => {
+              Alert.alert(
+                'Why iOS Only?',
+                'CloudKit is Apple\'s iCloud service that only works on iOS devices. This ensures true iCloud integration.',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
       return;
     }
 
     try {
-      const backupPath = await createBackupOp.execute();
-      if (backupPath) {
+      const backupId = await createBackupOp.execute();
+      if (backupId) {
         await refreshBackupsRef.current?.();
         Alert.alert(
-          'Backup Created',
-          'Your data has been backed up successfully.',
+          '✅ iCloud Backup Created',
+          'Your data has been backed up to iCloud successfully!',
           [{ text: 'OK' }]
         );
       }
     } catch (error) {
-      setError('Failed to create backup');
+      const errorMsg = 'Failed to create CloudKit backup';
+      setError(errorMsg);
+      
+      // Show detailed error popup
+      let detailedError = 'Unknown error occurred';
+      let troubleshooting = '';
+      
+      if (error instanceof Error) {
+        detailedError = error.message;
+        
+        if (error.message.includes('CloudKit not initialized')) {
+          troubleshooting = '\n\n💡 Solution: Try verifying CloudKit integration first';
+        } else if (error.message.includes('Native CloudKit not available')) {
+          troubleshooting = '\n\n💡 Solution: Use development build instead of Expo Go';
+        } else if (error.message.includes('Network error')) {
+          troubleshooting = '\n\n💡 Solution: Check your internet connection and iCloud status';
+        }
+      }
+      
+      Alert.alert(
+        '❌ Backup Creation Failed',
+        `${detailedError}${troubleshooting}`,
+        [
+          { text: 'OK' },
+          {
+            text: 'Troubleshoot',
+            onPress: () => {
+              Alert.alert(
+                'Troubleshooting Steps',
+                '1. Ensure you\'re using a development build\n2. Check iCloud is enabled on device\n3. Verify internet connection\n4. Try CloudKit verification in Settings',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
+      
       console.error('Backup creation error:', error);
     }
   }, [isBackupAvailable, createBackupOp]);
 
   /**
-   * Restore from a backup file
+   * Restore from a CloudKit backup
    */
-  const restoreFromBackup = useCallback(async (backupPath: string): Promise<void> => {
+  const restoreFromBackup = useCallback(async (backupId: string): Promise<void> => {
     if (!isBackupAvailable) {
-      setError('Restore is only available on iOS devices');
+      const errorMsg = 'CloudKit restore is only available on iOS devices';
+      setError(errorMsg);
+      Alert.alert(
+        '❌ Restore Not Available',
+        errorMsg,
+        [
+          { text: 'OK' },
+          {
+            text: 'Why?',
+            onPress: () => {
+              Alert.alert(
+                'Why iOS Only?',
+                'CloudKit restore requires native iOS CloudKit APIs that are only available on iOS devices.',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
       return;
     }
 
     try {
-      await restoreBackupOp.execute(backupPath);
+      await restoreBackupOp.execute(backupId);
       Alert.alert(
-        'Restore Complete',
-        'Your data has been restored successfully. The app will refresh.',
+        '✅ Restore Successful',
+        'Your data has been restored from iCloud backup successfully!',
         [{ text: 'OK' }]
       );
     } catch (error) {
-      setError('Failed to restore from backup');
+      const errorMsg = 'Failed to restore from CloudKit backup';
+      setError(errorMsg);
+      
+      // Show detailed error popup
+      let detailedError = 'Unknown error occurred';
+      let troubleshooting = '';
+      
+      if (error instanceof Error) {
+        detailedError = error.message;
+        
+        if (error.message.includes('CloudKit not initialized')) {
+          troubleshooting = '\n\n💡 Solution: Try verifying CloudKit integration first';
+        } else if (error.message.includes('Native CloudKit not available')) {
+          troubleshooting = '\n\n💡 Solution: Use development build instead of Expo Go';
+        } else if (error.message.includes('Backup not found')) {
+          troubleshooting = '\n\n💡 Solution: The backup may have been deleted or is no longer available';
+        } else if (error.message.includes('Network error')) {
+          troubleshooting = '\n\n💡 Solution: Check your internet connection and iCloud status';
+        }
+      }
+      
+      Alert.alert(
+        '❌ Restore Failed',
+        `${detailedError}${troubleshooting}`,
+        [
+          { text: 'OK' },
+          {
+            text: 'Troubleshoot',
+            onPress: () => {
+              Alert.alert(
+                'Troubleshooting Steps',
+                '1. Ensure you\'re using a development build\n2. Check iCloud is enabled on device\n3. Verify internet connection\n4. Try CloudKit verification in Settings\n5. Check if backup still exists',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
+      
       console.error('Restore error:', error);
     }
   }, [isBackupAvailable, restoreBackupOp]);
 
-  /**
-   * Share a backup file
-   */
-  const shareBackup = useCallback(async (backupPath: string): Promise<void> => {
-    if (!isBackupAvailable) {
-      setError('Sharing is only available on iOS devices');
-      return;
-    }
-
-    try {
-      await shareBackupOp.execute(backupPath);
-    } catch (error) {
-      setError('Failed to share backup');
-      console.error('Share error:', error);
-    }
-  }, [isBackupAvailable, shareBackupOp]);
+  // Share functionality removed - CloudKit only
 
   /**
-   * Delete a backup file
+   * Delete a CloudKit backup
    */
-  const deleteBackup = useCallback(async (backupPath: string): Promise<void> => {
+  const deleteBackup = useCallback(async (backupId: string): Promise<void> => {
     if (!isBackupAvailable) {
-      setError('Backup management is only available on iOS devices');
+      const errorMsg = 'CloudKit backup management is only available on iOS devices';
+      setError(errorMsg);
+      Alert.alert(
+        '❌ Delete Not Available',
+        errorMsg,
+        [
+          { text: 'OK' },
+          {
+            text: 'Why?',
+            onPress: () => {
+              Alert.alert(
+                'Why iOS Only?',
+                'CloudKit backup deletion requires native iOS CloudKit APIs that are only available on iOS devices.',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
       return;
     }
 
     Alert.alert(
-      'Delete Backup',
-      'Are you sure you want to delete this backup? This action cannot be undone.',
+      '🗑️ Delete iCloud Backup',
+      'Are you sure you want to delete this iCloud backup? This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -204,11 +317,53 @@ export const useBackupManager = (): UseBackupManagerReturn => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await deleteBackupOp.execute(backupPath);
+              await deleteBackupOp.execute(backupId);
               await refreshBackupsRef.current?.();
-              Alert.alert('Success', 'Backup deleted successfully.');
+              Alert.alert(
+                '✅ Backup Deleted',
+                'The iCloud backup has been deleted successfully.',
+                [{ text: 'OK' }]
+              );
             } catch (error) {
-              setError('Failed to delete backup');
+              const errorMsg = 'Failed to delete CloudKit backup';
+              setError(errorMsg);
+              
+              // Show detailed error popup
+              let detailedError = 'Unknown error occurred';
+              let troubleshooting = '';
+              
+              if (error instanceof Error) {
+                detailedError = error.message;
+                
+                if (error.message.includes('CloudKit not initialized')) {
+                  troubleshooting = '\n\n💡 Solution: Try verifying CloudKit integration first';
+                } else if (error.message.includes('Native CloudKit not available')) {
+                  troubleshooting = '\n\n💡 Solution: Use development build instead of Expo Go';
+                } else if (error.message.includes('Backup not found')) {
+                  troubleshooting = '\n\n💡 Solution: The backup may have already been deleted';
+                } else if (error.message.includes('Network error')) {
+                  troubleshooting = '\n\n💡 Solution: Check your internet connection and iCloud status';
+                }
+              }
+              
+              Alert.alert(
+                '❌ Delete Failed',
+                `${detailedError}${troubleshooting}`,
+                [
+                  { text: 'OK' },
+                  {
+                    text: 'Troubleshoot',
+                    onPress: () => {
+                      Alert.alert(
+                        'Troubleshooting Steps',
+                        '1. Ensure you\'re using a development build\n2. Check iCloud is enabled on device\n3. Verify internet connection\n4. Try CloudKit verification in Settings',
+                        [{ text: 'OK' }]
+                      );
+                    }
+                  }
+                ]
+              );
+              
               console.error('Delete error:', error);
             }
           },

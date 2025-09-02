@@ -51,10 +51,40 @@ export function CloudKitVerificationCard() {
       }
     } catch (error) {
       console.error('Verification failed:', error);
+      
+      // Show detailed error message with troubleshooting tips
+      let errorMessage = 'Unknown error occurred';
+      let troubleshooting = '';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        // Provide specific troubleshooting based on error type
+        if (error.message.includes('CloudKit native module not available')) {
+          troubleshooting = '\n\n💡 Solution: Use a development build instead of Expo Go';
+        } else if (error.message.includes('CloudKit is only available on iOS')) {
+          troubleshooting = '\n\n💡 Solution: This feature only works on iOS devices';
+        } else if (error.message.includes('Development build required')) {
+          troubleshooting = '\n\n💡 Solution: Build and install the development version of the app';
+        }
+      }
+      
       Alert.alert(
-        '❌ Verification Failed',
-        `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        [{ text: 'OK' }]
+        '❌ CloudKit Verification Failed',
+        `${errorMessage}${troubleshooting}`,
+        [
+          { text: 'OK' },
+          { 
+            text: 'View Details', 
+            onPress: () => {
+              Alert.alert(
+                'Technical Details',
+                `Error: ${errorMessage}\n\nThis usually means:\n• You're using Expo Go (not supported)\n• Development build not installed\n• CloudKit not properly configured\n• iOS device required`,
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
       );
     } finally {
       setIsVerifying(false);
