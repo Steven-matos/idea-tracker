@@ -7,7 +7,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { Alert, Platform } from 'react-native';
-import { iCloudService } from '../services/icloud.service';
+import { nativeCloudKitService } from '../services/native-cloudkit.service';
 import { useAsyncOperation } from './useAsyncOperation';
 
 /**
@@ -42,8 +42,7 @@ interface UseBackupManagerReturn {
   createBackup: () => Promise<void>;
   /** Restore from a backup file */
   restoreFromBackup: (backupPath: string) => Promise<void>;
-  /** Share a backup file */
-  shareBackup: (backupPath: string) => Promise<void>;
+  /** Share functionality removed - CloudKit only */
   /** Delete a backup file */
   deleteBackup: (backupPath: string) => Promise<void>;
   /** Pick a backup file for restore */
@@ -89,35 +88,29 @@ export const useBackupManager = (): UseBackupManagerReturn => {
   const [backups, setBackups] = useState<BackupInfo[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Async operations using the established pattern
+  // Pure CloudKit operations - no fallbacks
   const createBackupOp = useAsyncOperation(
-    async () => await iCloudService.createBackup(),
+    async () => await nativeCloudKitService.createCloudKitBackup(),
     null,
-    { maxRetries: 2, userErrorMessage: 'Failed to create backup' }
+    { maxRetries: 2, userErrorMessage: 'Failed to create CloudKit backup' }
   );
 
   const restoreBackupOp = useAsyncOperation(
-    async (backupPath: string) => await iCloudService.restoreFromBackup(backupPath),
+    async (backupId: string) => await nativeCloudKitService.restoreFromCloudKitBackup(backupId),
     null,
-    { maxRetries: 1, userErrorMessage: 'Failed to restore from backup' }
-  );
-
-  const shareBackupOp = useAsyncOperation(
-    async (backupPath: string) => await iCloudService.shareBackup(backupPath),
-    null,
-    { maxRetries: 1, userErrorMessage: 'Failed to share backup' }
+    { maxRetries: 1, userErrorMessage: 'Failed to restore from CloudKit backup' }
   );
 
   const deleteBackupOp = useAsyncOperation(
-    async (backupPath: string) => await iCloudService.deleteBackup(backupPath),
+    async (backupId: string) => await nativeCloudKitService.deleteCloudKitBackup(backupId),
     null,
-    { maxRetries: 2, userErrorMessage: 'Failed to delete backup' }
+    { maxRetries: 2, userErrorMessage: 'Failed to delete CloudKit backup' }
   );
 
   const refreshBackupsOp = useAsyncOperation(
-    async () => await iCloudService.getAvailableBackups(),
+    async () => await nativeCloudKitService.getAvailableCloudKitBackups(),
     [],
-    { maxRetries: 2, userErrorMessage: 'Failed to refresh backups' }
+    { maxRetries: 2, userErrorMessage: 'Failed to refresh CloudKit backups' }
   );
 
   // Create a stable reference for refreshBackups to avoid circular dependencies
@@ -225,45 +218,54 @@ export const useBackupManager = (): UseBackupManagerReturn => {
   }, [isBackupAvailable, deleteBackupOp]);
 
   /**
-   * Pick a backup file and restore from it
+   * Pick a CloudKit backup and restore from it
    */
   const pickAndRestoreBackup = useCallback(async (): Promise<void> => {
     if (!isBackupAvailable) {
-      setError('Restore is only available on iOS devices');
+      setError('CloudKit restore is only available on iOS devices');
       return;
     }
 
     try {
-      const backupPath = await iCloudService.pickBackupFile();
-      if (backupPath) {
-        await restoreFromBackup(backupPath);
-      }
+      // For CloudKit, we show available backups in the UI
+      // User selects from the list instead of file picker
+      setError('Please select a backup from the list above to restore');
     } catch (error) {
-      setError('Failed to pick backup file');
-      console.error('File pick error:', error);
+      setError('Failed to access CloudKit backups');
+      console.error('CloudKit access error:', error);
     }
   }, [isBackupAvailable]);
 
   /**
-   * Refresh the list of available backups
+   * Refresh the list of available CloudKit backups
    */
   const refreshBackups = useCallback(async (): Promise<void> => {
     if (!isBackupAvailable) return;
 
     try {
-      const backupPaths = await refreshBackupsOp.execute();
-      if (backupPaths) {
-        const backupInfos: BackupInfo[] = [];
-        
-        for (const path of backupPaths) {
-          const metadata = await iCloudService.getBackupInfo(path);
-          backupInfos.push({ path, metadata });
-        }
+      const cloudKitBackups = await refreshBackupsOp.execute();
+      if (cloudKitBackups) {
+        const backupInfos: BackupInfo[] = cloudKitBackups.map(backup => ({
+          path: backup.id,
+          metadata: {
+            version: '1.0.0',
+            createdAt: new Date(backup.createdAt * 1000).toISOString(),
+            deviceInfo: {
+              platform: backup.deviceInfo?.platform || 'iOS',
+              version: backup.deviceInfo?.version || 'Unknown',
+            },
+            dataSummary: {
+              notesCount: backup.dataSummary?.notesCount || 0,
+              categoriesCount: backup.dataSummary?.categoriesCount || 0,
+              hasSettings: true,
+            },
+          },
+        }));
         
         setBackups(backupInfos);
       }
     } catch (error) {
-      console.error('Failed to refresh backups:', error);
+      console.error('Failed to refresh CloudKit backups:', error);
     }
   }, [isBackupAvailable]);
 
@@ -281,7 +283,6 @@ export const useBackupManager = (): UseBackupManagerReturn => {
   const backupState = {
     creating: createBackupOp.state.loading,
     restoring: restoreBackupOp.state.loading,
-    sharing: shareBackupOp.state.loading,
     deleting: deleteBackupOp.state.loading,
     refreshing: refreshBackupsOp.state.loading,
   };
@@ -291,7 +292,6 @@ export const useBackupManager = (): UseBackupManagerReturn => {
     isBackupAvailable,
     createBackup,
     restoreFromBackup,
-    shareBackup,
     deleteBackup,
     pickAndRestoreBackup,
     refreshBackups,

@@ -136,15 +136,16 @@ class NativeCloudKitService {
           this.cloudKitModule = NativeModules.CloudKitModule;
           this.eventEmitter = new NativeEventEmitter(this.cloudKitModule);
           this.setupEventListeners();
-          console.log('Native CloudKit module found');
+          console.log('Native CloudKit module loaded successfully');
         } else {
-          console.log('Native CloudKit module not available - using fallback');
+          throw new Error('CloudKit native module not available. Development build required.');
         }
       } else {
-        console.log('CloudKit only available on iOS');
+        throw new Error('CloudKit is only available on iOS devices');
       }
     } catch (error) {
-      console.error('Error initializing native CloudKit module:', error);
+      console.error('CloudKit initialization failed:', error);
+      throw error; // Re-throw to prevent fallback usage
     }
   }
 
@@ -348,9 +349,6 @@ class NativeCloudKitService {
         throw new Error('Native CloudKit not available');
       }
 
-      // Create safety backup before restore
-      await this.createSafetyBackup();
-
       // Get backup data from native module
       const backupDataString = await this.cloudKitModule.restoreFromBackup(backupId);
       
@@ -466,33 +464,9 @@ class NativeCloudKitService {
   }
 
   /**
-   * Create safety backup before restore
+   * CloudKit restore operations are safe by design
+   * No local safety backups needed - CloudKit handles data integrity
    */
-  private async createSafetyBackup(): Promise<void> {
-    try {
-      // Create a local safety backup
-      const [notes, categories, settings] = await Promise.all([
-        storageService.getNotes(),
-        storageService.getCategories(),
-        storageService.getSettings()
-      ]);
-
-      // Store safety backup locally (not in CloudKit)
-      const safetyData = {
-        notes,
-        categories,
-        settings,
-        createdAt: new Date().toISOString(),
-        type: 'safety-backup',
-      };
-
-      // This would typically be stored in AsyncStorage or local file system
-      console.log('Safety backup created before restore');
-    } catch (error) {
-      console.error('Error creating safety backup:', error);
-      // Don't throw - this is not critical for restore operation
-    }
-  }
 
   /**
    * Restore data to storage service
@@ -564,43 +538,8 @@ class NativeCloudKitService {
     }
   }
 
-  // Legacy methods for backward compatibility
-  async createICloudBackup(): Promise<string> {
-    return this.createCloudKitBackup();
-  }
-
-  async restoreFromICloudBackup(backupId: string): Promise<void> {
-    return this.restoreFromCloudKitBackup(backupId);
-  }
-
-  async getAvailableICloudBackups(): Promise<any[]> {
-    const backups = await this.getAvailableCloudKitBackups();
-    return backups.map(backup => ({
-      path: backup.id,
-      metadata: backup,
-    }));
-  }
-
-  async getICloudBackupInfo(backupId: string): Promise<any> {
-    const backups = await this.getAvailableCloudKitBackups();
-    return backups.find(backup => backup.id === backupId) || null;
-  }
-
-  async deleteICloudBackup(backupId: string): Promise<void> {
-    return this.deleteCloudKitBackup(backupId);
-  }
-
-  async cleanupOldICloudBackups(): Promise<void> {
-    return this.cleanupOldCloudKitBackups();
-  }
-
-  async getICloudSyncStatus(): Promise<any> {
-    return this.getCloudKitSyncStatus();
-  }
-
-  async syncWithICloud(): Promise<void> {
-    return this.syncWithCloudKit();
-  }
+  // Pure CloudKit methods only - no fallbacks
+  // All operations require native CloudKit module
 
   /**
    * Verify CloudKit is working by checking account status and container access
