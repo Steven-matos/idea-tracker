@@ -19,12 +19,15 @@
     },
     "production": {
       "ios": {
-        "resourceClass": "m-medium",
-        "ascAppId": "6751826710"
+        "resourceClass": "m-medium"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6751826710"
+      }
+    }
   }
 }
