@@ -41,7 +41,6 @@ export const BackupManagerCard: React.FC<BackupManagerCardProps> = ({
     isBackupAvailable,
     createBackup,
     restoreFromBackup,
-    shareBackup,
     deleteBackup,
     pickAndRestoreBackup,
     refreshBackups,
@@ -128,17 +127,8 @@ export const BackupManagerCard: React.FC<BackupManagerCardProps> = ({
     if (!backup.metadata) return 'Invalid backup';
     
     const { dataSummary } = backup.metadata;
-    const isSafetyBackup = backup.path.includes('safety-backup-');
-    const backupType = isSafetyBackup ? 'Safety Backup' : 'iCloud Backup';
     
-    return `${backupType}: ${dataSummary.notesCount} notes, ${dataSummary.categoriesCount} categories`;
-  };
-
-  /**
-   * Check if backup is a safety backup
-   */
-  const isSafetyBackup = (backup: any): boolean => {
-    return backup.path.includes('safety-backup-');
+    return `iCloud Backup: ${dataSummary.notesCount} notes, ${dataSummary.categoriesCount} categories`;
   };
 
   // Show error alert if there's an error
@@ -244,23 +234,7 @@ export const BackupManagerCard: React.FC<BackupManagerCardProps> = ({
         )}
       </TouchableOpacity>
 
-      {/* Restore from External File Button */}
-      <TouchableOpacity
-        style={[styles.externalRestoreButton, { borderColor: theme.colors.secondary }]}
-        onPress={pickAndRestoreBackup}
-        disabled={backupState.restoring}
-      >
-        {backupState.restoring ? (
-          <ActivityIndicator color={theme.colors.secondary} size="small" />
-        ) : (
-          <>
-            <Ionicons name="folder-open" size={20} color={theme.colors.secondary} />
-            <Text style={[styles.externalRestoreButtonText, { color: theme.colors.secondary }]}>
-              Restore from External File
-            </Text>
-          </>
-        )}
-      </TouchableOpacity>
+      {/* CloudKit Only - No External File Support */}
 
       {/* Backups List */}
       {backups.length > 0 && (
@@ -283,11 +257,7 @@ export const BackupManagerCard: React.FC<BackupManagerCardProps> = ({
               <View style={styles.backupInfo}>
                 <Text style={[styles.backupDate, { color: theme.colors.text }]}>
                   {backup.metadata ? formatBackupDate(backup.metadata.createdAt) : 'Unknown date'}
-                  {isSafetyBackup(backup) && (
-                    <Text style={[styles.safetyBadge, { color: theme.colors.warning }]}>
-                      {' '}🛡️ Safety
-                    </Text>
-                  )}
+                  {/* Pure CloudKit - No Safety Backups */}
                 </Text>
                 <Text style={[styles.backupSummary, { color: theme.colors.textSecondary }]}>
                   {getBackupSummary(backup)}
@@ -300,22 +270,12 @@ export const BackupManagerCard: React.FC<BackupManagerCardProps> = ({
               </View>
               
               <View style={styles.backupActions}>
-                {!isSafetyBackup(backup) && (
-                  <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.colors.primary }]}
-                    onPress={() => handleRestore(backup.path)}
-                    disabled={backupState.restoring}
-                  >
-                    <Ionicons name="refresh" size={16} color="white" />
-                  </TouchableOpacity>
-                )}
-                
                 <TouchableOpacity
-                  style={[styles.actionButton, { backgroundColor: theme.colors.secondary }]}
-                  onPress={() => shareBackup(backup.path)}
-                  disabled={backupState.sharing}
+                  style={[styles.actionButton, { backgroundColor: theme.colors.primary }]}
+                  onPress={() => handleRestore(backup.path)}
+                  disabled={backupState.restoring}
                 >
-                  <Ionicons name="share" size={16} color="white" />
+                  <Ionicons name="refresh" size={16} color="white" />
                 </TouchableOpacity>
                 
                 <TouchableOpacity

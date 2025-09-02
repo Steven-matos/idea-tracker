@@ -9,6 +9,34 @@ import { Note, Category, AppSettings, StorageKeys } from '../types';
  */
 class StorageService {
   /**
+   * Global error handler for storage operations
+   * Shows user-friendly error messages for common storage issues
+   */
+  private handleStorageError(error: any, operation: string): never {
+    let userMessage = 'An unexpected error occurred';
+    let technicalDetails = '';
+    
+    if (error instanceof Error) {
+      technicalDetails = error.message;
+      
+      if (error.message.includes('AsyncStorage')) {
+        userMessage = 'Storage system error - please restart the app';
+      } else if (error.message.includes('JSON')) {
+        userMessage = 'Data corruption detected - please contact support';
+      } else if (error.message.includes('permission')) {
+        userMessage = 'Storage permission denied - check app settings';
+      } else if (error.message.includes('quota')) {
+        userMessage = 'Storage space full - please free up space';
+      }
+    }
+    
+    // Log technical details for debugging
+    console.error(`Storage operation failed (${operation}):`, technicalDetails);
+    
+    // Throw user-friendly error
+    throw new Error(`${userMessage}\n\nOperation: ${operation}\n\nTechnical Details: ${technicalDetails}`);
+  }
+  /**
    * Backup data before overwriting to prevent data loss
    * @param key - Storage key
    * @param newData - New data to store
@@ -28,8 +56,7 @@ class StorageService {
       // Store new data
       await AsyncStorage.setItem(key, JSON.stringify(newData));
     } catch (error) {
-      console.error(`Error storing data for key ${key}:`, error);
-      throw new Error(`Failed to store data: ${error}`);
+      this.handleStorageError(error, `store data for key: ${key}`);
     }
   }
 

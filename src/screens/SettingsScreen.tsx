@@ -14,7 +14,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { AppSettings, ThemeMode } from '../types';
 import { storageService } from '../services/storage.service';
 import { useTheme } from '../contexts/theme.context';
-import { StorageStatsCard, BackupManagerCard } from '../components/common';
+import { StorageStatsCard, BackupManagerCard, CloudKitVerificationCard, CloudKitErrorBoundary } from '../components/common';
 import { calculateStorageStats, StorageStats } from '../utils';
 
 /**
@@ -301,10 +301,19 @@ const SettingsScreen: React.FC = () => {
       {/* Spacing between storage stats and backup manager */}
       <View style={styles.spacing} />
       
-      {/* Backup Manager Card */}
-      <BackupManagerCard onDataRestored={loadData} />
+      {/* CloudKit Components with Error Boundary */}
+      <CloudKitErrorBoundary>
+        {/* Backup Manager Card */}
+        <BackupManagerCard onDataRestored={loadData} />
+        
+        {/* Spacing between backup manager and CloudKit verification */}
+        <View style={styles.spacing} />
+        
+        {/* CloudKit Verification Card */}
+        <CloudKitVerificationCard />
+      </CloudKitErrorBoundary>
       
-      {/* Spacing between backup manager and clear data button */}
+      {/* Spacing between CloudKit verification and clear data button */}
       <View style={styles.spacing} />
       
       {/* Clear Data Section */}

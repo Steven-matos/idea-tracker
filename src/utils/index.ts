@@ -12,6 +12,9 @@ export * from './storage-utils';
 // Export data safety utilities
 export * from './data-safety';
 
+// Export error handling utilities
+export * from './error-handler';
+
 // ID Generation
 // =============================================================================
 

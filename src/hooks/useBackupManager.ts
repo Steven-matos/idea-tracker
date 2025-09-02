@@ -7,7 +7,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { Alert, Platform } from 'react-native';
-import { iCloudService } from '../services/icloud.service';
+import { nativeCloudKitService } from '../services/native-cloudkit.service';
 import { useAsyncOperation } from './useAsyncOperation';
 
 /**
@@ -42,8 +42,7 @@ interface UseBackupManagerReturn {
   createBackup: () => Promise<void>;
   /** Restore from a backup file */
   restoreFromBackup: (backupPath: string) => Promise<void>;
-  /** Share a backup file */
-  shareBackup: (backupPath: string) => Promise<void>;
+  /** Share functionality removed - CloudKit only */
   /** Delete a backup file */
   deleteBackup: (backupPath: string) => Promise<void>;
   /** Pick a backup file for restore */
@@ -89,35 +88,29 @@ export const useBackupManager = (): UseBackupManagerReturn => {
   const [backups, setBackups] = useState<BackupInfo[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Async operations using the established pattern
+  // Pure CloudKit operations - no fallbacks
   const createBackupOp = useAsyncOperation(
-    async () => await iCloudService.createBackup(),
+    async () => await nativeCloudKitService.createCloudKitBackup(),
     null,
-    { maxRetries: 2, userErrorMessage: 'Failed to create backup' }
+    { maxRetries: 2, userErrorMessage: 'Failed to create CloudKit backup' }
   );
 
   const restoreBackupOp = useAsyncOperation(
-    async (backupPath: string) => await iCloudService.restoreFromBackup(backupPath),
+    async (backupId: string) => await nativeCloudKitService.restoreFromCloudKitBackup(backupId),
     null,
-    { maxRetries: 1, userErrorMessage: 'Failed to restore from backup' }
-  );
-
-  const shareBackupOp = useAsyncOperation(
-    async (backupPath: string) => await iCloudService.shareBackup(backupPath),
-    null,
-    { maxRetries: 1, userErrorMessage: 'Failed to share backup' }
+    { maxRetries: 1, userErrorMessage: 'Failed to restore from CloudKit backup' }
   );
 
   const deleteBackupOp = useAsyncOperation(
-    async (backupPath: string) => await iCloudService.deleteBackup(backupPath),
+    async (backupId: string) => await nativeCloudKitService.deleteCloudKitBackup(backupId),
     null,
-    { maxRetries: 2, userErrorMessage: 'Failed to delete backup' }
+    { maxRetries: 2, userErrorMessage: 'Failed to delete CloudKit backup' }
   );
 
   const refreshBackupsOp = useAsyncOperation(
-    async () => await iCloudService.getAvailableBackups(),
+    async () => await nativeCloudKitService.getAvailableCloudKitBackups(),
     [],
-    { maxRetries: 2, userErrorMessage: 'Failed to refresh backups' }
+    { maxRetries: 2, userErrorMessage: 'Failed to refresh CloudKit backups' }
   );
 
   // Create a stable reference for refreshBackups to avoid circular dependencies
@@ -133,77 +126,190 @@ export const useBackupManager = (): UseBackupManagerReturn => {
    */
   const createBackup = useCallback(async (): Promise<void> => {
     if (!isBackupAvailable) {
-      setError('Backup is only available on iOS devices');
+      const errorMsg = 'CloudKit backup is only available on iOS devices';
+      setError(errorMsg);
+      Alert.alert(
+        '❌ Backup Not Available',
+        errorMsg,
+        [
+          { text: 'OK' },
+          {
+            text: 'Why?',
+            onPress: () => {
+              Alert.alert(
+                'Why iOS Only?',
+                'CloudKit is Apple\'s iCloud service that only works on iOS devices. This ensures true iCloud integration.',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
       return;
     }
 
     try {
-      const backupPath = await createBackupOp.execute();
-      if (backupPath) {
+      const backupId = await createBackupOp.execute();
+      if (backupId) {
         await refreshBackupsRef.current?.();
         Alert.alert(
-          'Backup Created',
-          'Your data has been backed up successfully.',
+          '✅ iCloud Backup Created',
+          'Your data has been backed up to iCloud successfully!',
           [{ text: 'OK' }]
         );
       }
     } catch (error) {
-      setError('Failed to create backup');
+      const errorMsg = 'Failed to create CloudKit backup';
+      setError(errorMsg);
+      
+      // Show detailed error popup
+      let detailedError = 'Unknown error occurred';
+      let troubleshooting = '';
+      
+      if (error instanceof Error) {
+        detailedError = error.message;
+        
+        if (error.message.includes('CloudKit not initialized')) {
+          troubleshooting = '\n\n💡 Solution: Try verifying CloudKit integration first';
+        } else if (error.message.includes('Native CloudKit not available')) {
+          troubleshooting = '\n\n💡 Solution: Use development build instead of Expo Go';
+        } else if (error.message.includes('Network error')) {
+          troubleshooting = '\n\n💡 Solution: Check your internet connection and iCloud status';
+        }
+      }
+      
+      Alert.alert(
+        '❌ Backup Creation Failed',
+        `${detailedError}${troubleshooting}`,
+        [
+          { text: 'OK' },
+          {
+            text: 'Troubleshoot',
+            onPress: () => {
+              Alert.alert(
+                'Troubleshooting Steps',
+                '1. Ensure you\'re using a development build\n2. Check iCloud is enabled on device\n3. Verify internet connection\n4. Try CloudKit verification in Settings',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
+      
       console.error('Backup creation error:', error);
     }
   }, [isBackupAvailable, createBackupOp]);
 
   /**
-   * Restore from a backup file
+   * Restore from a CloudKit backup
    */
-  const restoreFromBackup = useCallback(async (backupPath: string): Promise<void> => {
+  const restoreFromBackup = useCallback(async (backupId: string): Promise<void> => {
     if (!isBackupAvailable) {
-      setError('Restore is only available on iOS devices');
+      const errorMsg = 'CloudKit restore is only available on iOS devices';
+      setError(errorMsg);
+      Alert.alert(
+        '❌ Restore Not Available',
+        errorMsg,
+        [
+          { text: 'OK' },
+          {
+            text: 'Why?',
+            onPress: () => {
+              Alert.alert(
+                'Why iOS Only?',
+                'CloudKit restore requires native iOS CloudKit APIs that are only available on iOS devices.',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
       return;
     }
 
     try {
-      await restoreBackupOp.execute(backupPath);
+      await restoreBackupOp.execute(backupId);
       Alert.alert(
-        'Restore Complete',
-        'Your data has been restored successfully. The app will refresh.',
+        '✅ Restore Successful',
+        'Your data has been restored from iCloud backup successfully!',
         [{ text: 'OK' }]
       );
     } catch (error) {
-      setError('Failed to restore from backup');
+      const errorMsg = 'Failed to restore from CloudKit backup';
+      setError(errorMsg);
+      
+      // Show detailed error popup
+      let detailedError = 'Unknown error occurred';
+      let troubleshooting = '';
+      
+      if (error instanceof Error) {
+        detailedError = error.message;
+        
+        if (error.message.includes('CloudKit not initialized')) {
+          troubleshooting = '\n\n💡 Solution: Try verifying CloudKit integration first';
+        } else if (error.message.includes('Native CloudKit not available')) {
+          troubleshooting = '\n\n💡 Solution: Use development build instead of Expo Go';
+        } else if (error.message.includes('Backup not found')) {
+          troubleshooting = '\n\n💡 Solution: The backup may have been deleted or is no longer available';
+        } else if (error.message.includes('Network error')) {
+          troubleshooting = '\n\n💡 Solution: Check your internet connection and iCloud status';
+        }
+      }
+      
+      Alert.alert(
+        '❌ Restore Failed',
+        `${detailedError}${troubleshooting}`,
+        [
+          { text: 'OK' },
+          {
+            text: 'Troubleshoot',
+            onPress: () => {
+              Alert.alert(
+                'Troubleshooting Steps',
+                '1. Ensure you\'re using a development build\n2. Check iCloud is enabled on device\n3. Verify internet connection\n4. Try CloudKit verification in Settings\n5. Check if backup still exists',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
+      
       console.error('Restore error:', error);
     }
   }, [isBackupAvailable, restoreBackupOp]);
 
-  /**
-   * Share a backup file
-   */
-  const shareBackup = useCallback(async (backupPath: string): Promise<void> => {
-    if (!isBackupAvailable) {
-      setError('Sharing is only available on iOS devices');
-      return;
-    }
-
-    try {
-      await shareBackupOp.execute(backupPath);
-    } catch (error) {
-      setError('Failed to share backup');
-      console.error('Share error:', error);
-    }
-  }, [isBackupAvailable, shareBackupOp]);
+  // Share functionality removed - CloudKit only
 
   /**
-   * Delete a backup file
+   * Delete a CloudKit backup
    */
-  const deleteBackup = useCallback(async (backupPath: string): Promise<void> => {
+  const deleteBackup = useCallback(async (backupId: string): Promise<void> => {
     if (!isBackupAvailable) {
-      setError('Backup management is only available on iOS devices');
+      const errorMsg = 'CloudKit backup management is only available on iOS devices';
+      setError(errorMsg);
+      Alert.alert(
+        '❌ Delete Not Available',
+        errorMsg,
+        [
+          { text: 'OK' },
+          {
+            text: 'Why?',
+            onPress: () => {
+              Alert.alert(
+                'Why iOS Only?',
+                'CloudKit backup deletion requires native iOS CloudKit APIs that are only available on iOS devices.',
+                [{ text: 'OK' }]
+              );
+            }
+          }
+        ]
+      );
       return;
     }
 
     Alert.alert(
-      'Delete Backup',
-      'Are you sure you want to delete this backup? This action cannot be undone.',
+      '🗑️ Delete iCloud Backup',
+      'Are you sure you want to delete this iCloud backup? This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -211,11 +317,53 @@ export const useBackupManager = (): UseBackupManagerReturn => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await deleteBackupOp.execute(backupPath);
+              await deleteBackupOp.execute(backupId);
               await refreshBackupsRef.current?.();
-              Alert.alert('Success', 'Backup deleted successfully.');
+              Alert.alert(
+                '✅ Backup Deleted',
+                'The iCloud backup has been deleted successfully.',
+                [{ text: 'OK' }]
+              );
             } catch (error) {
-              setError('Failed to delete backup');
+              const errorMsg = 'Failed to delete CloudKit backup';
+              setError(errorMsg);
+              
+              // Show detailed error popup
+              let detailedError = 'Unknown error occurred';
+              let troubleshooting = '';
+              
+              if (error instanceof Error) {
+                detailedError = error.message;
+                
+                if (error.message.includes('CloudKit not initialized')) {
+                  troubleshooting = '\n\n💡 Solution: Try verifying CloudKit integration first';
+                } else if (error.message.includes('Native CloudKit not available')) {
+                  troubleshooting = '\n\n💡 Solution: Use development build instead of Expo Go';
+                } else if (error.message.includes('Backup not found')) {
+                  troubleshooting = '\n\n💡 Solution: The backup may have already been deleted';
+                } else if (error.message.includes('Network error')) {
+                  troubleshooting = '\n\n💡 Solution: Check your internet connection and iCloud status';
+                }
+              }
+              
+              Alert.alert(
+                '❌ Delete Failed',
+                `${detailedError}${troubleshooting}`,
+                [
+                  { text: 'OK' },
+                  {
+                    text: 'Troubleshoot',
+                    onPress: () => {
+                      Alert.alert(
+                        'Troubleshooting Steps',
+                        '1. Ensure you\'re using a development build\n2. Check iCloud is enabled on device\n3. Verify internet connection\n4. Try CloudKit verification in Settings',
+                        [{ text: 'OK' }]
+                      );
+                    }
+                  }
+                ]
+              );
+              
               console.error('Delete error:', error);
             }
           },
@@ -225,45 +373,54 @@ export const useBackupManager = (): UseBackupManagerReturn => {
   }, [isBackupAvailable, deleteBackupOp]);
 
   /**
-   * Pick a backup file and restore from it
+   * Pick a CloudKit backup and restore from it
    */
   const pickAndRestoreBackup = useCallback(async (): Promise<void> => {
     if (!isBackupAvailable) {
-      setError('Restore is only available on iOS devices');
+      setError('CloudKit restore is only available on iOS devices');
       return;
     }
 
     try {
-      const backupPath = await iCloudService.pickBackupFile();
-      if (backupPath) {
-        await restoreFromBackup(backupPath);
-      }
+      // For CloudKit, we show available backups in the UI
+      // User selects from the list instead of file picker
+      setError('Please select a backup from the list above to restore');
     } catch (error) {
-      setError('Failed to pick backup file');
-      console.error('File pick error:', error);
+      setError('Failed to access CloudKit backups');
+      console.error('CloudKit access error:', error);
     }
   }, [isBackupAvailable]);
 
   /**
-   * Refresh the list of available backups
+   * Refresh the list of available CloudKit backups
    */
   const refreshBackups = useCallback(async (): Promise<void> => {
     if (!isBackupAvailable) return;
 
     try {
-      const backupPaths = await refreshBackupsOp.execute();
-      if (backupPaths) {
-        const backupInfos: BackupInfo[] = [];
-        
-        for (const path of backupPaths) {
-          const metadata = await iCloudService.getBackupInfo(path);
-          backupInfos.push({ path, metadata });
-        }
+      const cloudKitBackups = await refreshBackupsOp.execute();
+      if (cloudKitBackups) {
+        const backupInfos: BackupInfo[] = cloudKitBackups.map(backup => ({
+          path: backup.id,
+          metadata: {
+            version: '1.0.0',
+            createdAt: new Date(backup.createdAt * 1000).toISOString(),
+            deviceInfo: {
+              platform: backup.deviceInfo?.platform || 'iOS',
+              version: backup.deviceInfo?.version || 'Unknown',
+            },
+            dataSummary: {
+              notesCount: backup.dataSummary?.notesCount || 0,
+              categoriesCount: backup.dataSummary?.categoriesCount || 0,
+              hasSettings: true,
+            },
+          },
+        }));
         
         setBackups(backupInfos);
       }
     } catch (error) {
-      console.error('Failed to refresh backups:', error);
+      console.error('Failed to refresh CloudKit backups:', error);
     }
   }, [isBackupAvailable]);
 
@@ -281,7 +438,6 @@ export const useBackupManager = (): UseBackupManagerReturn => {
   const backupState = {
     creating: createBackupOp.state.loading,
     restoring: restoreBackupOp.state.loading,
-    sharing: shareBackupOp.state.loading,
     deleting: deleteBackupOp.state.loading,
     refreshing: refreshBackupsOp.state.loading,
   };
@@ -291,7 +447,6 @@ export const useBackupManager = (): UseBackupManagerReturn => {
     isBackupAvailable,
     createBackup,
     restoreFromBackup,
-    shareBackup,
     deleteBackup,
     pickAndRestoreBackup,
     refreshBackups,
