@@ -37,4 +37,4 @@ yarn-error.*
 *.tsbuildinfo
 
 # ios
-/ios
+ios/
