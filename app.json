@@ -18,6 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.tridentinnovation.notestracker",
+      "icon": "./assets/thoughtloom-icon.png",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app needs access to the microphone to record voice notes.",
         "NSDocumentsFolderUsageDescription": "This app needs access to your documents folder to create and manage backups.",
@@ -38,7 +39,6 @@
         },
         "ITSAppUsesNonExemptEncryption": false
       }
-
     },
     "web": {
       "favicon": "./assets/favicon.png",
