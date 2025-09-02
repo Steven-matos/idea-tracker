@@ -6,7 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { storageService } from './src/services/storage.service';
 import { ThemeProvider, useTheme } from './src/contexts/theme.context';
-import { LoadingSpinner } from './src/components/common';
+import { LoadingSpinner, CloudKitErrorBoundary } from './src/components/common';
 
 /**
  * App content component that uses theme context
@@ -61,7 +61,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <AppContent />
+        <CloudKitErrorBoundary>
+          <AppContent />
+        </CloudKitErrorBoundary>
       </ThemeProvider>
     </SafeAreaProvider>
   );

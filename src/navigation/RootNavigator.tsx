@@ -17,6 +17,7 @@ import CategoryCreateScreen from '../screens/CategoryCreateScreen';
 
 import { RootStackParamList, BottomTabParamList } from '../types';
 import { useTheme } from '../contexts/theme.context';
+import { CloudKitErrorBoundary } from '../components/common';
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
@@ -251,62 +252,64 @@ const AppNavigator: React.FC = () => {
   };
 
   return (
-    <NavigationContainer theme={navigationTheme}>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: theme.colors.background,
-            shadowColor: 'transparent',
-            elevation: 0,
-          },
-          headerTitleStyle: {
-            fontSize: 17,
-            fontWeight: '600',
-            color: theme.colors.text,
-          },
-          // headerBackTitleVisible: false, // Deprecated in newer versions
-          headerTintColor: theme.colors.primary,
-        }}
-      >
-        <Stack.Screen 
-          name="Home" 
-          component={TabNavigator}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen 
-          name="CreateNote" 
-          component={NoteCreateScreen}
-          options={{ 
-            headerShown: false,
-            presentation: 'modal',
+    <CloudKitErrorBoundary>
+      <NavigationContainer theme={navigationTheme}>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: theme.colors.background,
+              shadowColor: 'transparent',
+              elevation: 0,
+            },
+            headerTitleStyle: {
+              fontSize: 17,
+              fontWeight: '600',
+              color: theme.colors.text,
+            },
+            // headerBackTitleVisible: false, // Deprecated in newer versions
+            headerTintColor: theme.colors.primary,
           }}
-        />
-        <Stack.Screen 
-          name="CreateCategory" 
-          component={CategoryCreateScreen}
-          options={{ 
-            headerShown: false,
-            presentation: 'modal',
-          }}
-        />
-        <Stack.Screen 
-          name="EditNote" 
-          component={NoteEditScreen}
-          options={{ 
-            headerShown: false,
-            presentation: 'modal',
-          }}
-        />
-        <Stack.Screen 
-          name="ViewNote" 
-          component={NoteViewScreen}
-          options={{ 
-            headerShown: false,
-            presentation: 'modal',
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+        >
+          <Stack.Screen 
+            name="Home" 
+            component={TabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="CreateNote" 
+            component={NoteCreateScreen}
+            options={{ 
+              headerShown: false,
+              presentation: 'modal',
+            }}
+          />
+          <Stack.Screen 
+            name="CreateCategory" 
+            component={CategoryCreateScreen}
+            options={{ 
+              headerShown: false,
+              presentation: 'modal',
+            }}
+          />
+          <Stack.Screen 
+            name="EditNote" 
+            component={NoteEditScreen}
+            options={{ 
+              headerShown: false,
+              presentation: 'modal',
+            }}
+          />
+          <Stack.Screen 
+            name="ViewNote" 
+            component={NoteViewScreen}
+            options={{ 
+              headerShown: false,
+              presentation: 'modal',
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </CloudKitErrorBoundary>
   );
 };
 
