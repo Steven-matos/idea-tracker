@@ -88,6 +88,31 @@ interface CloudKitBackupData {
 }
 
 /**
+ * CloudKit verification result
+ */
+interface CloudKitVerificationResult {
+  isWorking: boolean;
+  error: string | null;
+  details: {
+    accountStatus: string;
+    containerAccess: boolean;
+    networkActivity: boolean;
+    recordCreation: boolean;
+  };
+}
+
+/**
+ * CloudKit detailed status
+ */
+interface CloudKitDetailedStatus {
+  accountStatus: CloudKitAccountStatus;
+  verification: CloudKitVerificationResult;
+  containerId: string;
+  isInitialized: boolean;
+  timestamp: string;
+}
+
+/**
  * Service class for managing native CloudKit operations
  */
 class NativeCloudKitService {
@@ -575,6 +600,87 @@ class NativeCloudKitService {
 
   async syncWithICloud(): Promise<void> {
     return this.syncWithCloudKit();
+  }
+
+  /**
+   * Verify CloudKit is working by checking account status and container access
+   * @returns Promise<CloudKitVerificationResult>
+   */
+  async verifyCloudKitIntegration(): Promise<CloudKitVerificationResult> {
+    if (!this.isInitialized) {
+      return {
+        isWorking: false,
+        error: 'CloudKit not initialized',
+        details: {
+          accountStatus: 'unknown',
+          containerAccess: false,
+          networkActivity: false,
+          recordCreation: false
+        }
+      };
+    }
+
+    try {
+      // Check account status
+      const accountStatus = await this.getCloudKitAccountStatus();
+      
+      // Test container access by trying to create a test record
+      let containerAccess = false;
+      let recordCreation = false;
+      
+      try {
+        const testData = JSON.stringify({ test: true, timestamp: Date.now() });
+        const testBackupId = await this.cloudKitModule?.createBackup(testData);
+        containerAccess = !!testBackupId;
+        recordCreation = !!testBackupId;
+        
+        // Clean up test record
+        if (testBackupId) {
+          await this.cloudKitModule?.deleteBackup(testBackupId);
+        }
+      } catch (error) {
+        console.log('Test record creation failed (expected for verification):', error);
+      }
+
+      return {
+        isWorking: accountStatus.isAvailable && containerAccess,
+        error: null,
+        details: {
+          accountStatus: accountStatus.accountStatus,
+          containerAccess,
+          networkActivity: true, // If we got here, network is working
+          recordCreation
+        }
+      };
+    } catch (error) {
+      return {
+        isWorking: false,
+        error: `Verification failed: ${error}`,
+        details: {
+          accountStatus: 'unknown',
+          containerAccess: false,
+          networkActivity: false,
+          recordCreation: false
+        }
+      };
+    }
+  }
+
+  /**
+   * Get detailed CloudKit status for debugging
+   * @returns Promise<CloudKitDetailedStatus>
+   */
+  async getDetailedStatus(): Promise<CloudKitDetailedStatus> {
+    const accountStatus = await this.getCloudKitAccountStatus();
+    const verification = await this.verifyCloudKitIntegration();
+    
+    return {
+      accountStatus,
+      verification,
+      containerId: this.containerIdentifier,
+      isInitialized: this.isInitialized,
+      timestamp: new Date().toISOString()
+    };
   }
 }
 
