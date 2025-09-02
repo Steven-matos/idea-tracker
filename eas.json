@@ -19,7 +19,8 @@
     },
     "production": {
       "ios": {
-        "resourceClass": "m-medium"
+        "resourceClass": "m-medium",
+        "ascAppId": "6751826710"
       }
     }
   },
