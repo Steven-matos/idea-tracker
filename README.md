@@ -1,4 +1,4 @@
-# Notes Tracker
+# Thoughtloom AI
 
 A React Native app for organizing and managing notes with text and voice recording capabilities.
 
