@@ -8,11 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		263885A9586FDDD1044E098B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 847E4F4AEAFDE4B6ADE66C41 /* PrivacyInfo.xcprivacy */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		7E7BC8A43F3CD7C7C2B3D898 /* libPods-ThoughtloomAI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A47D541ED561A634A57EFA9 /* libPods-ThoughtloomAI.a */; };
-		A223B8E96C971C1E12BB2C47 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B7A11029257DD44EC40AA75 /* ExpoModulesProvider.swift */; };
+		7A05097303214A5962ED198F /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9967B8E334D60D418C6AE936 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		C68E6A055FDC666BED73AF12 /* libPods-ThoughtloomAI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A44E1AB787F86FEAB1B3228 /* libPods-ThoughtloomAI.a */; };
+		DBF5E0850DE310F7BDB9F314 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 16E2622B1F3C172B4318E329 /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -20,12 +20,12 @@
 		13B07F961A680F5B00A75B9A /* ThoughtloomAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThoughtloomAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ThoughtloomAI/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ThoughtloomAI/Info.plist; sourceTree = "<group>"; };
-		3A752BB4D7F19C43665989DC /* Pods-ThoughtloomAI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThoughtloomAI.release.xcconfig"; path = "Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI.release.xcconfig"; sourceTree = "<group>"; };
-		3B7A11029257DD44EC40AA75 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ThoughtloomAI/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		4060754AB5D32248969AA82D /* Pods-ThoughtloomAI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThoughtloomAI.debug.xcconfig"; path = "Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI.debug.xcconfig"; sourceTree = "<group>"; };
-		5A47D541ED561A634A57EFA9 /* libPods-ThoughtloomAI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ThoughtloomAI.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		847E4F4AEAFDE4B6ADE66C41 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ThoughtloomAI/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		16E2622B1F3C172B4318E329 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ThoughtloomAI/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		4A44E1AB787F86FEAB1B3228 /* libPods-ThoughtloomAI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ThoughtloomAI.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6BC8452D40E6FAAA6E6B2F3D /* Pods-ThoughtloomAI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThoughtloomAI.debug.xcconfig"; path = "Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI.debug.xcconfig"; sourceTree = "<group>"; };
+		9967B8E334D60D418C6AE936 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ThoughtloomAI/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = ThoughtloomAI/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B97253DB89F6F5C44F8616B3 /* Pods-ThoughtloomAI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThoughtloomAI.release.xcconfig"; path = "Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI.release.xcconfig"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ThoughtloomAI/AppDelegate.swift; sourceTree = "<group>"; };
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7E7BC8A43F3CD7C7C2B3D898 /* libPods-ThoughtloomAI.a in Frameworks */,
+				C68E6A055FDC666BED73AF12 /* libPods-ThoughtloomAI.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				847E4F4AEAFDE4B6ADE66C41 /* PrivacyInfo.xcprivacy */,
+				16E2622B1F3C172B4318E329 /* PrivacyInfo.xcprivacy */,
 			);
 			name = ThoughtloomAI;
 			sourceTree = "<group>";
@@ -62,9 +62,17 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				5A47D541ED561A634A57EFA9 /* libPods-ThoughtloomAI.a */,
+				4A44E1AB787F86FEAB1B3228 /* libPods-ThoughtloomAI.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7641AB2468622C6E6B684DBA /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				B2EFDB52ECEF53ABA6C1B0A1 /* ThoughtloomAI */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -81,8 +89,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				9A2A712B0889371C623929AD /* Pods */,
-				925975088D14FF337FAB777A /* ExpoModulesProviders */,
+				B345A23A7A48F5232AB72292 /* Pods */,
+				7641AB2468622C6E6B684DBA /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -97,27 +105,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8503F85CD16EBB3A6A8CB2B3 /* ThoughtloomAI */ = {
+		B2EFDB52ECEF53ABA6C1B0A1 /* ThoughtloomAI */ = {
 			isa = PBXGroup;
 			children = (
-				3B7A11029257DD44EC40AA75 /* ExpoModulesProvider.swift */,
+				9967B8E334D60D418C6AE936 /* ExpoModulesProvider.swift */,
 			);
 			name = ThoughtloomAI;
 			sourceTree = "<group>";
 		};
-		925975088D14FF337FAB777A /* ExpoModulesProviders */ = {
+		B345A23A7A48F5232AB72292 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				8503F85CD16EBB3A6A8CB2B3 /* ThoughtloomAI */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
-		9A2A712B0889371C623929AD /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				4060754AB5D32248969AA82D /* Pods-ThoughtloomAI.debug.xcconfig */,
-				3A752BB4D7F19C43665989DC /* Pods-ThoughtloomAI.release.xcconfig */,
+				6BC8452D40E6FAAA6E6B2F3D /* Pods-ThoughtloomAI.debug.xcconfig */,
+				B97253DB89F6F5C44F8616B3 /* Pods-ThoughtloomAI.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -139,13 +139,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ThoughtloomAI" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				13FD13B4385A7D76CFB0DFAB /* [Expo] Configure project */,
+				C36A9F6C0CEAAB3923055467 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				5B69ABFD733C977CC2358B87 /* [CP] Embed Pods Frameworks */,
+				D9B2012B6919708323C298C0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -162,7 +162,8 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1130;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
@@ -195,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				263885A9586FDDD1044E098B /* PrivacyInfo.xcprivacy in Resources */,
+				DBF5E0850DE310F7BDB9F314 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,43 +238,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		13FD13B4385A7D76CFB0DFAB /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ThoughtloomAI/expo-configure-project.sh\"\n";
-		};
-		5B69ABFD733C977CC2358B87 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -352,6 +316,43 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		C36A9F6C0CEAAB3923055467 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ThoughtloomAI/expo-configure-project.sh\"\n";
+		};
+		D9B2012B6919708323C298C0 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -360,7 +361,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				A223B8E96C971C1E12BB2C47 /* ExpoModulesProvider.swift in Sources */,
+				7A05097303214A5962ED198F /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,13 +370,12 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4060754AB5D32248969AA82D /* Pods-ThoughtloomAI.debug.xcconfig */;
+			baseConfigurationReference = 6BC8452D40E6FAAA6E6B2F3D /* Pods-ThoughtloomAI.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ThoughtloomAI/ThoughtloomAI.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = F4LAX347X2;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -406,13 +406,12 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3A752BB4D7F19C43665989DC /* Pods-ThoughtloomAI.release.xcconfig */;
+			baseConfigurationReference = B97253DB89F6F5C44F8616B3 /* Pods-ThoughtloomAI.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ThoughtloomAI/ThoughtloomAI.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = F4LAX347X2;
 				INFOPLIST_FILE = ThoughtloomAI/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -458,6 +457,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -465,8 +465,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = F4LAX347X2;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -521,6 +523,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -528,8 +531,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				DEVELOPMENT_TEAM = F4LAX347X2;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -548,6 +553,7 @@
 				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
