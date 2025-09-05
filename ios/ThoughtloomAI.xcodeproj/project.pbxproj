@@ -8,26 +8,26 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		263885A9586FDDD1044E098B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 847E4F4AEAFDE4B6ADE66C41 /* PrivacyInfo.xcprivacy */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		4A32E7D00B66D401555EBA88 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EB6C7DDDE16EC54D868E852 /* ExpoModulesProvider.swift */; };
-		63163A09775B1511497CB343 /* libPods-ThoughtloomAI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F371E241EAE8688FE2280B8 /* libPods-ThoughtloomAI.a */; };
-		B53A2BD0BD4397B762E756CA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F0463589456E58F4B794A566 /* PrivacyInfo.xcprivacy */; };
+		7E7BC8A43F3CD7C7C2B3D898 /* libPods-ThoughtloomAI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A47D541ED561A634A57EFA9 /* libPods-ThoughtloomAI.a */; };
+		A223B8E96C971C1E12BB2C47 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B7A11029257DD44EC40AA75 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0F371E241EAE8688FE2280B8 /* libPods-ThoughtloomAI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ThoughtloomAI.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* ThoughtloomAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThoughtloomAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ThoughtloomAI/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ThoughtloomAI/Info.plist; sourceTree = "<group>"; };
-		7EB6C7DDDE16EC54D868E852 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ThoughtloomAI/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		98CAAE082EBE5A00613880E5 /* Pods-ThoughtloomAI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThoughtloomAI.debug.xcconfig"; path = "Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI.debug.xcconfig"; sourceTree = "<group>"; };
+		3A752BB4D7F19C43665989DC /* Pods-ThoughtloomAI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThoughtloomAI.release.xcconfig"; path = "Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI.release.xcconfig"; sourceTree = "<group>"; };
+		3B7A11029257DD44EC40AA75 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ThoughtloomAI/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		4060754AB5D32248969AA82D /* Pods-ThoughtloomAI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThoughtloomAI.debug.xcconfig"; path = "Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI.debug.xcconfig"; sourceTree = "<group>"; };
+		5A47D541ED561A634A57EFA9 /* libPods-ThoughtloomAI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ThoughtloomAI.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		847E4F4AEAFDE4B6ADE66C41 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ThoughtloomAI/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = ThoughtloomAI/SplashScreen.storyboard; sourceTree = "<group>"; };
-		B544F4155694958B4A917832 /* Pods-ThoughtloomAI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThoughtloomAI.release.xcconfig"; path = "Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI.release.xcconfig"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F0463589456E58F4B794A566 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ThoughtloomAI/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ThoughtloomAI/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* ThoughtloomAI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ThoughtloomAI-Bridging-Header.h"; path = "ThoughtloomAI/ThoughtloomAI-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63163A09775B1511497CB343 /* libPods-ThoughtloomAI.a in Frameworks */,
+				7E7BC8A43F3CD7C7C2B3D898 /* libPods-ThoughtloomAI.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,34 +53,18 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				F0463589456E58F4B794A566 /* PrivacyInfo.xcprivacy */,
+				847E4F4AEAFDE4B6ADE66C41 /* PrivacyInfo.xcprivacy */,
 			);
 			name = ThoughtloomAI;
-			sourceTree = "<group>";
-		};
-		25D57A966E01BBCEDDE34C3F /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				6E4B27611A179CE1FAC2E81A /* ThoughtloomAI */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				0F371E241EAE8688FE2280B8 /* libPods-ThoughtloomAI.a */,
+				5A47D541ED561A634A57EFA9 /* libPods-ThoughtloomAI.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		6E4B27611A179CE1FAC2E81A /* ThoughtloomAI */ = {
-			isa = PBXGroup;
-			children = (
-				7EB6C7DDDE16EC54D868E852 /* ExpoModulesProvider.swift */,
-			);
-			name = ThoughtloomAI;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -97,8 +81,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				D9CF0448D5E9180AC06EC568 /* Pods */,
-				25D57A966E01BBCEDDE34C3F /* ExpoModulesProviders */,
+				9A2A712B0889371C623929AD /* Pods */,
+				925975088D14FF337FAB777A /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -113,6 +97,31 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8503F85CD16EBB3A6A8CB2B3 /* ThoughtloomAI */ = {
+			isa = PBXGroup;
+			children = (
+				3B7A11029257DD44EC40AA75 /* ExpoModulesProvider.swift */,
+			);
+			name = ThoughtloomAI;
+			sourceTree = "<group>";
+		};
+		925975088D14FF337FAB777A /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				8503F85CD16EBB3A6A8CB2B3 /* ThoughtloomAI */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		9A2A712B0889371C623929AD /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				4060754AB5D32248969AA82D /* Pods-ThoughtloomAI.debug.xcconfig */,
+				3A752BB4D7F19C43665989DC /* Pods-ThoughtloomAI.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -120,15 +129,6 @@
 			);
 			name = Supporting;
 			path = ThoughtloomAI/Supporting;
-			sourceTree = "<group>";
-		};
-		D9CF0448D5E9180AC06EC568 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				98CAAE082EBE5A00613880E5 /* Pods-ThoughtloomAI.debug.xcconfig */,
-				B544F4155694958B4A917832 /* Pods-ThoughtloomAI.release.xcconfig */,
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,13 +139,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ThoughtloomAI" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				BCE94FD106B2D24A6738DFDD /* [Expo] Configure project */,
+				13FD13B4385A7D76CFB0DFAB /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				454D5FBEE46995A88E0013B4 /* [CP] Embed Pods Frameworks */,
+				5B69ABFD733C977CC2358B87 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -195,7 +195,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				B53A2BD0BD4397B762E756CA /* PrivacyInfo.xcprivacy in Resources */,
+				263885A9586FDDD1044E098B /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,7 +239,26 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		454D5FBEE46995A88E0013B4 /* [CP] Embed Pods Frameworks */ = {
+		13FD13B4385A7D76CFB0DFAB /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ThoughtloomAI/expo-configure-project.sh\"\n";
+		};
+		5B69ABFD733C977CC2358B87 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -333,25 +352,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ThoughtloomAI/Pods-ThoughtloomAI-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		BCE94FD106B2D24A6738DFDD /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ThoughtloomAI/expo-configure-project.sh\"\n";
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -360,7 +360,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				4A32E7D00B66D401555EBA88 /* ExpoModulesProvider.swift in Sources */,
+				A223B8E96C971C1E12BB2C47 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,7 +369,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 98CAAE082EBE5A00613880E5 /* Pods-ThoughtloomAI.debug.xcconfig */;
+			baseConfigurationReference = 4060754AB5D32248969AA82D /* Pods-ThoughtloomAI.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -394,8 +394,8 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tridentinnovation.notestracker";
-				PRODUCT_NAME = "ThoughtloomAI";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tridentinnovation.notestracker;
+				PRODUCT_NAME = ThoughtloomAI;
 				SWIFT_OBJC_BRIDGING_HEADER = "ThoughtloomAI/ThoughtloomAI-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -406,7 +406,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B544F4155694958B4A917832 /* Pods-ThoughtloomAI.release.xcconfig */;
+			baseConfigurationReference = 3A752BB4D7F19C43665989DC /* Pods-ThoughtloomAI.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -426,8 +426,8 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tridentinnovation.notestracker";
-				PRODUCT_NAME = "ThoughtloomAI";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tridentinnovation.notestracker;
+				PRODUCT_NAME = ThoughtloomAI;
 				SWIFT_OBJC_BRIDGING_HEADER = "ThoughtloomAI/ThoughtloomAI-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
