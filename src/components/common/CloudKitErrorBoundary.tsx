@@ -7,7 +7,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../contexts/theme.context';
+// Note: Error boundaries are class components and cannot use hooks
 
 interface Props {
   children: ReactNode;
@@ -75,10 +75,10 @@ export class CloudKitErrorBoundary extends Component<Props, State> {
             <Ionicons name="warning" size={48} color="#EF4444" />
           </View>
           
-          <Text style={styles.errorTitle}>CloudKit Error</Text>
+          <Text style={styles.errorTitle}>App Error</Text>
           
           <Text style={styles.errorMessage}>
-            Something went wrong with the CloudKit integration. This usually means:
+            Something went wrong with the app. This usually means:
           </Text>
           
           <View style={styles.errorList}>

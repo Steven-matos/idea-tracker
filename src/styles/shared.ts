@@ -222,10 +222,7 @@ export const LayoutStyles = {
 export const PlatformStyles = {
   statusBarHeight: Platform.OS === 'ios' ? 60 : 20,
   
-  shadow: Platform.select({
-    ios: Shadows.MEDIUM,
-    android: { elevation: 8 },
-  }) as ViewStyle,
+  shadow: Shadows.MEDIUM,
   
   headerPadding: {
     paddingTop: Platform.OS === 'ios' ? 60 : 20,
