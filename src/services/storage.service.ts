@@ -545,7 +545,7 @@ class StorageService {
    */
   async clearAllData(preserveBackups: boolean = false): Promise<void> {
     try {
-      const keysToRemove = [
+      const keysToRemove: string[] = [
         StorageKeys.NOTES,
         StorageKeys.CATEGORIES,
         StorageKeys.SETTINGS,
@@ -585,7 +585,7 @@ class StorageService {
         categories,
         settings,
         exportDate: new Date().toISOString(),
-        version: '1.0.0'
+        version: '1.0.3'
       };
       
       return JSON.stringify(exportData, null, 2);

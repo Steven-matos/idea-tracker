@@ -2,7 +2,7 @@
   "expo": {
     "name": "Thoughtloom AI",
     "slug": "notes-tracker",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/thoughtloom-icon.png",
     "userInterfaceStyle": "automatic",
@@ -23,6 +23,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.tridentinnovation.notestracker",
+      "buildNumber": "1",
       "icon": "./assets/thoughtloom-icon.png",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app needs access to the microphone to record voice notes.",

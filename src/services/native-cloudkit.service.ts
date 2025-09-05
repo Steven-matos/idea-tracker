@@ -122,11 +122,13 @@ class NativeCloudKitService {
   private containerIdentifier = 'iCloud.com.tridentinnovation.notestracker';
 
   constructor() {
-    this.initializeNativeModule();
+    // Initialize lazily to prevent blocking app startup
+    // CloudKit will be initialized when first needed
   }
 
   /**
-   * Initialize the native CloudKit module
+   * Initialize the native CloudKit module lazily
+   * This prevents blocking the main thread during app startup
    */
   private initializeNativeModule(): void {
     try {
@@ -138,14 +140,16 @@ class NativeCloudKitService {
           this.setupEventListeners();
           console.log('Native CloudKit module loaded successfully');
         } else {
-          throw new Error('CloudKit native module not available. Development build required.');
+          console.warn('CloudKit native module not available. Development build required.');
+          // Don't throw error - just log warning and continue
         }
       } else {
-        throw new Error('CloudKit is only available on iOS devices');
+        console.warn('CloudKit is only available on iOS devices');
+        // Don't throw error - just log warning and continue
       }
     } catch (error) {
       console.error('CloudKit initialization failed:', error);
-      throw error; // Re-throw to prevent fallback usage
+      // Don't throw error - just log and continue
     }
   }
 
@@ -179,8 +183,13 @@ class NativeCloudKitService {
 
   /**
    * Check if native CloudKit is available
+   * Initializes CloudKit module lazily if not already done
    */
   isNativeCloudKitAvailable(): boolean {
+    // Initialize CloudKit module if not already done
+    if (!this.cloudKitModule && Platform.OS === 'ios') {
+      this.initializeNativeModule();
+    }
     return Platform.OS === 'ios' && this.cloudKitModule !== null;
   }
 
@@ -189,13 +198,19 @@ class NativeCloudKitService {
    */
   async initializeCloudKit(): Promise<boolean> {
     try {
+      // Ensure native module is initialized
+      if (!this.cloudKitModule && Platform.OS === 'ios') {
+        this.initializeNativeModule();
+      }
+
       if (!this.isNativeCloudKitAvailable()) {
-        console.log('Native CloudKit not available');
+        console.log('Native CloudKit not available - this is normal in production builds');
         return false;
       }
 
       if (!this.cloudKitModule) {
-        throw new Error('CloudKit module not initialized');
+        console.log('CloudKit module not available - this is normal in production builds');
+        return false;
       }
 
       const success = await this.cloudKitModule.initializeCloudKit(this.containerIdentifier);
@@ -217,6 +232,11 @@ class NativeCloudKitService {
    */
   async getCloudKitAccountStatus(): Promise<CloudKitAccountStatus> {
     try {
+      // Ensure native module is initialized
+      if (!this.cloudKitModule && Platform.OS === 'ios') {
+        this.initializeNativeModule();
+      }
+
       if (!this.isNativeCloudKitAvailable() || !this.cloudKitModule) {
         return {
           isAvailable: false,
@@ -288,7 +308,7 @@ class NativeCloudKitService {
       // Create backup data structure
       const backupData: CloudKitBackupData = {
         metadata: {
-          version: '1.0.0',
+          version: '1.0.3',
           createdAt: new Date().toISOString(),
           deviceInfo: {
             platform: Platform.OS,

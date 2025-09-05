@@ -1,5 +1,6 @@
 import { storageService } from './storage.service';
-import { Note, Category, AppSettings } from '../types';
+import { nativeCloudKitService } from './native-cloudkit.service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * Service for monitoring and maintaining data integrity
@@ -23,7 +24,7 @@ export interface DataIntegrityReport {
 
 export interface DataIntegrityIssue {
   /** Type of issue found */
-  type: 'corruption' | 'inconsistency' | 'orphaned' | 'validation' | 'backup';
+  type: 'corruption' | 'inconsistency' | 'orphaned' | 'validation' | 'backup' | 'cloudkit' | 'sync';
   /** Severity level */
   severity: 'low' | 'medium' | 'high' | 'critical';
   /** Description of the issue */
@@ -66,6 +67,14 @@ class DataIntegrityService {
       // Check backup health
       const backupIssues = await this.checkBackupHealth();
       issues.push(...backupIssues);
+      
+      // Check CloudKit integration health
+      const cloudKitIssues = await this.checkCloudKitHealth();
+      issues.push(...cloudKitIssues);
+      
+      // Check sync status
+      const syncIssues = await this.checkSyncStatus();
+      issues.push(...syncIssues);
       
       // Generate recommendations
       recommendations.push(...this.generateRecommendations(issues));
@@ -339,8 +348,8 @@ class DataIntegrityService {
     const issues: DataIntegrityIssue[] = [];
     
     try {
-      const keys = await storageService['getAllKeys']?.() || [];
-      const backupKeys = keys.filter(key => key.includes('_backup_'));
+      const keys = await AsyncStorage.getAllKeys();
+      const backupKeys = keys.filter((key: string) => key.includes('_backup_'));
       
       if (backupKeys.length === 0) {
         issues.push({
@@ -352,7 +361,7 @@ class DataIntegrityService {
       } else {
         // Check backup freshness (backups older than 7 days)
         const now = Date.now();
-        const oldBackups = backupKeys.filter(key => {
+        const oldBackups = backupKeys.filter((key: string) => {
           const timestamp = parseInt(key.split('_').pop() || '0');
           return (now - timestamp) > (7 * 24 * 60 * 60 * 1000); // 7 days
         });
@@ -380,6 +389,117 @@ class DataIntegrityService {
   }
 
   /**
+   * Check CloudKit integration health
+   */
+  private async checkCloudKitHealth(): Promise<DataIntegrityIssue[]> {
+    const issues: DataIntegrityIssue[] = [];
+    
+    try {
+      // Check if CloudKit is available
+      if (!nativeCloudKitService.isNativeCloudKitAvailable()) {
+        issues.push({
+          type: 'cloudkit',
+          severity: 'low',
+          description: 'CloudKit native module not available',
+          suggestedFix: 'CloudKit features will be disabled - app will work with local storage only'
+        });
+        return issues;
+      }
+      
+      // Check CloudKit account status
+      const accountStatus = await nativeCloudKitService.getCloudKitAccountStatus();
+      
+      if (!accountStatus.isAvailable) {
+        issues.push({
+          type: 'cloudkit',
+          severity: 'medium',
+          description: `CloudKit account not available: ${accountStatus.accountStatus}`,
+          suggestedFix: 'Sign in to iCloud to enable cloud sync features'
+        });
+      }
+      
+      // Check CloudKit backup availability
+      const cloudKitBackups = await nativeCloudKitService.getAvailableCloudKitBackups();
+      
+      if (cloudKitBackups.length === 0) {
+        issues.push({
+          type: 'cloudkit',
+          severity: 'low',
+          description: 'No CloudKit backups found',
+          suggestedFix: 'Create a CloudKit backup to enable cloud data protection'
+        });
+      } else {
+        // Check backup freshness
+        const now = Date.now();
+        const recentBackups = cloudKitBackups.filter(backup => {
+          const createdAt = typeof backup.createdAt === 'number' ? backup.createdAt * 1000 : new Date(backup.createdAt).getTime();
+          return (now - createdAt) < (7 * 24 * 60 * 60 * 1000); // 7 days
+        });
+        
+        if (recentBackups.length === 0) {
+          issues.push({
+            type: 'cloudkit',
+            severity: 'medium',
+            description: 'CloudKit backups are older than 7 days',
+            suggestedFix: 'Create a new CloudKit backup to ensure data protection'
+          });
+        }
+      }
+      
+    } catch (error) {
+      issues.push({
+        type: 'cloudkit',
+        severity: 'high',
+        description: `CloudKit health check failed: ${error}`,
+        suggestedFix: 'Check iCloud connectivity and account status'
+      });
+    }
+    
+    return issues;
+  }
+
+  /**
+   * Check sync status between local and CloudKit
+   */
+  private async checkSyncStatus(): Promise<DataIntegrityIssue[]> {
+    const issues: DataIntegrityIssue[] = [];
+    
+    try {
+      if (!nativeCloudKitService.isNativeCloudKitAvailable()) {
+        return issues; // Skip sync checks if CloudKit not available
+      }
+      
+      // Check if sync is working properly
+      const accountStatus = await nativeCloudKitService.getCloudKitAccountStatus();
+      
+      if (accountStatus.isAvailable) {
+        // Attempt to sync and check for conflicts
+        try {
+          await nativeCloudKitService.syncWithCloudKit();
+          // Sync completed successfully
+        } catch (syncError) {
+          issues.push({
+            type: 'sync',
+            severity: 'high',
+            description: `Sync error: ${syncError}`,
+            suggestedFix: 'Restart the app and check iCloud connectivity'
+          });
+        }
+      }
+      
+    } catch (error) {
+      issues.push({
+        type: 'sync',
+        severity: 'medium',
+        description: `Sync status check failed: ${error}`,
+        suggestedFix: 'Check iCloud connectivity and account status'
+      });
+    }
+    
+    return issues;
+  }
+
+  /**
    * Generate recommendations based on found issues
    */
   private generateRecommendations(issues: DataIntegrityIssue[]): string[] {
@@ -400,6 +520,14 @@ class DataIntegrityService {
     
     if (issues.some(issue => issue.type === 'backup')) {
       recommendations.push('Backup issues detected - ensure regular backups');
+    }
+    
+    if (issues.some(issue => issue.type === 'cloudkit')) {
+      recommendations.push('CloudKit issues detected - check iCloud account and connectivity');
+    }
+    
+    if (issues.some(issue => issue.type === 'sync')) {
+      recommendations.push('Sync issues detected - ensure stable internet connection');
     }
     
     if (recommendations.length === 0) {
@@ -440,21 +568,285 @@ class DataIntegrityService {
 
   /**
    * Attempt to repair common data integrity issues
+   * @returns Object with count of repaired issues and any errors
    */
   async repairDataIssues(): Promise<{ repaired: number; errors: string[] }> {
-    const repaired = 0;
+    let repaired = 0;
     const errors: string[] = [];
     
     try {
-      // This would implement actual repair logic
-      // For now, we'll just return a placeholder
-      console.log('Data repair functionality would be implemented here');
+      console.log('Starting data repair process...');
+      
+      // Repair notes issues
+      const notesRepaired = await this.repairNotesIssues();
+      repaired += notesRepaired;
+      
+      // Repair categories issues
+      const categoriesRepaired = await this.repairCategoriesIssues();
+      repaired += categoriesRepaired;
+      
+      // Repair settings issues
+      const settingsRepaired = await this.repairSettingsIssues();
+      repaired += settingsRepaired;
+      
+      // Repair orphaned data
+      const orphanedRepaired = await this.repairOrphanedData();
+      repaired += orphanedRepaired;
+      
+      // Clean up old backups
+      const backupCleaned = await this.cleanupOldBackups();
+      repaired += backupCleaned;
+      
+      console.log(`Data repair completed: ${repaired} issues repaired`);
       
     } catch (error) {
-      errors.push(`Repair failed: ${error}`);
+      errors.push(`Repair process failed: ${error}`);
+      console.error('Data repair failed:', error);
     }
     
     return { repaired, errors };
+  }
+
+  /**
+   * Repair notes data issues
+   */
+  private async repairNotesIssues(): Promise<number> {
+    let repaired = 0;
+    
+    try {
+      const notes = await storageService.getNotes();
+      const validNotes = [];
+      
+      for (const note of notes) {
+        let needsRepair = false;
+        const repairedNote = { ...note };
+        
+        // Fix missing timestamps
+        if (!repairedNote.createdAt) {
+          repairedNote.createdAt = new Date().toISOString();
+          needsRepair = true;
+        }
+        
+        if (!repairedNote.updatedAt) {
+          repairedNote.updatedAt = new Date().toISOString();
+          needsRepair = true;
+        }
+        
+        // Fix missing required fields
+        if (!repairedNote.type) {
+          repairedNote.type = 'text';
+          needsRepair = true;
+        }
+        
+        // Fix invalid category references
+        if (repairedNote.categoryId && repairedNote.categoryId !== 'general') {
+          const categories = await storageService.getCategories();
+          const categoryExists = categories.some(cat => cat.id === repairedNote.categoryId);
+          
+          if (!categoryExists) {
+            repairedNote.categoryId = 'general';
+            needsRepair = true;
+          }
+        }
+        
+        if (needsRepair) {
+          repaired++;
+        }
+        
+        validNotes.push(repairedNote);
+      }
+      
+      // Remove duplicates by ID
+      const uniqueNotes = validNotes.filter((note, index, self) => 
+        index === self.findIndex(n => n.id === note.id)
+      );
+      
+      if (uniqueNotes.length !== notes.length) {
+        await (storageService as any).storeNotes(uniqueNotes);
+        repaired += (notes.length - uniqueNotes.length);
+      }
+      
+    } catch (error) {
+      console.error('Failed to repair notes:', error);
+    }
+    
+    return repaired;
+  }
+
+  /**
+   * Repair categories data issues
+   */
+  private async repairCategoriesIssues(): Promise<number> {
+    let repaired = 0;
+    
+    try {
+      const categories = await storageService.getCategories();
+      const validCategories = [];
+      
+      // Ensure default category exists
+      const hasGeneralCategory = categories.some(cat => cat.id === 'general');
+      
+      if (!hasGeneralCategory) {
+        validCategories.push({
+          id: 'general',
+          name: 'General',
+          color: '#007AFF',
+          createdAt: new Date().toISOString()
+        });
+        repaired++;
+      }
+      
+      for (const category of categories) {
+        let needsRepair = false;
+        const repairedCategory = { ...category };
+        
+        // Fix missing timestamps
+        if (!repairedCategory.createdAt) {
+          repairedCategory.createdAt = new Date().toISOString();
+          needsRepair = true;
+        }
+        
+        // Fix missing required fields
+        if (!repairedCategory.color) {
+          repairedCategory.color = '#007AFF';
+          needsRepair = true;
+        }
+        
+        if (needsRepair) {
+          repaired++;
+        }
+        
+        validCategories.push(repairedCategory);
+      }
+      
+      // Remove duplicates by ID
+      const uniqueCategories = validCategories.filter((category, index, self) => 
+        index === self.findIndex(c => c.id === category.id)
+      );
+      
+      if (uniqueCategories.length !== categories.length) {
+        await (storageService as any).storeCategories(uniqueCategories);
+        repaired += (categories.length - uniqueCategories.length);
+      }
+      
+    } catch (error) {
+      console.error('Failed to repair categories:', error);
+    }
+    
+    return repaired;
+  }
+
+  /**
+   * Repair settings data issues
+   */
+  private async repairSettingsIssues(): Promise<number> {
+    let repaired = 0;
+    
+    try {
+      const settings = await storageService.getSettings();
+      const repairedSettings = { ...settings };
+      
+      // Fix invalid audio quality
+      const validAudioQualities = ['low', 'medium', 'high'];
+      if (!validAudioQualities.includes(repairedSettings.audioQuality)) {
+        repairedSettings.audioQuality = 'medium';
+        repaired++;
+      }
+      
+      // Fix invalid theme mode
+      const validThemeModes = ['light', 'dark', 'system'];
+      if (!validThemeModes.includes(repairedSettings.themeMode)) {
+        repairedSettings.themeMode = 'system';
+        repaired++;
+      }
+      
+      // Fix missing default category
+      if (!repairedSettings.defaultCategoryId) {
+        repairedSettings.defaultCategoryId = 'general';
+        repaired++;
+      }
+      
+      if (repaired > 0) {
+        await (storageService as any).storeSettings(repairedSettings);
+      }
+      
+    } catch (error) {
+      console.error('Failed to repair settings:', error);
+    }
+    
+    return repaired;
+  }
+
+  /**
+   * Repair orphaned data references
+   */
+  private async repairOrphanedData(): Promise<number> {
+    let repaired = 0;
+    
+    try {
+      const [notes, categories] = await Promise.all([
+        storageService.getNotes(),
+        storageService.getCategories()
+      ]);
+      
+      const categoryIds = categories.map(cat => cat.id);
+      const notesToRepair: any[] = [];
+      
+      for (const note of notes) {
+        if (note.categoryId && !categoryIds.includes(note.categoryId)) {
+          notesToRepair.push({
+            ...note,
+            categoryId: 'general'
+          });
+          repaired++;
+        }
+      }
+      
+      if (notesToRepair.length > 0) {
+        const updatedNotes = notes.map(note => {
+          const repairedNote = notesToRepair.find(r => r.id === note.id);
+          return repairedNote || note;
+        });
+        
+        await (storageService as any).storeNotes(updatedNotes);
+      }
+      
+    } catch (error) {
+      console.error('Failed to repair orphaned data:', error);
+    }
+    
+    return repaired;
+  }
+
+  /**
+   * Clean up old backup files
+   */
+  private async cleanupOldBackups(): Promise<number> {
+    let cleaned = 0;
+    
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const backupKeys = keys.filter((key: string) => key.includes('_backup_'));
+      
+      if (backupKeys.length > 10) { // Keep only 10 most recent backups
+        // Sort by timestamp (newest first)
+        backupKeys.sort((a, b) => {
+          const timestampA = parseInt(a.split('_').pop() || '0');
+          const timestampB = parseInt(b.split('_').pop() || '0');
+          return timestampB - timestampA;
+        });
+        
+        // Remove oldest backups
+        const keysToRemove = backupKeys.slice(10);
+        await AsyncStorage.multiRemove(keysToRemove);
+        cleaned = keysToRemove.length;
+      }
+      
+    } catch (error) {
+      console.error('Failed to cleanup old backups:', error);
+    }
+    
+    return cleaned;
   }
 }
 

@@ -114,7 +114,7 @@ export const useBackupManager = (): UseBackupManagerReturn => {
   );
 
   // Create a stable reference for refreshBackups to avoid circular dependencies
-  const refreshBackupsRef = useRef<() => Promise<void>>();
+  const refreshBackupsRef = useRef<() => Promise<void>>(() => Promise.resolve());
 
   /**
    * Check if backup operations are available
@@ -403,8 +403,8 @@ export const useBackupManager = (): UseBackupManagerReturn => {
         const backupInfos: BackupInfo[] = cloudKitBackups.map(backup => ({
           path: backup.id,
           metadata: {
-            version: '1.0.0',
-            createdAt: new Date(backup.createdAt * 1000).toISOString(),
+            version: '1.0.3',
+            createdAt: new Date(typeof backup.createdAt === 'number' ? backup.createdAt * 1000 : backup.createdAt).toISOString(),
             deviceInfo: {
               platform: backup.deviceInfo?.platform || 'iOS',
               version: backup.deviceInfo?.version || 'Unknown',
@@ -438,6 +438,7 @@ export const useBackupManager = (): UseBackupManagerReturn => {
   const backupState = {
     creating: createBackupOp.state.loading,
     restoring: restoreBackupOp.state.loading,
+    sharing: false, // Sharing functionality removed - CloudKit only
     deleting: deleteBackupOp.state.loading,
     refreshing: refreshBackupsOp.state.loading,
   };
