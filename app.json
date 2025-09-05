@@ -3,14 +3,66 @@
     "name": "Thoughtloom AI",
     "slug": "notes-tracker",
     "version": "1.0.2",
+    "orientation": "portrait",
+    "icon": "./assets/thoughtloom-icon.png",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon-light.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F2F2F7",
+      "dark": {
+        "image": "./assets/splash-icon-dark.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#000000"
+      }
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tridentinnovation.notestracker",
+      "icon": "./assets/thoughtloom-icon.png",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app needs access to the microphone to record voice notes.",
+        "NSDocumentsFolderUsageDescription": "This app needs access to your documents folder to create and manage backups.",
+        "NSFileProviderDomainUsageDescription": "This app needs access to your files to create and manage backups.",
+        "UIBackgroundModes": [
+          "audio",
+          "audio"
+        ],
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to save and manage note attachments.",
+        "NSCameraUsageDescription": "This app needs access to your camera to capture images for notes.",
+        "NSLocationWhenInUseUsageDescription": "This app may use location data to enhance your notes with location context.",
+        "NSUbiquitousContainers": {
+          "iCloud.com.tridentinnovation.notestracker": {
+            "NSUbiquitousContainerIsDocumentScopePublic": true,
+            "NSUbiquitousContainerName": "Notes Tracker",
+            "NSUbiquitousContainerSupportedFolderLevels": "None"
+          }
+        },
+        "com.apple.developer.icloud-container-identifiers": [
+          "iCloud.com.tridentinnovation.notestracker"
+        ],
+        "com.apple.developer.icloud-services": [
+          "CloudKit"
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
+    "plugins": [
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow Notes Tracker to access your microphone to record voice notes."
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "f59f2866-bd2a-4ca6-af88-2c36387e79a9"

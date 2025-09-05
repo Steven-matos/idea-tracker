@@ -15,15 +15,7 @@
                     <view key="view" userInteractionEnabled="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="EXPO-ContainerView" userLabel="ContainerView">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <subviews>
-                            <imageView id="EXPO-SplashScreen" userLabel="SplashScreenLogo" image="SplashScreenLogo" contentMode="scaleAspectFit" clipsSubviews="true" userInteractionEnabled="false" translatesAutoresizingMaskIntoConstraints="false">
-                                <rect key="frame" x="0" y="0" width="414" height="736"/>
-                                <image name="SplashScreenLogo" width="414" height="736"/>
-                                <variation key="dark">
-                                    <image name="SplashScreenLogoDark" width="414" height="736"/>
-                                </variation>
-                            </imageView>
-                        </subviews>
+                        <subviews/>
                         <viewLayoutGuide key="safeArea" id="Rmq-lb-GrQ"/>
                         <constraints>
                             <constraint firstItem="EXPO-SplashScreen" firstAttribute="top" secondItem="EXPO-ContainerView" secondAttribute="top" id="83fcb9b545b870ba44c24f0feeb116490c499c52"/>
@@ -41,12 +33,8 @@
     </scenes>
     <resources>
         <image name="SplashScreenLogo" width="414" height="736"/>
-        <image name="SplashScreenLogoDark" width="414" height="736"/>
         <namedColor name="SplashScreenBackground">
             <color alpha="1.000" blue="0.968627450980392" green="0.949019607843137" red="0.949019607843137" customColorSpace="sRGB" colorSpace="custom"/>
-            <variation key="dark">
-                <color alpha="1.000" blue="0.000" green="0.000" red="0.000" customColorSpace="sRGB" colorSpace="custom"/>
-            </variation>
         </namedColor>
     </resources>
 </document>
