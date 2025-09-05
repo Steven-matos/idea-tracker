@@ -119,7 +119,7 @@ class NativeCloudKitService {
   private cloudKitModule: CloudKitNativeModule | null = null;
   private eventEmitter: NativeEventEmitter | null = null;
   private isInitialized = false;
-  private containerIdentifier = 'iCloud.com.tridentinnovation.notestracker'; // Your actual container ID
+  private containerIdentifier = 'iCloud.com.tridentinnovation.notestracker';
 
   constructor() {
     this.initializeNativeModule();
@@ -134,7 +134,7 @@ class NativeCloudKitService {
         // Check if native module exists
         if (NativeModules.CloudKitModule) {
           this.cloudKitModule = NativeModules.CloudKitModule;
-          this.eventEmitter = new NativeEventEmitter(this.cloudKitModule);
+          this.eventEmitter = new NativeEventEmitter(this.cloudKitModule as any);
           this.setupEventListeners();
           console.log('Native CloudKit module loaded successfully');
         } else {
@@ -246,8 +246,6 @@ class NativeCloudKitService {
     try {
       const accountStatus = await this.getCloudKitAccountStatus();
       
-      // For now, return basic status
-      // In a full implementation, this would query the native module for sync details
       return {
         isEnabled: accountStatus.isAvailable,
         accountStatus,
@@ -464,11 +462,6 @@ class NativeCloudKitService {
   }
 
   /**
-   * CloudKit restore operations are safe by design
-   * No local safety backups needed - CloudKit handles data integrity
-   */
-
-  /**
    * Restore data to storage service
    */
   private async restoreDataToStorage(backupData: CloudKitBackupData): Promise<void> {
@@ -538,12 +531,8 @@ class NativeCloudKitService {
     }
   }
 
-  // Pure CloudKit methods only - no fallbacks
-  // All operations require native CloudKit module
-
   /**
    * Verify CloudKit is working by checking account status and container access
-   * @returns Promise<CloudKitVerificationResult>
    */
   async verifyCloudKitIntegration(): Promise<CloudKitVerificationResult> {
     if (!this.isInitialized) {
@@ -607,7 +596,6 @@ class NativeCloudKitService {
 
   /**
    * Get detailed CloudKit status for debugging
-   * @returns Promise<CloudKitDetailedStatus>
    */
   async getDetailedStatus(): Promise<CloudKitDetailedStatus> {
     const accountStatus = await this.getCloudKitAccountStatus();
