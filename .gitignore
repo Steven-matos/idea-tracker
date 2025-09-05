@@ -38,5 +38,5 @@ yarn-error.*
 
 .cursor/
 
-.documents/
-.logs/
+documents/
+logs/
