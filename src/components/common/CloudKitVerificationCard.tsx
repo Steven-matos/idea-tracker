@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/theme.context';
-import { nativeCloudKitService } from '../../services/native-cloudkit.service';
+import { cloudKitService } from '../../services/cloudkit.service';
 
 /**
  * CloudKit verification card component
@@ -28,10 +28,21 @@ export function CloudKitVerificationCard() {
     setIsVerifying(true);
     try {
       // First initialize CloudKit
-      await nativeCloudKitService.initializeCloudKit();
+      await cloudKitService.initializeCloudKit();
       
-      // Get detailed status
-      const status = await nativeCloudKitService.getDetailedStatus();
+      // Get account status and verification
+      const [accountStatus, verification] = await Promise.all([
+        cloudKitService.getCloudKitAccountStatus(),
+        cloudKitService.verifyCloudKitIntegration()
+      ]);
+      
+      const status = {
+        accountStatus,
+        verification,
+        containerId: 'iCloud.com.tridentinnovation.notestracker',
+        isInitialized: cloudKitService.isCloudKitAvailable(),
+        timestamp: new Date().toISOString()
+      };
       setVerificationResult(status);
       setLastChecked(new Date().toLocaleTimeString());
       
@@ -95,13 +106,13 @@ export function CloudKitVerificationCard() {
    * Get status icon and color
    */
   const getStatusIcon = () => {
-    if (!verificationResult) return { icon: 'help-circle', color: theme.colors.secondary };
+    if (!verificationResult) return { icon: 'help-circle' as const, color: theme.colors.secondary };
     
     if (verificationResult.verification.isWorking) {
-      return { icon: 'checkmark-circle', color: '#4CAF50' };
+      return { icon: 'checkmark-circle' as const, color: '#4CAF50' };
     }
     
-    return { icon: 'close-circle', color: '#F44336' };
+    return { icon: 'close-circle' as const, color: '#F44336' };
   };
 
   /**
@@ -120,7 +131,7 @@ export function CloudKitVerificationCard() {
   const statusIcon = getStatusIcon();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.card }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       <View style={styles.header}>
         <Ionicons name="cloud" size={24} color={theme.colors.primary} />
         <Text style={[styles.title, { color: theme.colors.text }]}>

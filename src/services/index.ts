@@ -6,5 +6,5 @@
 
 export { storageService, default as StorageService } from './storage.service';
 export { dataIntegrityService, default as DataIntegrityService } from './data-integrity.service';
-export { nativeCloudKitService, default as NativeCloudKitService } from './native-cloudkit.service';
+export { cloudKitService, default as CloudKitService } from './cloudkit.service';
 export { storageService as storage } from './storage.service';

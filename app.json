@@ -23,7 +23,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.tridentinnovation.notestracker",
-      "buildNumber": "1",
+      "buildNumber": "3",
       "icon": "./assets/thoughtloom-icon.png",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app needs access to the microphone to record voice notes.",
