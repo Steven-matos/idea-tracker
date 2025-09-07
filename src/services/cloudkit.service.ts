@@ -84,6 +84,8 @@ class CloudKitService {
 
   /**
    * Initialize CloudKit with container identifier
+   * This method properly configures CloudKit for production use
+   * Note: react-native-cloudkit-storage uses the container identifier from entitlements
    */
   async initializeCloudKit(): Promise<boolean> {
     try {
@@ -93,10 +95,11 @@ class CloudKitService {
       }
 
       // Register for push updates (this initializes the library)
+      // The container identifier is automatically read from entitlements
       CloudKitStorage.registerForPushUpdates();
 
       this.isInitialized = true;
-      console.log('CloudKit initialized successfully');
+      console.log(`CloudKit initialized successfully with container: ${this.containerIdentifier}`);
       return true;
     } catch (error) {
       console.error('Error initializing CloudKit:', error);
@@ -130,13 +133,17 @@ class CloudKitService {
   }
 
   /**
-   * Get CloudKit account status
+   * Get CloudKit account status with detailed diagnostics
+   * This method provides comprehensive status information for troubleshooting
    */
   async getCloudKitAccountStatus(): Promise<CloudKitAccountStatus> {
     try {
+      console.log('🔍 Checking CloudKit account status...');
+      
       // Ensure CloudKit is initialized before checking status
       const initialized = await this.ensureInitialized();
       if (!initialized) {
+        console.log('❌ CloudKit initialization failed');
         return {
           isAvailable: false,
           accountStatus: 'couldNotDetermine',
@@ -145,19 +152,25 @@ class CloudKitService {
         };
       }
 
+      console.log('✅ CloudKit initialized, testing container access...');
+
       // Test container access by trying to read a test key
       try {
-        await CloudKitStorage.getItem('__cloudkit_test__');
+        const testValue = await CloudKitStorage.getItem('__cloudkit_test__');
+        console.log('✅ CloudKit container read access confirmed');
         return {
           isAvailable: true,
           accountStatus: 'available',
           hasICloudAccount: true,
           containerStatus: 'available',
         };
-      } catch (error) {
+      } catch (readError) {
+        console.log('⚠️ CloudKit read failed, testing write access...', readError);
+        
         // If we can't read, try to write to test access
         try {
           await CloudKitStorage.setItem('__cloudkit_test__', 'test');
+          console.log('✅ CloudKit container write access confirmed');
           return {
             isAvailable: true,
             accountStatus: 'available',
@@ -165,16 +178,37 @@ class CloudKitService {
             containerStatus: 'available',
           };
         } catch (writeError) {
-          return {
-            isAvailable: false,
-            accountStatus: 'noAccount',
-            hasICloudAccount: false,
-            containerStatus: 'unavailable',
-          };
+          console.log('❌ CloudKit write failed:', writeError);
+          
+          // Determine specific error type
+          const errorMessage = writeError instanceof Error ? writeError.message : String(writeError);
+          
+          if (errorMessage.includes('account') || errorMessage.includes('noAccount')) {
+            return {
+              isAvailable: false,
+              accountStatus: 'noAccount',
+              hasICloudAccount: false,
+              containerStatus: 'unavailable',
+            };
+          } else if (errorMessage.includes('restricted')) {
+            return {
+              isAvailable: false,
+              accountStatus: 'restricted',
+              hasICloudAccount: false,
+              containerStatus: 'unavailable',
+            };
+          } else {
+            return {
+              isAvailable: false,
+              accountStatus: 'couldNotDetermine',
+              hasICloudAccount: false,
+              containerStatus: 'error',
+            };
+          }
         }
       }
     } catch (error) {
-      console.error('Error getting CloudKit account status:', error);
+      console.error('❌ Error getting CloudKit account status:', error);
       return {
         isAvailable: false,
         accountStatus: 'couldNotDetermine',
@@ -496,7 +530,8 @@ class CloudKitService {
   }
 
   /**
-   * Verify CloudKit is working
+   * Verify CloudKit is working with enhanced error reporting
+   * This method provides detailed diagnostics for CloudKit integration issues
    */
   async verifyCloudKitIntegration(): Promise<CloudKitVerificationResult> {
     try {
@@ -504,7 +539,7 @@ class CloudKitService {
       if (!initialized) {
         return {
           isWorking: false,
-          error: 'CloudKit not available',
+          error: 'CloudKit initialization failed - check container identifier and entitlements',
           details: {
             accountStatus: 'unknown',
             containerAccess: false,
@@ -519,26 +554,38 @@ class CloudKitService {
       // Test container access by trying to set and get a test value
       let containerAccess = false;
       let recordCreation = false;
+      let verificationError: string | null = null;
       
       try {
         const testKey = '__cloudkit_test__';
         const testValue = `test_${Date.now()}`;
         
+        console.log('Testing CloudKit container access...');
         await CloudKitStorage.setItem(testKey, testValue);
         const retrievedValue = await CloudKitStorage.getItem(testKey);
         
         containerAccess = retrievedValue === testValue;
         recordCreation = containerAccess;
         
+        if (containerAccess) {
+          console.log('CloudKit container access verified successfully');
+        } else {
+          verificationError = 'Container access test failed - data mismatch';
+        }
+        
         // Clean up test data
         await CloudKitStorage.setItem(testKey, '');
       } catch (error) {
-        console.log('Test record creation failed:', error);
+        verificationError = `Container access test failed: ${error}`;
+        console.error('CloudKit verification error:', error);
       }
 
+      const isWorking = accountStatus.isAvailable && containerAccess;
+      const finalError = isWorking ? null : (verificationError || 'Account not available or container access failed');
+
       return {
-        isWorking: accountStatus.isAvailable && containerAccess,
-        error: null,
+        isWorking,
+        error: finalError,
         details: {
           accountStatus: accountStatus.accountStatus,
           containerAccess,
@@ -664,6 +711,76 @@ class CloudKitService {
     // This would typically be stored in AsyncStorage
     // For now, generate a simple device ID
     return `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Comprehensive CloudKit diagnostics for troubleshooting
+   * This method provides detailed information about CloudKit setup and status
+   */
+  async runCloudKitDiagnostics(): Promise<{
+    platform: string;
+    containerIdentifier: string;
+    initializationStatus: boolean;
+    accountStatus: CloudKitAccountStatus;
+    verificationResult: CloudKitVerificationResult;
+    recommendations: string[];
+  }> {
+    console.log('🔧 Running comprehensive CloudKit diagnostics...');
+    
+    const recommendations: string[] = [];
+    
+    // Platform check
+    if (Platform.OS !== 'ios') {
+      recommendations.push('CloudKit is only available on iOS devices');
+    }
+    
+    // Container identifier check
+    console.log(`📦 Container Identifier: ${this.containerIdentifier}`);
+    
+    // Initialization check
+    const initialized = await this.ensureInitialized();
+    if (!initialized) {
+      recommendations.push('CloudKit initialization failed - check entitlements and container configuration');
+    }
+    
+    // Account status check
+    const accountStatus = await this.getCloudKitAccountStatus();
+    if (!accountStatus.isAvailable) {
+      switch (accountStatus.accountStatus) {
+        case 'noAccount':
+          recommendations.push('No iCloud account found - sign in to iCloud in Settings');
+          break;
+        case 'restricted':
+          recommendations.push('iCloud account is restricted - check iCloud settings and permissions');
+          break;
+        case 'couldNotDetermine':
+          recommendations.push('Cannot determine iCloud account status - deploy CloudKit schema to production');
+          break;
+      }
+    }
+    
+    // Verification check
+    const verificationResult = await this.verifyCloudKitIntegration();
+    if (!verificationResult.isWorking) {
+      recommendations.push(`CloudKit verification failed: ${verificationResult.error}`);
+    }
+    
+    // Schema deployment recommendation
+    if (accountStatus.accountStatus === 'couldNotDetermine') {
+      recommendations.push('CRITICAL: Deploy CloudKit schema to production environment in CloudKit Dashboard');
+    }
+    
+    const diagnostics = {
+      platform: Platform.OS,
+      containerIdentifier: this.containerIdentifier,
+      initializationStatus: initialized,
+      accountStatus,
+      verificationResult,
+      recommendations
+    };
+    
+    console.log('📊 CloudKit Diagnostics Complete:', diagnostics);
+    return diagnostics;
   }
 }
 
